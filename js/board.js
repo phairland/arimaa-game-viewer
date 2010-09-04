@@ -12,7 +12,7 @@ function init_arimaa_board() = {
 	function silverize(pieces) = { return map_side(pieces, ARIMAA.silver); }	
 	function goldify(pieces) = { return map_side(pieces, ARIMAA.gold); }	
 	
-	function empty_row() = { return GENERIC.create_array(8, ARIMAA.none); }
+	function empty_row() = { return GENERIC.create_array(8, { /* empty object*/ } ); }
 	
 	return {
 		'board': [
