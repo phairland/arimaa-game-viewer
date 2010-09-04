@@ -1,0 +1,21 @@
+body {
+	/* font-family: Verdana; */
+  width: 1000px;
+  background-color: #333;
+  margin: 0;
+}
+
+p {
+  color: white;	
+}
+
+h1 {
+  color: gray;
+  font-family: Verdana;
+  margin: 5px;
+  font-size: 1.0em;
+}
+
+.feedback {
+	margin-left: 20px;
+}
