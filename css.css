@@ -28,6 +28,10 @@ h1 {
 	
 }
 
+.arrow:hover {
+	background-color: blue;
+}
+
 .arrow img {
 	margin: 0px,
 	padding: 0px

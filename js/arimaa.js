@@ -48,7 +48,7 @@ var ARIMAA = ARIMAA || function() {
   		var y = coordinate.col + get_y(direction);
   		
   		if(x < 0 || y < 0 || x >= board_width || y >= board_height) return false;
-  		return is_empty_square(board[x][y]); //FIXME: also pushing and pulling should be considered
+  		return is_empty_square(board[y][x]); //FIXME: also pushing and pulling should be considered
   	}
   	
   	var legal_directions = GENERIC.filter([left, right, north, south], can_move_to);

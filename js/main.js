@@ -78,6 +78,8 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	}
 	
 	function show_arrows(elem) {
+		$('.arrow').hide();
+		
 		var coordinate = {
 		 'row': row_index(elem),
 		 'col': col_index(elem)
@@ -88,19 +90,34 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		console.log(possible_moves);
 		
 		GENERIC.for_each(possible_moves, function(move) {
+				var x_change = move.row - coordinate.row;
+				var y_change = move.col - coordinate.col;
+				var piece_center = {
+					'x': elem.position().left + elem.width() / 2,
+					'y': elem.position().top + elem.height() / 2
+				}
+				show_arrow_for_move(coordinate, piece_center, x_change, y_change);
 		});
+	}
+	
+	function get_arrow_elem(x_change, y_change) {
+		return x_change < 0 ? "left" : x_change > 0 ? "right" : y_change < 0 ? "up" : "down"; 
+	}
+	
+	function show_arrow_for_move(coordinate, piece_center, x_change, y_change) {
+		var center_x = piece_center.x - $('.arrow').width() / 2;
+    var center_y = piece_center.y - $('.arrow').height() / 2;
 
-		var center_x = elem.position().left + elem.width() / 2 - $('.arrow').width() / 2;
-    var center_y = elem.position().top + elem.height() / 2 - $('.arrow').height()/2;
-
-    $('.arrow')
+    var arrow_dir = get_arrow_elem(x_change, y_change);
+    
+    var arrow_elem = $('#arrow' + "_" + arrow_dir);
+    
+    arrow_elem
       .attr('row', coordinate.row)
-      .attr('col', coordinate.col);
-      
-    $('.arrow')
-       .css('left', center_x)
-       .css('top', center_y)
-       .show();		
+      .attr('col', coordinate.col)
+      .css('left', center_x + (x_change !== 0 ? x_change * arrow_elem.width() : 0))
+      .css('top', center_y + (y_change !== 0 ? y_change * arrow_elem.height() : 0))
+      .show();
 	}
 		
 	function col_index(elem) {
