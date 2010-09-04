@@ -42,7 +42,6 @@ Features | Medium priority
 - Move trees
   * moves that are tried out are saved to the board so that they can be viewed later (e.g. by visitor that comes later)
 
-
 - exporting and importing moves in Arimaa computer format
   * recursiveness
   * take a look at sgf?

@@ -1,6 +1,11 @@
 
 var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	var board = init_arimaa_board()['board'];
+	var gamestate = {
+	  'turn': ARIMAA.gold,
+	  'steps': ARIMAA.steps_in_move
+	}
+	
 	var selected = undefined; // what square is selected currently
 
 	//FIXME: piece testing should be in arimaa logic
@@ -88,7 +93,9 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		var move = { 'from': selected, 'to': new_coordinate, 'piece': piece } 
 		make_move_to_gametree(move);
 		//FIXME: making move to gametree should be behind common interface with getting new board
-		board = ARIMAA.move_piece(board, selected, new_coordinate);
+		result = ARIMAA.move_piece(gamestate, board, selected, new_coordinate);
+		board = result.board;
+		gamestate = result.gamestate;
 		show_board(board);
 		clear_arrows();
 	}
@@ -107,7 +114,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		
 		selected = coordinate;
 		
-		var possible_moves = ARIMAA.legal_moves(board, coordinate);
+		var possible_moves = ARIMAA.legal_moves(gamestate, board, coordinate);
 
 		//console.log(possible_moves);
 		
