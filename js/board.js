@@ -26,8 +26,6 @@ function init_arimaa_board() {
 			empty_row(),
 			empty_row(),
 			empty_row(),
-			empty_row(),
-			empty_row(),
 			goldify([ARIMAA.cat, ARIMAA.dog, ARIMAA.horse, ARIMAA.camel, ARIMAA.elephant, ARIMAA.horse, ARIMAA.dog, ARIMAA.cat]),
 			goldify(GENERIC.create_array(8, ARIMAA.rabbit))
 		]			
