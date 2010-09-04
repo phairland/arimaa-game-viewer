@@ -3,17 +3,17 @@ var ARIMAA = ARIMAA || function() {
   var	silver = { 'side': 'silver' }
   var gold = { 'side': 'gold' }
   
-  var rabbit = piece('rabbit');
-  var cat = piece('cat');
-  var dog = piece('dog');
-  var horse = piece('horse');
-  var camel = piece('camel');
-  var elephant = piece('elephant');
+  var rabbit = create_piece('rabbit');
+  var cat = create_piece('cat');
+  var dog = create_piece('dog');
+  var horse = create_piece('horse');
+  var camel = create_piece('camel');
+  var elephant = create_piece('elephant');
   
-  function create_piece(type) = {
+  function create_piece(type) {
   	return {
   		'type': type
-  	};
+  	}
   }
   
   return {
