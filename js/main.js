@@ -32,6 +32,16 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		return result;
 	}
 	
+	function create_dom_movehandle(movehandle) {
+		return $('<div class="movehandle">' + movehandle.id + '</div>');
+	}
+	
+	function make_move_to_gametree(move) {
+		var movehandle = GAMETREE.make_move(move);
+		var dom_movehandle = create_dom_movehandle(movehandle);
+		$('.gametree').append(dom_movehandle);
+	}
+	
 	function show_board(board) {
   	var dom_board = create_dom_board(board);
   	$('.board').html(dom_board);
@@ -73,6 +83,11 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	
 	function move_piece(selected, new_coordinate) {
 		if(selected === undefined) return;
+
+		var piece = board[selected.row][selected.col];
+		var move = { 'from': selected, 'to': new_coordinate, 'piece': piece } 
+		make_move_to_gametree(move);
+		//FIXME: making move to gametree should be behind common interface with getting new board
 		board = ARIMAA.move_piece(board, selected, new_coordinate);
 		show_board(board);
 		clear_arrows();
@@ -137,8 +152,15 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		return elems_in_row.index(elem);
 	}
 	
+	function show_gametree() {
+		var handles = GAMETREE.get_movehandles();
+		
+		GENERIC.for_each(handles, function(elem) { $('.gametree').append(create_dom_movehandle(elem)); });
+	}
+	
 	$(function() {
 		show_board(board);
+		show_gametree();
 		bind_select_piece();
 		bind_move_piece();
 	});
