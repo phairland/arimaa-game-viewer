@@ -30,14 +30,13 @@ var ARIMAA = ARIMAA || function() {
   	 var piece = new_board[piece_coordinate.row][piece_coordinate.col];
   	 new_board[piece_coordinate.row][piece_coordinate.col] = {}; // takes piece away from old place
   	 new_board[new_coordinate.row][new_coordinate.col] = piece;
-  	 console.log(piece_coordinate);
-  	 console.log(new_coordinate);
   	 return new_board;
   }
   
   function is_empty_square(square) { return square.type === undefined; }
   function legal_moves(board, coordinate) {
   	if(board[coordinate.row][coordinate.col].type === undefined) return false;
+  	
 		function get_x(direction) { return direction[0]; }
 		function get_y(direction) { return direction[1]; }
 
