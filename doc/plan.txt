@@ -1,0 +1,21 @@
+Arimaa collaborative analysis tool
+-----------------------------------
+
+-----------------------------------
+Goals
+-----------------------------------
+
+- Analyse Arimaa game position collaboratively
+
+
+-----------------------------------
+Components
+-----------------------------------
+
+- Client which shows moves made by anyone participating in the shared board
+- Server that communicates the information between the users in the shared board
+- Documentation for use
+
+-----------------------------------
+Features
+-----------------------------------
