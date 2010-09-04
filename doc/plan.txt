@@ -17,5 +17,40 @@ Components
 - Documentation for use
 
 -----------------------------------
-Features
+Features | Max priority
 -----------------------------------
+
+- Chatting
+ * might be tied to particular move
+
+- Move editing
+ * one participant is in control
+ * taking turns in control
+ ** gimme control -button?
+ ** give her control -button?
+ ** might have timeout so that if user doesn't do anything in x seconds, the control is free to take by anyone
+ * only legal moves possible
+ * different kind (color, shape) of marks that help to identify the key positions, e.g. a circle
+
+- Cloning of the board
+ ** one can clone the board so that it is possible to try out moves without disturbing others
+
+-----------------------------------
+Features | Medium priority
+-----------------------------------
+
+- Move trees
+  * moves that are tried out are saved to the board so that they can be viewed later (e.g. by visitor that comes later)
+
+- exporting moves in Arimaa computer format
+
+
+-----------------------------------
+Implementation
+-----------------------------------
+
+- Javascript for the client side
+  * jQuery for dom manipulation
+- Ajax is needed for updating the view
+- node.js is one possibility for server side
+  * the arimaa logic can be implemented once with the same code (in client and server)
