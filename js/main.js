@@ -67,7 +67,6 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	function bind_move_piece() {
 		$('.arrow').click(function() {
 			var new_coordinate = coordinates_from_arrow($(this));
-			console.log(new_coordinate);
 			move_piece(selected, new_coordinate);
 		});
 	}
@@ -75,6 +74,12 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	function move_piece(selected, new_coordinate) {
 		if(selected === undefined) return;
 		board = ARIMAA.move_piece(board, selected, new_coordinate);
+		show_board(board);
+		clear_arrows();
+	}
+	
+	function clear_arrows() {
+		$('.arrow').hide();
 	}
 	
 	function show_arrows(elem) {
@@ -85,13 +90,15 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		 'col': col_index(elem)
 		}
 		
+		selected = coordinate;
+		
 		var possible_moves = ARIMAA.legal_moves(board, coordinate);
 
-		console.log(possible_moves);
+		//console.log(possible_moves);
 		
 		GENERIC.for_each(possible_moves, function(move) {
-				var x_change = move.row - coordinate.row;
-				var y_change = move.col - coordinate.col;
+				var x_change = move.col - coordinate.col;
+				var y_change = move.row - coordinate.row;
 				var piece_center = {
 					'x': elem.position().left + elem.width() / 2,
 					'y': elem.position().top + elem.height() / 2
@@ -113,18 +120,18 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
     var arrow_elem = $('#arrow' + "_" + arrow_dir);
     
     arrow_elem
-      .attr('row', coordinate.row)
-      .attr('col', coordinate.col)
+      .attr('row', coordinate.row + y_change)
+      .attr('col', coordinate.col + x_change)
       .css('left', center_x + (x_change !== 0 ? x_change * arrow_elem.width() : 0))
       .css('top', center_y + (y_change !== 0 ? y_change * arrow_elem.height() : 0))
       .show();
 	}
 		
-	function col_index(elem) {
+	function row_index(elem) {
 		return $('.row').index(elem.closest('.row'));
 	}
 	
-	function row_index(elem) {
+	function col_index(elem) {
 		var row = elem.closest('.row');
 		var elems_in_row = row.find('.square');
 		return elems_in_row.index(elem);

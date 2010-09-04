@@ -27,14 +27,17 @@ var ARIMAA = ARIMAA || function() {
   
   function move_piece(board, piece_coordinate, new_coordinate) {
   	 var new_board = copy_board(board);
-  	 var piece = new_board[piece_coordinate.col][piece_coordinate.row];
-  	 new_board[piece_coordinate.col][piece_coordinate.row] = {}; // takes piece away from old place
-  	 new_board[new_coordinate.col][new_coordinate.row] = piece;
+  	 var piece = new_board[piece_coordinate.row][piece_coordinate.col];
+  	 new_board[piece_coordinate.row][piece_coordinate.col] = {}; // takes piece away from old place
+  	 new_board[new_coordinate.row][new_coordinate.col] = piece;
+  	 console.log(piece_coordinate);
+  	 console.log(new_coordinate);
   	 return new_board;
   }
   
   function is_empty_square(square) { return square.type === undefined; }
   function legal_moves(board, coordinate) {
+  	if(board[coordinate.row][coordinate.col].type === undefined) return false;
 		function get_x(direction) { return direction[0]; }
 		function get_y(direction) { return direction[1]; }
 
@@ -44,8 +47,8 @@ var ARIMAA = ARIMAA || function() {
   	var south = [0, 1];
   	
   	function can_move_to(direction) {
-  		var x = coordinate.row + get_x(direction);
-  		var y = coordinate.col + get_y(direction);
+  		var x = coordinate.col + get_x(direction);
+  		var y = coordinate.row + get_y(direction);
   		
   		if(x < 0 || y < 0 || x >= board_width || y >= board_height) return false;
   		return is_empty_square(board[y][x]); //FIXME: also pushing and pulling should be considered
@@ -54,8 +57,8 @@ var ARIMAA = ARIMAA || function() {
   	var legal_directions = GENERIC.filter([left, right, north, south], can_move_to);
   	return GENERIC.map(legal_directions, function(direction) { 
   			return {
-  				'row': coordinate.row + get_x(direction),
-  				'col': coordinate.col + get_y(direction)
+  				'row': coordinate.row + get_y(direction),
+  				'col': coordinate.col + get_x(direction)
   			}
   	});
   }
