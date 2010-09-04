@@ -16,6 +16,10 @@ h1 {
   font-size: 1.0em;
 }
 
+.selected {
+	border: 1px red solid !important;
+}
+
 .clear {
 	clear: both;
 }
