@@ -160,7 +160,7 @@ var ARIMAA = ARIMAA || function() {
      	var pull_result = pull_moves(gamestate, board, coordinate);
   		
   		if(gamestate.steps >= 2) {
-  		  return pull_result.push( push_moves(gamestate, board, coordinate) );
+  		  return pull_result.concat( push_moves(gamestate, board, coordinate) );
   		} else return pull_result;
   	}
   	
