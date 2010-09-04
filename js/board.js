@@ -2,7 +2,11 @@
 function init_arimaa_board() {
 	
 	function map_pieces_with_given_properties_in_row(pieces, propertyName, propertyValue) {
-		return GENERIC.map(pieces, function(elem) { elem[propertyName] = propertyValue; });
+		return GENERIC.map(pieces, function(elem) {
+				var elem_copy = GENERIC.shallowCopyObject(elem);
+				elem_copy[propertyName] = propertyValue;
+				return elem_copy;
+		});
 	}
 
 	function map_side(pieces, side) {
