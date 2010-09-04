@@ -3,9 +3,7 @@
 function is_piece(piece) { return piece !== undefined && piece['type'] !== undefined; }
 
 function get_pic(piece, side) {
-	if(piece.type === 'elephant') return 'elephant.png';
-	else if(piece.type === 'rabbit') return 'rabbit.png';
-	else return "rabbit.png";
+	return piece.type + ".png";
 }
 
 function sideprefix(piece) {
