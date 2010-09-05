@@ -86,15 +86,17 @@ var ARIMAA = ARIMAA || function() {
   }
 
   function neighbours(coordinate, board) {
-  	return GENERIC.map(neighbour_coordinates(coordinate), function(neighbour_coordinate) {
+  	var neighbour_candidates =GENERIC.map(neighbour_coordinates(coordinate), function(neighbour_coordinate) {
   			return get_piece(neighbour_coordinate, board);
   	});
+
+  	return GENERIC.filter(neighbour_candidates, function(candidate) { return !!candidate; });
   }
   
   function neighbour_coordinates(coordinate) {
   	return GENERIC.filter(
   					GENERIC.map(directions, function(direction) { return get_neighbour_coordinate(coordinate, direction); }),
-  					function(elem) { return elem !== false; });
+  					function(elem) { return !!elem; });
   }
   
   function gamestate_after_move(gamestate, laststep) {
@@ -181,20 +183,38 @@ var ARIMAA = ARIMAA || function() {
   // in push moves, opponent is moves first always
   function push_moves(gamestate, board, coordinate) {
   	// there is an empty square next to this coordinate where a neighbour opponent can push or pull me
+  	var neighbour_coords = neighbour_coordinates(coordinate);
+  	var empty_squares = GENERIC.filter(neighbour_coords, function(neighbour_coordinate) {
+  			return is_empty_square(neighbour_coordinate);
+  	});
+  	/*
   	var empty_squares = GENERIC.filter(directions, function(direction) {
   		var neighbour_coord = get_neighbour_coordinate(coordinate, direction);
   		return !!neighbour_coord && is_empty_square(neighbour_coord, board);
   	});
+  	*/
   	
   	if(empty_squares.length === 0) return [];
-  	
+
   	var piece = get_piece(coordinate, board);
   	
+  	/*
   	var exists_stronger_neighbour = GENERIC.exists(directions, function(direction) {
   			var neighbour = get_neighbour(coordinate, direction, board);
-  			return !!neighbour && !is_friendly(piece, neighbour) && is_stronger(neighbour, piece);
-  			//return is_stronger(neighbour, piece) && !is_frozen(neighbour); 
+  			return !!neighbour && !is_friendly(piece, neighbour) && is_stronger(neighbour, piece) && !is_frozen(neighbour); 
   	});
+  	*/
+  	
+  	/*
+  	var exists_stronger_neighbour = GENERIC.exists(neighbours(coordinate, board), function(neighbour) {
+  			return !is_friendly(piece, neighbour) && is_stronger(neighbour, piece) && !is_frozen(neighbour);
+  	});
+  	*/
+  	
+  	var exists_stronger_neighbour = GENERIC.exists(neighbour_coords, function(neighbour_coord) {
+  			var neighbour = get_piece(neighbour_coord, board);
+  			return !is_friendly(piece, neighbour) && is_stronger(neighbour, piece) && !is_frozen(neighbour_coord, board);
+  	});  	
   	
   	return exists_stronger_neighbour ? empty_squares : [];
   }
