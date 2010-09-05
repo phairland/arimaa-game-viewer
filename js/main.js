@@ -170,18 +170,54 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		GENERIC.for_each(handles, function(elem) { $('.gametree').append(create_dom_movehandle(elem)); });
 	}
 	
+	function show_step(step) {
+		if(step.type === 'setting') {
+			board = ARIMAA.add_piece(step.piece, step.to, board);
+			show_board(board);
+		} else if(step.type === 'removal') {
+			throw "removal step should not be handled here, the game logic should take care of it";			
+			// this can be skipped, since the effect is already done in previous step
+			
+			//board = ARIMAA.remove_piece(step.coordinate, board);
+			//show_board(board);
+			
+		} else {
+			move_piece(step.from, step.to);
+		}
+	}
+
+
+
+	function show_steps_slowly(steps) {
+		if(steps.length === 0) return;
+
+		show_step(steps[0]);
+		setTimeout(function() { show_steps_slowly(steps.slice(1)); }, 
+							300);				
+	}
+	
+	function show_next_move_slowly() {
+		if(!!imported_game) {
+			var steps = imported_game.get_steps_in_next_move();
+
+			show_steps_slowly(steps);
+		}			
+	}
+
+	function show_next_move() {
+		if(!!imported_game) {
+			var steps = imported_game.get_steps_in_next_move();
+			
+			GENERIC.for_each(steps, function(step) { 
+					show_step(step);
+			});
+		}			
+	}
+	
 	function show_next() {
 		if(!!imported_game) {
 			var step = imported_game.get_next_step();
-			if(step.type === 'setting') {
-				board = ARIMAA.add_piece(step.piece, step.to, board);
-				show_board(board);
-			} else if(step.type === 'removal') {
-				board = ARIMAA.remove_piece(step.coordinate, board);
-				show_board(board);
-			} else {
-				move_piece(step.from, step.to);
-			}
+			show_step(step);
 		} else {
 			alert("You should first import a game!");
 		}
@@ -199,7 +235,9 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
       var code = getKeyCode(event);
       if(is_right_arrow_key(code)) show_next();
 
+      //console.log(code);
       if(code === 38) import_game(); // for debugging purposes quick importing
+      if(code === 40) show_next_move_slowly();
     });
   }
 

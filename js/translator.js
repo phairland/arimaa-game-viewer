@@ -135,12 +135,19 @@ var TRANSLATOR = TRANSLATOR || function() {
 		}
 	}
 	
+	function is_resign_step(step) { return step === "resigns"; }
+	
 	function convert_notated_step_to_coordinates(step) {
 		if(is_board_setting_step(step)) {
 			return board_setting_step(step);
 		} else if(piece_is_removed(step)) {
 			return piece_removal_step(step);
+		} else if(is_resign_step(step)) {
+			return {
+				'type': 'resign'
+			}
 		}
+		
 		// otherwise it's normal move
 		//FIXME: resignation move, what others?
 		
