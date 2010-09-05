@@ -281,6 +281,18 @@ var ARIMAA = ARIMAA || function() {
   	return copy;
   }
   
+  function add_piece(piece, coordinate, board) {
+  	var new_board = copy_board(board);
+  	new_board[coordinate.row][coordinate.col] = piece;
+  	return new_board;
+  }
+  
+  function remove_piece(coordinate, board) {
+  	var new_board = copy_board(board);
+  	new_board[coordinate.row][coordinate.col] = undefined;
+  	return new_board;
+  }
+  
   return {
   	'board_width': board_width,
   	'board_height': board_height,
@@ -298,7 +310,9 @@ var ARIMAA = ARIMAA || function() {
   	'elephant': elephant,
   	'legal_moves': legal_moves,
   	'move_piece': move_piece,
-  	'get_piece_with_side': get_piece_with_side
+  	'get_piece_with_side': get_piece_with_side,
+  	'add_piece': add_piece,
+  	'remove_piece': remove_piece
   }
   
 }();

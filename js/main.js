@@ -1,5 +1,7 @@
 
 var ARIMAA_MAIN = ARIMAA_MAIN || function() {
+	var imported_game = undefined;
+	
 	var board = init_arimaa_board()['board'];
 	var gamestate = {
 	  'turn': ARIMAA.gold,
@@ -168,7 +170,60 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		GENERIC.for_each(handles, function(elem) { $('.gametree').append(create_dom_movehandle(elem)); });
 	}
 	
+	function show_next() {
+		if(!!imported_game) {
+			var step = imported_game.get_next_step();
+			if(step.type === 'setting') {
+				board = ARIMAA.add_piece(step.piece, step.to, board);
+				show_board(board);
+			} else if(step.type === 'removal') {
+				console.log(step);
+				board = ARIMAA.remove_piece(step.coordinate, board);
+				show_board(board);
+			} else {
+				move_piece(step.from, step.to);
+			}
+		} else {
+			alert("You should first import a game!");
+		}
+	}
+
+	function getKeyCode(event) {
+		return event.keycode || event.which;
+	}  
+	
+	function is_right_arrow_key(code) { return code === 39; }
+	
+	function bind_next_move() {
+		$('.next').click(show_next);
+    $(window).keydown(function(event) {
+      var code = getKeyCode(event);
+      if(is_right_arrow_key(code)) show_next();
+
+      if(code === 38) import_game(); // for debugging purposes quick importing
+    });
+  }
+
+	function import_game() {
+		var notated_game = $('#imported_game').val();
+		
+		if(notated_game === "") return;
+		else {
+			board = empty_board();
+			show_board(board);
+			imported_game = create_import_game(TRANSLATOR.convert_to_gametree(notated_game));
+		}
+	}
+
+	function bind_import_game() {
+		$('#import_game').click(import_game);
+	}
+
 	$(function() {
+		bind_import_game();
+
+		bind_next_move();
+
 		show_board(board);
 		show_gametree();
 		bind_select_piece();
