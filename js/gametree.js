@@ -20,9 +20,7 @@ var GAMETREE = GAMETREE || function() {
 	}
 	
 	function get_movehandles() {
-		return [
-			{'id': "1a"}
-		];
+		return [];
 	}
 	
   return {

@@ -44,7 +44,7 @@ h1 {
 }
 
 .trap {
-	background-color: #777; 
+	background-color: #aaa !important; 
 }
 
 .wrapper {
@@ -56,6 +56,7 @@ h1 {
 	border: 1px solid red;
 	float: left;
 	width: 200px;
+	margin: 5px;
 }
 
 .movehandle:hover {
@@ -80,6 +81,7 @@ h1 {
 	width: 500px;
 	padding: 20px;
 	border: 1px white solid;
+	background-color: #777;
 }
 
 .square {
@@ -87,6 +89,7 @@ h1 {
 	height: 50px;
 	padding: 2px;
 	border: 1px #ddd solid;
+	background-color: #333;
 	float: left;
 }
 
@@ -95,6 +98,15 @@ h1 {
 }
 
 .row {
+}
+
+.controls {
+	width: 200px;
+	height: 100px;
+	background-color: #ccc;
+	margin: 5px;
+	color: black;
+	float: left;
 }
 
 .feedback {

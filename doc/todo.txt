@@ -1,2 +1,2 @@
-- push and pull (atm some move are impossible because of freeze restrictions)
 - moves in gametree instead of steps
+- controls in UI

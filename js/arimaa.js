@@ -21,6 +21,8 @@ var ARIMAA = ARIMAA || function() {
 	var north = [0, -1];
 	var south = [0, 1];
 
+	// maybe y should be in 0 for consistency (wrt. board)
+	// also for traps, though those are symmetric atm
 	function get_x(direction) { return direction[0]; }
 	function get_y(direction) { return direction[1]; }
 	
@@ -107,6 +109,7 @@ var ARIMAA = ARIMAA || function() {
   	if(gamestate.steps > 1) {
   		copy.steps = gamestate.steps - 1;
     	copy.laststep = laststep;
+    	//FIXME: this is too complicated to be here
     	// if it's the case of pushing, we must set expectations for next turn to it be completed
     	if(laststep !== undefined && laststep.piece.side !== gamestate.turn && 
     		(gamestate.laststep === undefined || !same_coordinates(gamestate.laststep.from, laststep.to))) { // the case where pulling was completed must be checked
@@ -189,30 +192,9 @@ var ARIMAA = ARIMAA || function() {
   			return is_empty_square(get_piece(neighbour_coordinate, board));
   	});
   	
-  	/*
-  	var empty_squares = GENERIC.filter(directions, function(direction) {
-  		var neighbour_coord = get_neighbour_coordinate(coordinate, direction);
-  		return !!neighbour_coord && is_empty_square(neighbour_coord, board);
-  	});
-  	*/
-  	
-  	
   	if(empty_squares.length === 0) return [];
 
   	var piece = get_piece(coordinate, board);
-  	
-  	/*
-  	var exists_stronger_neighbour = GENERIC.exists(directions, function(direction) {
-  			var neighbour = get_neighbour(coordinate, direction, board);
-  			return !!neighbour && !is_friendly(piece, neighbour) && is_stronger(neighbour, piece) && !is_frozen(neighbour); 
-  	});
-  	*/
-  	
-  	/*
-  	var exists_stronger_neighbour = GENERIC.exists(neighbours(coordinate, board), function(neighbour) {
-  			return !is_friendly(piece, neighbour) && is_stronger(neighbour, piece) && !is_frozen(neighbour);
-  	});
-  	*/
   	
   	var exists_stronger_neighbour = GENERIC.exists(neighbour_coords, function(neighbour_coord) {
   			var neighbour = get_piece(neighbour_coord, board);
