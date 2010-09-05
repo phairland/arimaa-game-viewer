@@ -65,6 +65,15 @@ var TRANSLATOR = TRANSLATOR || function() {
 		"g": 6,
 		"h": 7
 	}
+	
+	var piece_translator = {
+		"e": ARIMAA.elephant,
+		"m": ARIMAA.camel,
+		"h": ARIMAA.horse,
+		"d": ARIMAA.dog,
+		"c": ARIMAA.cat,
+		"r": ARIMAA.rabbit
+	}
 
 	var dir = ARIMAA.directions;
 	var direction_translator = {
@@ -73,13 +82,44 @@ var TRANSLATOR = TRANSLATOR || function() {
 		"n": dir.north, "^": dir.north,
 		"s": dir.south, "v": dir.south
 	}
+
+	function is_gold_piece(character) {
+		return character.toUpperCase() === character;
+	}
+	
+	function get_piece(character) {
+		var piece = piece_translator[character.toLowerCase()];
+		return ARIMAA.get_piece_with_side(piece, is_gold_piece(character) ? ARIMAA.gold : ARIMAA.silver);
+	}
+	
+	function board_setting_step(step) {
+		var piece = get_piece(step.slice(0, 1));
+		var coordinate_col = column_translator[step.slice(1, 2)];
+		var coordinate_row = parseInt(step.slice(2, 3));
+	}
+	
+	function is_board_setting_step(step) {
+		return step.length === 3; // a bit ugly way to test, sure
+	}
 	
 	function convert_notated_step_to_coordinates(step) {
+		if(is_board_setting_step(step)) {
+			return board_setting_step(step);
+		}
+		// otherwise it's normal move
+		//FIXME: resignation move, what others?
+		
 		// example: cd7e means silver cat from d7 (row: 6, col: 3) to east (row: 6, col: 4)
-		var piece = step.slice(0, 1); // can be ignored
-		var coordinate_from_col = column_translator[step.slice(1, 2)];
-		var coordinate_from_row = parseInt(step.slice(2, 3));
-		var coordinate_direction = direction_translator[step.slice(3, 4)];
+		var piece = step.slice(0, 1); // piece can be ignored
+		var coordinate_from.col = column_translator[step.slice(1, 2)];
+		var coordinate_from.row = parseInt(step.slice(2, 3));
+		var direction = direction_translator[step.slice(3, 4)];
+		var coordinate_to = ARIMAA.get_new_coordinate(coordinate_from, direction);
+		
+		return {
+			'from': coordinate_from,
+			'to': coordinate_to
+		}
 	}
 	
 	return {

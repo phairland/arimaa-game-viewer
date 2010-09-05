@@ -268,12 +268,26 @@ var ARIMAA = ARIMAA || function() {
   	});
   }
   
+  function get_new_coordinate(from, direction) {
+  	return {
+  		'col': from.col + get_x(direction),
+  		'row': from.row + get_y(direction)
+  	}
+  }
+  
+  function get_piece_with_side(piece, side) {
+  	var copy = GENERIC.shallowCopyObject(piece);
+  	copy['side'] = side;
+  	return copy;
+  }
+  
   return {
   	'board_width': board_width,
   	'board_height': board_height,
   	'steps_in_move': steps_in_move,
   	'traps': traps,
-  	'directions': { 'east': east, 'west': west, 'north': north, 'south': south },
+  	'directions': { 'east': east, 'west': west, 'north': north, 'south': south},
+  	'get_new_coordinate': get_new_coordinate,
   	'silver': silver,
   	'gold': gold,
   	'rabbit': rabbit,
@@ -283,7 +297,8 @@ var ARIMAA = ARIMAA || function() {
   	'camel': camel,
   	'elephant': elephant,
   	'legal_moves': legal_moves,
-  	'move_piece': move_piece
+  	'move_piece': move_piece,
+  	'get_piece_with_side': get_piece_with_side
   }
   
 }();
