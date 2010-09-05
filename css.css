@@ -28,12 +28,19 @@ h1 {
 	display: none;
 }
 
+/*
 .arrow:hover {
 	background-color: red;
 }
+*/
+
+
+.arrowhover {
+	display: none;
+}
 
 .arrow img {
-	width: 25px;
+	width: 35px;
 	margin: 0px,
 	padding: 0px
 	border: 0px;

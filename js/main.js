@@ -150,8 +150,8 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
     arrow_elem
       .attr('row', coordinate.row + y_change)
       .attr('col', coordinate.col + x_change)
-      .css('left', center_x + (x_change !== 0 ? x_change * arrow_elem.width() : 0))
-      .css('top', center_y + (y_change !== 0 ? y_change * arrow_elem.height() : 0))
+      .css('left', center_x + (x_change !== 0 ? x_change * arrow_elem.width() * 0.9 : 0))
+      .css('top', center_y + (y_change !== 0 ? y_change * arrow_elem.height() * 0.9: 0))
       .show();
 	}
 		
@@ -313,6 +313,17 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		bind_select_piece();
 		bind_move_piece();
 		bind_select_movehandle();
+		
+		$('.arrownormal').mouseover(function() {
+			$(this).hide();
+			$(this).closest('.arrow').find('.arrowhover').show();		
+		});
+		
+		$('.arrowhover').mouseout(function() {
+			$(this).hide();
+			$(this).closest('.arrow').find('.arrownormal').show();		
+		});
+		
 	});
 	
 }();
