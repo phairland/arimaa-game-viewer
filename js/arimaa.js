@@ -86,7 +86,7 @@ var ARIMAA = ARIMAA || function() {
   }
 
   function neighbours(coordinate, board) {
-  	var neighbour_candidates =GENERIC.map(neighbour_coordinates(coordinate), function(neighbour_coordinate) {
+  	var neighbour_candidates = GENERIC.map(neighbour_coordinates(coordinate), function(neighbour_coordinate) {
   			return get_piece(neighbour_coordinate, board);
   	});
 
@@ -114,7 +114,7 @@ var ARIMAA = ARIMAA || function() {
     			'side': gamestate.turn,
     			'strength': laststep.piece.strength,
     			'from_array': neighbour_coordinates(laststep.from),
-    			'to': gamestate.laststep.from
+    			'to': laststep.from
     		}     		
     	}
   	} else {
@@ -184,15 +184,18 @@ var ARIMAA = ARIMAA || function() {
   function push_moves(gamestate, board, coordinate) {
   	// there is an empty square next to this coordinate where a neighbour opponent can push or pull me
   	var neighbour_coords = neighbour_coordinates(coordinate);
+  	
   	var empty_squares = GENERIC.filter(neighbour_coords, function(neighbour_coordinate) {
-  			return is_empty_square(neighbour_coordinate);
+  			return is_empty_square(get_piece(neighbour_coordinate, board));
   	});
+  	
   	/*
   	var empty_squares = GENERIC.filter(directions, function(direction) {
   		var neighbour_coord = get_neighbour_coordinate(coordinate, direction);
   		return !!neighbour_coord && is_empty_square(neighbour_coord, board);
   	});
   	*/
+  	
   	
   	if(empty_squares.length === 0) return [];
 
@@ -243,17 +246,15 @@ var ARIMAA = ARIMAA || function() {
   	if(board[coordinate.row][coordinate.col].type === undefined) return [];
 
   	// expected move means that one must complete push
-  	/*
   	if(!!gamestate.expectedmove) {
-  	  if(gamestate.turn !== gamestate.expectedmove.turn) return [];
+  		if(gamestate.turn !== gamestate.expectedmove.side) return [];
   	  if(get_piece(coordinate, board).strength <= gamestate.expectedmove.strength) return [];
   	  var is_from_neighbour = GENERIC.exists(gamestate.expectedmove.from_array, function(from) {
-  	  		return same_coordinate(from, coordinate);
+  	  		return same_coordinates(from, coordinate);
   	  });
-  	  if(is_from_neighbour) return [gamestate.expectedmove.from];
+  	  if(is_from_neighbour) return [gamestate.expectedmove.to];
   	  else return [];
     }
-    */
     			
   	var is_piece_current_players = current_player_piece(coordinate, board, gamestate);
   	if(is_piece_current_players && is_frozen(coordinate, board)) return [];
