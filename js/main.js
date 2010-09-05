@@ -177,7 +177,6 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 				board = ARIMAA.add_piece(step.piece, step.to, board);
 				show_board(board);
 			} else if(step.type === 'removal') {
-				console.log(step);
 				board = ARIMAA.remove_piece(step.coordinate, board);
 				show_board(board);
 			} else {

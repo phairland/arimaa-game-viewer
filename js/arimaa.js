@@ -289,7 +289,7 @@ var ARIMAA = ARIMAA || function() {
   
   function remove_piece(coordinate, board) {
   	var new_board = copy_board(board);
-  	new_board[coordinate.row][coordinate.col] = undefined;
+  	new_board[coordinate.row][coordinate.col] = {};
   	return new_board;
   }
   

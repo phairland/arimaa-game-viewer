@@ -15,12 +15,8 @@ function create_import_game(moves) {
 				currentmove++;
 			}
 			
-			console.log(nextstep);
-			
 			var step = TRANSLATOR.convert_notated_step_to_coordinates(nextstep);
-			
-			console.log(step);
-			
+
 			return step;
 		}
 	}
