@@ -1,3 +1,7 @@
 - moves in gametree instead of steps
 - controls in UI
 - should rename moves to steps in code
+- verification of imported annotated game
+
+
+- selected movehandle is not applied until user says "show" etc.

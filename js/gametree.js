@@ -37,7 +37,7 @@ function create_gametree() {
 		var result = make_steps(gamestate_prev, board_prev, move.steps);
 		
 		var id = get_unique_id();
-
+		
 		var new_movehandler = {
 		  'id': id,
 		  'board': result.board,
