@@ -28,6 +28,12 @@ var ARIMAA = ARIMAA || function() {
 	
 	var directions = [west, east, north, south];
 	
+	function trap_as_coordinate(trap) {
+		return {
+			'col': trap[0],
+			'row': trap[1]
+		}
+	}
 	function is_rabbit(piece) { return piece.type === 'rabbit'; }
   
   function create_piece(type, strength) {
@@ -50,9 +56,7 @@ var ARIMAA = ARIMAA || function() {
   	});
   }
   
-  function is_captured_piece(coordinate, board) {
-  	if(!is_in_trap(coordinate)) return false;
-  	
+  function is_coordinate_capturing(coordinate, board) {
   	var piece = get_piece(coordinate, board);
   	var exists_friendly_neighbour = GENERIC.exists(neighbours(coordinate, board), function(neighbour) {
   			return is_friendly(piece, neighbour);
@@ -60,16 +64,28 @@ var ARIMAA = ARIMAA || function() {
 
 		return !exists_friendly_neighbour;  
   }
-  
+
+	function do_capturing(board) {
+		GENERIC.for_each(traps, function(trap) {
+			var trap_coord = trap_as_coordinate(trap);
+			var piece = get_piece(trap_coord, board);
+				 
+			if(!!piece) {
+				if(is_coordinate_capturing(trap_coord, board)) {
+					 board[trap_coord.row][trap_coord.col] = {} // captures piece
+					 return board;
+				}
+			 }
+		 });
+	}
+
   function move_piece(gamestate, board, piece_coordinate, new_coordinate) {
   	 var new_board = copy_board(board);
   	 var piece = new_board[piece_coordinate.row][piece_coordinate.col];
   	 new_board[piece_coordinate.row][piece_coordinate.col] = {}; // takes piece away from old place
   	 new_board[new_coordinate.row][new_coordinate.col] = piece;
   	 
-  	 if(is_captured_piece(new_coordinate, new_board)) {
-  	 	 new_board[new_coordinate.row][new_coordinate.col] = {} // captures piece
-  	 }
+		 do_capturing(new_board);
   	 
   	 var laststep = {
   	 	 'piece': piece,
