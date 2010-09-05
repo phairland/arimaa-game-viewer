@@ -39,7 +39,9 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	}
 	
 	function create_dom_movehandle(movehandle) {
-		return $('<div class="movehandle" id="' + movehandle.id + '">' + movehandle.id + '</div>');
+		//var movename = movehandle.gamestate.turn.slice(0, 1);
+		var movename = movehandle.move.id;
+		return $('<div class="movehandle" side="' + movehandle.gamestate.turn.side + '" id="' + movehandle.id + '">' + movename + '</div>');
 	}
 	
 	function make_move_to_gametree(move) {
@@ -244,12 +246,14 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 
   function build_move_tree(moves) {
   	var previous_movehandler = undefined;
+		$('.movehandle').remove();
   	
   	GENERIC.for_each(moves, function(move) {
 			var movehandle = gametree.make_move(move, previous_movehandler);
 			previous_movehandler = movehandle;
 			var dom_movehandle = create_dom_movehandle(movehandle);
 			$('.gametree').append(dom_movehandle);
+			apply_gametree_stylistics();
 		});  	
   }
   
@@ -259,10 +263,11 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		if(notated_game === "") return;
 		else {
 			board = empty_board();
-			show_board(board);
+			
 			var structured_moves = TRANSLATOR.convert_to_gametree(notated_game)
 			//imported_game = create_import_game(structured_moves);
 			build_move_tree(generate_moves(structured_moves));
+			show_board(board);
 		}
 	}
 
@@ -284,6 +289,13 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		});
 	}
 
+	function apply_gametree_stylistics() {
+		$('.movehandle[side="silver"]').css('background-color', 'gray');
+		$('.movehandle[side="gold"]')
+			.css('background-color', 'yellow')
+			.css('color', 'black');
+	}
+	
 	$(function() {
 		bind_import_game();
 

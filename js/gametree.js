@@ -32,7 +32,7 @@ function create_gametree() {
 		var board_prev = !!movehandler ? movehandler.board : empty_board();
 
 		//FIXME: making move to gametree should be behind common interface with getting new board
-		var result = make_steps(gamestate_prev, board_prev, move);
+		var result = make_steps(gamestate_prev, board_prev, move.steps);
 		
 		var id = get_unique_id();
 

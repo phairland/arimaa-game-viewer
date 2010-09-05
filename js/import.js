@@ -7,7 +7,7 @@ function generate_moves(moves) {
 	do {
 		var move = imported.get_steps_in_next_move();
 		result.push(move);
-	} while(move.length !== 0);
+	} while(move.steps.length !== 0);
 	
 	//result.pop(); shall we leave the empty move?
 	
@@ -39,6 +39,13 @@ function create_import_game(moves) {
 		}
 	}
 	
+	function create_move(move, steps) {
+		return {
+			'id': move.id,
+			'steps': steps
+		}
+	}
+	
 	function get_steps_in_next_move() {
 		var result = [];
 
@@ -46,11 +53,12 @@ function create_import_game(moves) {
 
 		do {
 			var step = get_next_step();
-			if(!step) return result;
+			//if(!step) return result;
+			if(!step) return create_move(moves[current], result);
 			result.push(step);
 		} while(current === currentmove) // get_next_step updates currentmove
 		
-		return result;
+		return create_move(moves[current], result);;
 	}
 	
 	return {
