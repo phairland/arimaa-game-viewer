@@ -40,6 +40,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	function create_dom_movehandle(movehandle) {
 		//var movename = movehandle.gamestate.turn.slice(0, 1);
 		var movename = movehandle.move.id;
+		console.log(movehandle);
 		return $('<div class="movehandle" side="' + movehandle.gamestate.turn.side + '" id="' + movehandle.id + '">' + movename + '</div>');
 	}
 	
@@ -248,16 +249,22 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
       //console.log(code);
       if(code === 38) import_game(); // for debugging purposes quick importing
       if(code === 40) show_next_move_slowly();
+      update_selected_movehandle_view();
     });
+  }
+  
+  function update_selected_movehandle_view() {
+  	$('.selected_handle').removeClass('selected_handle');
+  	$('.movehandle[id="' + current_gametree_id + '"]').addClass('selected_handle');
   }
 
   function build_move_tree(moves) {
-  	var previous_movehandler = undefined;
+  	var previous_movehandle = gametree.get_initial_movehandle();
 		$('.movehandle').remove();
   	
   	GENERIC.for_each(moves, function(move) {
-			var movehandle = gametree.make_move(move, previous_movehandler);
-			previous_movehandler = movehandle;
+			var movehandle = gametree.make_move(move, previous_movehandle);
+			previous_movehandle = movehandle;
 			var dom_movehandle = create_dom_movehandle(movehandle);
 			$('.gametree').append(dom_movehandle);
 			apply_gametree_stylistics();
@@ -284,8 +291,9 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	function gametree_goto(id) {
 		current_gametree_id = id;
 		var node = gametree.select_move(id);
-		board = node.board;
-		gamestate = node.gamestate;
+		
+		board = node.previous_movehandle.board;
+		gamestate = node.previous_movehandle.gamestate;
 	}
 	
 	function bind_select_movehandle() {
@@ -301,6 +309,11 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		$('.movehandle[side="gold"]')
 			.css('background-color', 'yellow')
 			.css('color', 'black');
+			$('.movehandle:first').click();
+			$('.movehandle').live('click', function(){
+				$('.selected_handle').removeClass('selected_handle');
+				$(this).addClass('selected_handle');
+			});
 	}
 	
 	$(function() {

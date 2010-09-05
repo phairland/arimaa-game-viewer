@@ -1,8 +1,7 @@
 function create_gametree() {
-	var first_id = 1;
 	var ids = 0;
+	var first_id = 1;
 	var moves = [];
-	var current_movehandle = [];
 
 	function get_unique_id() { ids++; return ids; }
 	
@@ -29,24 +28,42 @@ function create_gametree() {
 		}
 	}
 	
-	function make_move(move, movehandler) {
-		var gamestate_prev = !!movehandler ? movehandler.gamestate :  ARIMAA.get_initial_gamestate();
-		var board_prev = !!movehandler ? movehandler.board : empty_board();
+	function get_initial_movehandle() {
+		var gamestate = ARIMAA.get_initial_gamestate();
+		var board = empty_board();
+		var id = first_id;
+		
+		var initial_handle = {
+			'id': id,
+			'board': board,
+			'gamestate': gamestate,
+			'move': undefined,
+			'previous_movehandle': undefined
+		}
+		
+		moves[id] = initial_handle;
+		return initial_handle;
+	}
+	
+	function make_move(move, movehandle) {
+		var gamestate_prev = !!movehandle ? movehandle.gamestate : ARIMAA.get_initial_gamestate();
+		var board_prev = !!movehandle ? movehandle.board : empty_board();
 
 		//FIXME: making move to gametree should be behind common interface with getting new board
 		var result = make_steps(gamestate_prev, board_prev, move.steps);
 		
 		var id = get_unique_id();
 		
-		var new_movehandler = {
-		  'id': id,
+		var new_movehandle = {
+			'id': id,
 		  'board': result.board,
 		  'gamestate': result.gamestate,
-		  'move': move // move that lead to this position
+		  'move': move, // move that lead to this position
+		  'previous_movehandle': movehandle
 		}
 		
-		moves[id] = new_movehandler;
-		return new_movehandler;
+		moves[id] = new_movehandle;
+		return new_movehandle;
 	}
 	
 	function next_moveid(prev_node_id) {
@@ -73,6 +90,7 @@ function create_gametree() {
 	}
 	
   return {
+  	'get_initial_movehandle': get_initial_movehandle,
     'make_move': make_move,
     'next_moveid': next_moveid,
     'previous_moveid': previous_moveid,

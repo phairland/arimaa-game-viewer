@@ -67,9 +67,16 @@ h1 {
 }
 
 .movehandle:hover {
+	background-color: pink !important;
+}
+
+.selected_handle {
+	background-color: white !important;
+}
+
+.selected_handle, .movehandle:hover {
 	cursor: pointer;
 	border: 1px white solid;
-	background-color: white !important;
 	color: black !important;
 }
 
