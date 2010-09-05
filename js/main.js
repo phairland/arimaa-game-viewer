@@ -50,6 +50,9 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	function show_board(board) {
   	var dom_board = create_dom_board(board);
   	$('.board').html(dom_board);
+  	GENERIC.for_each(ARIMAA.traps, function(trap) {
+  			$('.row').eq(trap[0]).find('.square').eq(trap[1]).addClass('trap');
+  	});
 	}
 	
 	function bind_select_piece() {
@@ -74,8 +77,8 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	
 	function coordinates_from_arrow(arrow) {
 		return {
-			'row': arrow.attr('row'),
-			'col': arrow.attr('col')
+			'row': parseInt(arrow.attr('row')),
+			'col': parseInt(arrow.attr('col'))
 		}
 	}
 	
@@ -150,13 +153,13 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	}
 		
 	function row_index(elem) {
-		return $('.row').index(elem.closest('.row'));
+		return parseInt($('.row').index(elem.closest('.row')));
 	}
 	
 	function col_index(elem) {
 		var row = elem.closest('.row');
 		var elems_in_row = row.find('.square');
-		return elems_in_row.index(elem);
+		return parseInt(elems_in_row.index(elem));
 	}
 	
 	function show_gametree() {

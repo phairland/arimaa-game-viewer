@@ -14,6 +14,8 @@ var ARIMAA = ARIMAA || function() {
   
   var steps_in_move = 4;
 
+  var traps = [[2, 2], [2, 5], [5, 2], [5, 5]];
+  
 	var left = [-1, 0];
 	var right = [1, 0];
 	var north = [0, -1];
@@ -26,10 +28,10 @@ var ARIMAA = ARIMAA || function() {
 	
 	function is_rabbit(piece) { return piece.type === 'rabbit'; }
   
-  function create_piece(type, strongness) {
+  function create_piece(type, strength) {
   	return {
   		'type': type,
-  		'strongness': strongness
+  		'strength': strength
   	}
   }
   
@@ -40,11 +42,32 @@ var ARIMAA = ARIMAA || function() {
   	});
   }
   
+  function is_in_trap(coordinate) {
+  	return GENERIC.exists(traps, function(trap) {
+  			return coordinate['row'] === trap[0] && coordinate['col'] === trap[1];
+  	});
+  }
+  
+  function is_captured_piece(coordinate, board) {
+  	if(!is_in_trap(coordinate)) return false;
+  	
+  	var piece = get_piece(coordinate, board);
+  	var exists_friendly_neighbour = GENERIC.exists(neighbours(coordinate, board), function(neighbour) {
+  			return is_friendly(piece, neighbour);
+    });
+
+		return !exists_friendly_neighbour;  
+  }
+  
   function move_piece(gamestate, board, piece_coordinate, new_coordinate) {
   	 var new_board = copy_board(board);
   	 var piece = new_board[piece_coordinate.row][piece_coordinate.col];
   	 new_board[piece_coordinate.row][piece_coordinate.col] = {}; // takes piece away from old place
   	 new_board[new_coordinate.row][new_coordinate.col] = piece;
+  	 
+  	 if(is_captured_piece(new_coordinate, new_board)) {
+  	 	 new_board[new_coordinate.row][new_coordinate.col] = {} // captures piece
+  	 }
   	 
   	 var laststep = {
   	 	 'piece': piece,
@@ -58,12 +81,40 @@ var ARIMAA = ARIMAA || function() {
   	 }
   }
   
+  function same_coordinates(a, b) {
+  	return a.row === b.row && a.col === b.col;
+  }
+
+  function neighbours(coordinate, board) {
+  	return GENERIC.map(neighbour_coordinates(coordinate), function(neighbour_coordinate) {
+  			return get_piece(neighbour_coordinate, board);
+  	});
+  }
+  
+  function neighbour_coordinates(coordinate) {
+  	return GENERIC.filter(
+  					GENERIC.map(directions, function(direction) { return get_neighbour_coordinate(coordinate, direction); }),
+  					function(elem) { return elem !== false; });
+  }
+  
   function gamestate_after_move(gamestate, laststep) {
   	var copy = GENERIC.shallowCopyObject(gamestate);
   	
+  	if(!!gamestate.expectedmove) copy.expectedmove = undefined; // clear expectations for thise turn
+  		
   	if(gamestate.steps > 1) {
   		copy.steps = gamestate.steps - 1;
     	copy.laststep = laststep;
+    	// if it's the case of pushing, we must set expectations for next turn to it be completed
+    	if(laststep !== undefined && laststep.piece.side !== gamestate.turn && 
+    		(gamestate.laststep === undefined || !same_coordinates(gamestate.laststep.from, laststep.to))) { // the case where pulling was completed must be checked
+    		copy.expectedmove = {
+    			'side': gamestate.turn,
+    			'strength': laststep.piece.strength,
+    			'from_array': neighbour_coordinates(laststep.from),
+    			'to': gamestate.laststep.from
+    		}     		
+    	}
   	} else {
   	  copy.steps = steps_in_move;
   	  copy.turn = gamestate.turn === gold ? silver : gold;
@@ -76,16 +127,19 @@ var ARIMAA = ARIMAA || function() {
   function is_empty_square(square) { return square.type === undefined; }
   
   function is_stronger(piece1, piece2) {
-  	return piece1.strongness > piece2.strongness;
+  	return piece1.strength > piece2.strength;
   }
   
   function is_friendly(piece1, piece2) { return piece1.side === piece2.side; }
   
-  function get_piece(coordinate, board) { return board[coordinate.row][coordinate.col]; }
+  function get_piece(coordinate, board) { 
+  	var square = board[coordinate.row][coordinate.col];
+  	return is_empty_square(square) ? false : square; 
+  }
   
   function is_in_board(coordinate) { return coordinate.row >= 0 && coordinate.row < board_height && coordinate.col >= 0 && coordinate.col < board_width; }
 
-  function get_neighbour_coordinate(coordinate, direction, board) {
+  function get_neighbour_coordinate(coordinate, direction) {
 		var neighbour_coordinate = { 
 			'col': coordinate.col + get_x(direction),
 			'row': coordinate.row + get_y(direction)
@@ -96,7 +150,7 @@ var ARIMAA = ARIMAA || function() {
   }
   
   function get_neighbour(coordinate, direction, board) {
-  	var coord = get_neighbour_coordinate(coordinate, direction, board);
+  	var coord = get_neighbour_coordinate(coordinate, direction);
   	if(!coord) return false;
 		else return get_piece(coord, board);
   }
@@ -127,7 +181,22 @@ var ARIMAA = ARIMAA || function() {
   // in push moves, opponent is moves first always
   function push_moves(gamestate, board, coordinate) {
   	// there is an empty square next to this coordinate where a neighbour opponent can push or pull me
-  	return [];
+  	var empty_squares = GENERIC.filter(directions, function(direction) {
+  		var neighbour_coord = get_neighbour_coordinate(coordinate, direction);
+  		return !!neighbour_coord && is_empty_square(neighbour_coord, board);
+  	});
+  	
+  	if(empty_squares.length === 0) return [];
+  	
+  	var piece = get_piece(coordinate, board);
+  	
+  	var exists_stronger_neighbour = GENERIC.exists(directions, function(direction) {
+  			var neighbour = get_neighbour(coordinate, direction, board);
+  			return !!neighbour && !is_friendly(piece, neighbour) && is_stronger(neighbour, piece);
+  			//return is_stronger(neighbour, piece) && !is_frozen(neighbour); 
+  	});
+  	
+  	return exists_stronger_neighbour ? empty_squares : [];
   }
   
   function pull_moves(gamestate, board, coordinate) {
@@ -136,7 +205,7 @@ var ARIMAA = ARIMAA || function() {
 
     // check whether last move there was a move by current side that can be considered pull in this step
   	var can_be_pulled = GENERIC.exists(directions, function(direction) {
-  			var neighbour_coord = get_neighbour_coordinate(coordinate, direction, board);
+  			var neighbour_coord = get_neighbour_coordinate(coordinate, direction);
   			if(neighbour_coord.col === gamestate.laststep.from.col && neighbour_coord.row === gamestate.laststep.from.row) return true;
   	});
   	
@@ -152,7 +221,20 @@ var ARIMAA = ARIMAA || function() {
   function legal_moves(gamestate, board, coordinate) {
   	if(is_gameover(gamestate)) return [];
   	if(board[coordinate.row][coordinate.col].type === undefined) return [];
-  	
+
+  	// expected move means that one must complete push
+  	/*
+  	if(!!gamestate.expectedmove) {
+  	  if(gamestate.turn !== gamestate.expectedmove.turn) return [];
+  	  if(get_piece(coordinate, board).strength <= gamestate.expectedmove.strength) return [];
+  	  var is_from_neighbour = GENERIC.exists(gamestate.expectedmove.from_array, function(from) {
+  	  		return same_coordinate(from, coordinate);
+  	  });
+  	  if(is_from_neighbour) return [gamestate.expectedmove.from];
+  	  else return [];
+    }
+    */
+    			
   	var is_piece_current_players = current_player_piece(coordinate, board, gamestate);
   	if(is_piece_current_players && is_frozen(coordinate, board)) return [];
   	
@@ -187,6 +269,7 @@ var ARIMAA = ARIMAA || function() {
   	'board_width': board_width,
   	'board_height': board_height,
   	'steps_in_move': steps_in_move,
+  	'traps': traps,
   	'silver': silver,
   	'gold': gold,
   	'rabbit': rabbit,

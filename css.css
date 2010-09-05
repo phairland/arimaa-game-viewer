@@ -43,6 +43,10 @@ h1 {
 	clear: both;
 }
 
+.trap {
+	background-color: blue; 
+}
+
 .wrapper {
 	width: 760px;
 	border: 1px solid gray;
