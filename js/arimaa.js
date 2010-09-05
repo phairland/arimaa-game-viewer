@@ -16,8 +16,8 @@ var ARIMAA = ARIMAA || function() {
 
   var traps = [[2, 2], [2, 5], [5, 2], [5, 5]];
   
-	var left = [-1, 0];
-	var right = [1, 0];
+	var west = [-1, 0];
+	var east = [1, 0];
 	var north = [0, -1];
 	var south = [0, 1];
 
@@ -26,7 +26,7 @@ var ARIMAA = ARIMAA || function() {
 	function get_x(direction) { return direction[0]; }
 	function get_y(direction) { return direction[1]; }
 	
-	var directions = [left, right, north, south];
+	var directions = [west, east, north, south];
 	
 	function is_rabbit(piece) { return piece.type === 'rabbit'; }
   
@@ -259,7 +259,7 @@ var ARIMAA = ARIMAA || function() {
   		return is_empty_square(board[y][x]); //FIXME: also pushing and pulling should be considered
   	}
   	
-  	var legal_directions = GENERIC.filter([left, right, north, south], can_move_to);
+  	var legal_directions = GENERIC.filter([west, east, north, south], can_move_to);
   	return GENERIC.map(legal_directions, function(direction) { 
   			return {
   				'row': coordinate.row + get_y(direction),
@@ -273,6 +273,7 @@ var ARIMAA = ARIMAA || function() {
   	'board_height': board_height,
   	'steps_in_move': steps_in_move,
   	'traps': traps,
+  	'directions': { 'east': east, 'west': west, 'north': north, 'south': south },
   	'silver': silver,
   	'gold': gold,
   	'rabbit': rabbit,
