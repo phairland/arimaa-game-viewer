@@ -1,3 +1,19 @@
+
+function generate_moves(moves) {
+	
+	var imported = create_import_game(moves);
+	
+	var result = [];
+	do {
+		var move = imported.get_steps_in_next_move();
+		result.push(move);
+	} while(move.length !== 0);
+	
+	//result.pop(); shall we leave the empty move?
+	
+	return result;
+}
+
 function create_import_game(moves) {
 	var currentmove = 0;
 	var currentstep = 0;
@@ -30,14 +46,15 @@ function create_import_game(moves) {
 
 		do {
 			var step = get_next_step();
+			if(!step) return result;
 			result.push(step);
-		} while(!!step && current === currentmove) // get_next_step updates currentmove
+		} while(current === currentmove) // get_next_step updates currentmove
 		
 		return result;
 	}
 	
 	return {
 		'get_next_step': get_next_step,
-		'get_steps_in_next_move': get_steps_in_next_move
+		'get_steps_in_next_move': get_steps_in_next_move,
 	}
 }

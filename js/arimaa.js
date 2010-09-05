@@ -309,6 +309,13 @@ var ARIMAA = ARIMAA || function() {
   	return new_board;
   }
   
+  function get_initial_gamestate() {
+  	return {
+	  'turn': gold,
+	  'steps': steps_in_move
+	  }
+	}
+  
   return {
   	'board_width': board_width,
   	'board_height': board_height,
@@ -328,7 +335,8 @@ var ARIMAA = ARIMAA || function() {
   	'move_piece': move_piece,
   	'get_piece_with_side': get_piece_with_side,
   	'add_piece': add_piece,
-  	'remove_piece': remove_piece
+  	'remove_piece': remove_piece,
+  	'get_initial_gamestate': get_initial_gamestate
   }
   
 }();
