@@ -1,5 +1,6 @@
 function create_gametree() {
-	var ids = 1;
+	var first_id = 1;
+	var ids = 0;
 	var moves = [];
 	var current_movehandle = [];
 
@@ -8,6 +9,7 @@ function create_gametree() {
 	function make_steps(gamestate_prev, board_prev, steps) {
 		var state = gamestate_prev;
 		var board = board_prev;
+
 		
 		for(var i = 0; i < steps.length; ++i) {
 			var step = steps[i];
@@ -47,7 +49,16 @@ function create_gametree() {
 		return new_movehandler;
 	}
 	
-	function next_move() {
+	function next_moveid(prev_node_id) {
+		if(prev_node_id === undefined) return first_id;
+		else if(prev_node_id >= ids) ids;
+		else return prev_node_id + 1;
+	}
+	
+	function previous_moveid(prev_node_id) {
+		if(prev_node_id === undefined) return first_id;
+		else if(prev_node_id <= first_id) first_id;
+		else return prev_node_id - 1;
 	}
 	
 	function previous_move() {
@@ -63,8 +74,8 @@ function create_gametree() {
 	
   return {
     'make_move': make_move,
-    'next_move': next_move,
-    'previous_move': previous_move,
+    'next_moveid': next_moveid,
+    'previous_moveid': previous_moveid,
     'select_move': select_move,
     'get_movehandles': get_movehandles
   }

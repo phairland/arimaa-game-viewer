@@ -1,7 +1,6 @@
 
 var ARIMAA_MAIN = ARIMAA_MAIN || function() {
-	var imported_game = undefined;
-
+	var current_gametree_id;
 	var gametree = create_gametree();
 	
 	var board = init_arimaa_board()['board'];
@@ -218,12 +217,19 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	}
 	
 	function show_next() {
-		if(!!imported_game) {
-			var step = imported_game.get_next_step();
-			show_step(step);
-		} else {
-			alert("You should first import a game!");
-		}
+		var nextid = gametree.next_moveid(current_gametree_id);
+		if(!!nextid) {
+			gametree_goto(nextid);
+			show_board(board);
+		}		
+	}
+
+	function show_previous() {
+		var previd = gametree.previous_moveid(current_gametree_id);
+		if(!!previd) {
+			gametree_goto(previd);
+			show_board(board);
+		}		
 	}
 
 	function getKeyCode(event) {
@@ -232,11 +238,12 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	
 	function is_right_arrow_key(code) { return code === 39; }
 	
-	function bind_next_move() {
+	function bind_control_move() {
 		$('.next').click(show_next);
     $(window).keydown(function(event) {
       var code = getKeyCode(event);
       if(is_right_arrow_key(code)) show_next();
+      if(code === 37) show_previous();
 
       //console.log(code);
       if(code === 38) import_game(); // for debugging purposes quick importing
@@ -265,7 +272,6 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 			board = empty_board();
 			
 			var structured_moves = TRANSLATOR.convert_to_gametree(notated_game)
-			//imported_game = create_import_game(structured_moves);
 			build_move_tree(generate_moves(structured_moves));
 			show_board(board);
 		}
@@ -276,6 +282,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	}
 	
 	function gametree_goto(id) {
+		current_gametree_id = id;
 		var node = gametree.select_move(id);
 		board = node.board;
 		gamestate = node.gamestate;
@@ -299,7 +306,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	$(function() {
 		bind_import_game();
 
-		bind_next_move();
+		bind_control_move();
 
 		show_board(board);
 		show_gametree();
