@@ -16,6 +16,10 @@ h1 {
   font-size: 1.0em;
 }
 
+.prev, .next {
+	cursor: pointer;
+}
+
 .selected {
 	border: 1px red solid !important;
 }
@@ -66,7 +70,7 @@ h1 {
 	margin: 5px;
 }
 
-.movehandle:hover {
+.nodehandle:hover {
 	background-color: pink !important;
 }
 
@@ -74,13 +78,13 @@ h1 {
 	background-color: white !important;
 }
 
-.selected_handle, .movehandle:hover {
+.selected_handle, .nodehandle:hover {
 	cursor: pointer;
 	border: 1px white solid;
 	color: black !important;
 }
 
-.movehandle {
+.nodehandle {
 	float: left;
 	margin: 0;
 	padding: 5px;
@@ -135,7 +139,8 @@ h1 {
 }
 
 .control img {
-	margin: 5px;
+	margin: 0;
+	padding: 0;
 }
 
 .control {

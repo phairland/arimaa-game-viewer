@@ -24,6 +24,7 @@ var TRANSLATOR = TRANSLATOR || function() {
 			
 			if(!!moveid) {
 				var steps = get_steps(tokens.slice(i+1));
+				
 				var move = {
 					'steps': steps,
 					'id': moveid

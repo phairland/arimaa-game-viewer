@@ -13,6 +13,7 @@ var ARIMAA = ARIMAA || function() {
   var elephant = create_piece('elephant', 6);
   
   var steps_in_move = 4;
+  var steps_in_setting_move = 16;
 
   var traps = [[2, 2], [2, 5], [5, 2], [5, 5]];
   
@@ -297,10 +298,33 @@ var ARIMAA = ARIMAA || function() {
   	return copy;
   }
   
-  function add_piece(piece, coordinate, board) {
+  function add_piece(piece, coordinate, board, gamestate) {
   	var new_board = copy_board(board);
+  	var new_gamestate = GENERIC.shallowCopyObject(gamestate);
+
   	new_board[coordinate.row][coordinate.col] = piece;
-  	return new_board;
+
+  	new_gamestate.steps--;
+
+		if(new_gamestate.steps < 0) {
+			console.log(new_gamestate);
+			throw "steps < 0";
+		}
+		
+  	if(new_gamestate.steps === 0) {
+  		if(gamestate.turn === gold) {
+  			new_gamestate.steps = steps_in_setting_move;
+  		} else {
+  			new_gamestate.steps = steps_in_move;
+  		}
+
+  	  new_gamestate.turn = gamestate.turn === gold ? silver : gold;
+  	}
+  	
+  	return {
+  		'board': new_board,
+  		'gamestate': new_gamestate
+  	}
   }
   
   function remove_piece(coordinate, board) {
@@ -312,7 +336,7 @@ var ARIMAA = ARIMAA || function() {
   function get_initial_gamestate() {
   	return {
 	  'turn': gold,
-	  'steps': steps_in_move
+	  'steps': steps_in_setting_move
 	  }
 	}
   
@@ -320,6 +344,7 @@ var ARIMAA = ARIMAA || function() {
   	'board_width': board_width,
   	'board_height': board_height,
   	'steps_in_move': steps_in_move,
+  	'steps_in_setting_move': steps_in_setting_move,
   	'traps': traps,
   	'directions': { 'east': east, 'west': west, 'north': north, 'south': south},
   	'get_new_coordinate': get_new_coordinate,

@@ -3,6 +3,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	var current_gametree_id;
 	var gametree = create_gametree();
 	
+	//FIXME: should be probably removed since they are in gametree
 	var board = init_arimaa_board()['board'];
 	var gamestate = ARIMAA.get_initial_gamestate();
 	
@@ -37,18 +38,12 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		return result;
 	}
 	
-	function create_dom_movehandle(movehandle) {
-		//var movename = movehandle.gamestate.turn.slice(0, 1);
-		var movename = movehandle.move.id;
-		console.log(movehandle);
-		return $('<div class="movehandle" side="' + movehandle.gamestate.turn.side + '" id="' + movehandle.id + '">' + movename + '</div>');
-	}
-	
+
 	function make_move_to_gametree(move) {
 		return;
-		var movehandle = gametree.make_move(move);
-		var dom_movehandle = create_dom_movehandle(movehandle);
-		$('.gametree').append(dom_movehandle);
+		var nodehandle = gametree.make_move(move);
+		var dom_nodehandle = create_dom_nodehandle(nodehandle);
+		$('.gametree').append(dom_nodehandle);
 	}
 	
 	function show_board(board) {
@@ -165,17 +160,21 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		var elems_in_row = row.find('.square');
 		return parseInt(elems_in_row.index(elem));
 	}
-	
+
+/*	
 	function show_gametree() {
 		return;
-		var handles = gametree.get_movehandles();
+		var handles = gametree.get_nodehandles();
 		
-		GENERIC.for_each(handles, function(elem) { $('.gametree').append(create_dom_movehandle(elem)); });
+		GENERIC.for_each(handles, function(elem) { $('.gametree').append(create_dom_nodehandle(elem)); });
 	}
+*/
 	
 	function show_step(step) {
 		if(step.type === 'setting') {
-			board = ARIMAA.add_piece(step.piece, step.to, board);
+			result = ARIMAA.add_piece(step.piece, step.to, board, gamestate);
+			board = result.board;
+			gamestate = result.gamestate;
 			show_board(board);
 		} else if(step.type === 'removal') {
 			throw "removal step should not be handled here, the game logic should take care of it";			
@@ -240,7 +239,9 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	function is_right_arrow_key(code) { return code === 39; }
 	
 	function bind_control_move() {
-		$('.next').click(show_next);
+		$('.next').click(function() { show_next(); update_selected_nodehandle_view(); });
+		$('.prev').click(function() { show_previous(); update_selected_nodehandle_view(); });
+		
     $(window).keydown(function(event) {
       var code = getKeyCode(event);
       if(is_right_arrow_key(code)) show_next();
@@ -249,26 +250,42 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
       //console.log(code);
       if(code === 38) import_game(); // for debugging purposes quick importing
       if(code === 40) show_next_move_slowly();
-      update_selected_movehandle_view();
+      update_selected_nodehandle_view();
     });
   }
   
-  function update_selected_movehandle_view() {
+  function update_selected_nodehandle_view() {
   	$('.selected_handle').removeClass('selected_handle');
-  	$('.movehandle[id="' + current_gametree_id + '"]').addClass('selected_handle');
+  	$('.nodehandle[id="' + current_gametree_id + '"]').addClass('selected_handle');
   }
 
+ 	function create_dom_nodehandle(nodehandle) {
+		//var movename = nodehandle.gamestate.turn.slice(0, 1);
+		var movename = nodehandle.moves_from_node.length > 0 ? 
+									 nodehandle.moves_from_node[0].id /* show main variant */
+									 : "-";
+    var side = nodehandle.gamestate.turn.side;									 
+		return $('<div class="nodehandle" side="' + side + '" id="' + nodehandle.id + '">' + movename + '</div>');
+	}
+
+
   function build_move_tree(moves) {
-  	var previous_movehandle = gametree.get_initial_movehandle();
-		$('.movehandle').remove();
-  	
+  	var nodehandle = gametree.get_initial_nodehandle();
+		$('.nodehandle').remove();
+
   	GENERIC.for_each(moves, function(move) {
-			var movehandle = gametree.make_move(move, previous_movehandle);
-			previous_movehandle = movehandle;
-			var dom_movehandle = create_dom_movehandle(movehandle);
-			$('.gametree').append(dom_movehandle);
+			var new_nodehandle = gametree.make_move(move, nodehandle);
+			nodehandle = new_nodehandle;
+			//console.log(nodehandle.gamestate.steps);
+		});
+
+		GENERIC.for_each(gametree.get_nodehandles(), function(nodehandle) {
+			//console.log(nodehandle);
+			//console.log(nodehandle);
+			var dom_nodehandle = create_dom_nodehandle(nodehandle);
+			$('.gametree').append(dom_nodehandle);
 			apply_gametree_stylistics();
-		});  	
+		});
   }
   
 	function import_game() {
@@ -292,12 +309,12 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		current_gametree_id = id;
 		var node = gametree.select_move(id);
 		
-		board = node.previous_movehandle.board;
-		gamestate = node.previous_movehandle.gamestate;
+		board = node.board;
+		gamestate = node.gamestate;
 	}
 	
-	function bind_select_movehandle() {
-		$('.movehandle').live('click', function() {
+	function bind_select_nodehandle() {
+		$('.nodehandle').live('click', function() {
 			var id = parseInt($(this).attr('id'));
 			gametree_goto(id);
 			show_board(board);		
@@ -305,12 +322,12 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	}
 
 	function apply_gametree_stylistics() {
-		$('.movehandle[side="silver"]').css('background-color', 'gray');
-		$('.movehandle[side="gold"]')
+		$('.nodehandle[side="silver"]').css('background-color', 'gray');
+		$('.nodehandle[side="gold"]')
 			.css('background-color', 'yellow')
 			.css('color', 'black');
-			$('.movehandle:first').click();
-			$('.movehandle').live('click', function(){
+			$('.nodehandle:first').click();
+			$('.nodehandle').live('click', function(){
 				$('.selected_handle').removeClass('selected_handle');
 				$(this).addClass('selected_handle');
 			});
@@ -322,10 +339,10 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		bind_control_move();
 
 		show_board(board);
-		show_gametree();
+		//show_gametree();
 		bind_select_piece();
 		bind_move_piece();
-		bind_select_movehandle();
+		bind_select_nodehandle();
 		
 		$('.arrownormal').mouseover(function() {
 			$(this).hide();
