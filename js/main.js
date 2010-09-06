@@ -286,6 +286,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	function show_next_move_slowly() {
 		var node = gametree.select_node(current_gametree_id);
 
+		console.log(node);
 		//console.log(node);
 		
 		//var steps = imported_game.get_steps_in_next_move();
@@ -362,8 +363,12 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	}
 	
   function update_selected_nodehandle_view() {
+  	/*
   	$('.selected_handle').removeClass('selected_handle');
   	$('.nodehandle[id="' + current_gametree_id + '"]').addClass('selected_handle');
+  	*/
+  	$('.gametree2').jstree('deselect_all');
+  	$('.gametree2').jstree('select_node', '#' + current_gametree_id);
   }
 
  	function create_dom_nodehandle(nodehandle) {
@@ -379,7 +384,9 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 
   function build_move_tree(moves) {
   	gametree = create_gametree();
-  	var nodehandle = gametree.get_initial_nodehandle();
+  	var initial_handle = gametree.get_initial_nodehandle();
+  	var nodehandle = initial_handle;
+  	
 		$('.nodehandle').remove();
 		$('.gametree2').children().remove();
 
@@ -406,7 +413,13 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 			}
 		});
 		
-		$('.gametree2').jstree({"plugins" : [ "themes", "html_data", "ui", "crrm" ]});		
+		current_gametree_id = initial_handle.id;
+		var initially_selected_node = initial_handle.id.toString();
+		
+		$('.gametree2').jstree({
+				"ui": { "initially_select" : [ initially_selected_node ] },
+				"plugins" : [ "themes", "html_data", "ui", "crrm" ]
+			});
   }
   
   function create_tree_nodehandle(nodehandle) {
