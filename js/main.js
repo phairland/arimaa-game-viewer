@@ -64,9 +64,28 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 			'steps': stepbuffer
 		}
 		
-		var nodehandle = gametree.make_move(move, current_nodehandle);
+		var result = gametree.make_move(move, current_nodehandle);
+		var nodehandle = result.nodehandle;
+		var move_index = result.move_index;
+
+		// id and name for treenode
+		var js = {
+			'attr': {'id': current_nodehandle.id.toString(), 'move_index': move_index.toString() },
+			'data': variation_name.toString()
+		}
+		
+		// if first move in this line of play, put it as a sibling, otherwise it's a variation (of maybe a variation)
+		var node_position_in_tree = current_nodehandle.moves_from_node.length === 1 ? "last" : "inside";
+		
+		console.log(current_nodehandle);
+		console.log(node_position_in_tree);
+		
+		$('.gametree2').jstree("create", "#" + current_gametree_id, node_position_in_tree, js, false, true);
+		
+		/*
 		var dom_nodehandle = create_dom_nodehandle(nodehandle);
 		$('.gametree').append(dom_nodehandle);
+		*/
 	}
 
 	function show_turn() {
@@ -130,6 +149,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		});
 	}
 	
+	// this is for making a new move
 	function move_piece(selected, new_coordinate) {
 		if(selected === undefined) return;
 
@@ -141,6 +161,19 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		make_step_to_gametree(move); // move should be renamed to step
 		// if turn changed, commit the steps into gametree as a move
 		if(result.gamestate.turn !== gamestate.turn) make_move_to_gametree();
+		
+		board = result.board;
+		gamestate = result.gamestate;
+		show_board(board);
+		clear_arrows();
+	}
+
+	// this is for showing already made moves
+	function show_move_piece(selected, new_coordinate) {
+		var piece = board[selected.row][selected.col];
+		var move = { 'from': selected, 'to': new_coordinate, 'piece': piece } 
+		//FIXME: making move to gametree should be behind common interface with getting new board
+		result = ARIMAA.move_piece(gamestate, board, selected, new_coordinate);
 		
 		board = result.board;
 		gamestate = result.gamestate;
@@ -230,7 +263,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 			//show_board(board);
 			
 		} else {
-			move_piece(step.from, step.to);
+			show_move_piece(step.from, step.to);
 		}
 	}
 
@@ -335,6 +368,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 
  	function create_dom_nodehandle(nodehandle) {
 		//var movename = nodehandle.gamestate.turn.slice(0, 1);
+		//FIXME last position should also be shown even though no moves yet
 		if(nodehandle.moves_from_node.length > 0) { // if moves for this position
 			var movename = nodehandle.moves_from_node[0].id /* show main variant */;
 			var side = nodehandle.gamestate.turn.side;									 
@@ -347,9 +381,12 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
   	gametree = create_gametree();
   	var nodehandle = gametree.get_initial_nodehandle();
 		$('.nodehandle').remove();
+		$('.gametree2').children().remove();
 
   	GENERIC.for_each(moves, function(move) {
-			var new_nodehandle = gametree.make_move(move, nodehandle);
+			var result = gametree.make_move(move, nodehandle);
+			var new_nodehandle = result.nodehandle;
+  			
 			nodehandle = new_nodehandle;
 			//console.log(nodehandle.gamestate.steps);
 		});
@@ -362,18 +399,29 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		});
 		
 		GENERIC.for_each(gametree.get_nodehandles(), function(nodehandle) {
-			var dom_nodehandle = create_tree_nodehandle(nodehandle);
-			$('.gametree2').append(dom_nodehandle);
-			//apply_gametree_stylistics();
+			if(nodehandle.moves_from_node.length > 0) {
+				var dom_nodehandle = create_tree_nodehandle(nodehandle);
+				$('.gametree2').append(dom_nodehandle);
+				//apply_gametree_stylistics();
+			}
 		});
 		
-		$('.gametree2').jstree();		
+		$('.gametree2').jstree({"plugins" : [ "themes", "html_data", "ui", "crrm" ]});		
   }
   
   function create_tree_nodehandle(nodehandle) {
-  	if(nodehandle.moves_from_node.length === 0) return $('');
+  	
+		var movename = nodehandle.moves_from_node.length === 0 ? 
+										nodehandle.gamestate.turn.side.slice(0, 1) + "#"
+									: nodehandle.moves_from_node[0].id /* show main variant */;
 
-		var movename = nodehandle.moves_from_node[0].id /* show main variant */;
+		if(nodehandle.moves_from_node.length > 0) {
+			movename += " " + GENERIC.reduce("", nodehandle.moves_from_node[0].steps, function(result, step) { return step.notated + " " + result; });
+			if(movename.length > 20) {
+			  movename = movename.slice(0, 20) + "...";
+			}
+		}
+									
 		var side = nodehandle.gamestate.turn.side;									 
 
   	var result = '';
@@ -467,7 +515,6 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		
 		$('.gametree2 li').live('click', function() {
 			var id = parseInt($(this).attr('id'));
-			console.log(id);
 			showing_slowly = false;
 			gametree_goto(id);
 			show_board(board);		

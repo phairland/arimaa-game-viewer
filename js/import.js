@@ -32,6 +32,7 @@ function create_import_game(moves) {
 			}
 			
 			var step = TRANSLATOR.convert_notated_step_to_coordinates(nextstep);
+			step.notated = nextstep;
 			
 			// if step is only indicating a removal, let's skip it since it is done by the game logic
 			if(step.type === 'removal') return get_next_step();

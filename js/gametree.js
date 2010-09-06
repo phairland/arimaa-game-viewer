@@ -49,9 +49,11 @@ function create_gametree() {
 	function get_initial_nodehandle() { return initial_nodehandle; }
 	
 	// TODO: think whether it would be better to link with ids instead of object references
+	// return move index in nodehandle_from
 	function link_nodes(move, nodehandle_from, nodehandle_to) {
 		move.nodehandle_after_move = nodehandle_to;
 		nodehandle_from.moves_from_node.push(move);
+		return nodehandle_from.moves_from_node.length - 1;
 	}
 	
 	function make_move(move, nodehandle) {
@@ -70,11 +72,14 @@ function create_gametree() {
 		  'comment': ''
 		}
 
-		link_nodes(move, nodehandle, new_nodehandle);
+		var move_index = link_nodes(move, nodehandle, new_nodehandle);
 		
 		nodes[id] = new_nodehandle;
 		
-		return new_nodehandle;
+		return {
+			'nodehandle': new_nodehandle,
+			'move_index': move_index
+		}
 	}
 	
 	function next_nodeid(prev_node_id) {
