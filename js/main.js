@@ -261,11 +261,11 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 
  	function create_dom_nodehandle(nodehandle) {
 		//var movename = nodehandle.gamestate.turn.slice(0, 1);
-		var movename = nodehandle.moves_from_node.length > 0 ? 
-									 nodehandle.moves_from_node[0].id /* show main variant */
-									 : "-";
-    var side = nodehandle.gamestate.turn.side;									 
-		return $('<div class="nodehandle" side="' + side + '" id="' + nodehandle.id + '">' + movename + '</div>');
+		if(nodehandle.moves_from_node.length > 0) { // if moves for this position
+			var movename = nodehandle.moves_from_node[0].id /* show main variant */;
+			var side = nodehandle.gamestate.turn.side;									 
+			return $('<div class="nodehandle" side="' + side + '" id="' + nodehandle.id + '">' + movename + '</div>');
+		}
 	}
 
 
@@ -280,8 +280,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		});
 
 		GENERIC.for_each(gametree.get_nodehandles(), function(nodehandle) {
-			//console.log(nodehandle);
-			//console.log(nodehandle);
+			console.log(nodehandle);
 			var dom_nodehandle = create_dom_nodehandle(nodehandle);
 			$('.gametree').append(dom_nodehandle);
 			apply_gametree_stylistics();
