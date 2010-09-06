@@ -1,7 +1,9 @@
 
 var ARIMAA_MAIN = ARIMAA_MAIN || function() {
-	var current_gametree_id;
 	var gametree = create_gametree();
+	var current_gametree_id = undefined;
+	
+	var showing_slowly = false; // when moves are showed slowly, controls are locked
 	
 	//FIXME: should be probably removed since they are in gametree
 	var board = init_arimaa_board()['board'];
@@ -191,19 +193,29 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 
 
 	function show_steps_slowly(steps) {
-		if(steps.length === 0) return;
+		if(steps.length === 0) {
+			gametree_goto(gametree.next_nodeid(current_gametree_id));
+			showing_slowly = false;
+      update_selected_nodehandle_view();
+			return;
+		}
 
 		show_step(steps[0]);
-		setTimeout(function() { show_steps_slowly(steps.slice(1)); }, 
-							300);				
+		setTimeout(function() {
+				if(showing_slowly) show_steps_slowly(steps.slice(1)); 
+			}, 300);				
 	}
 	
 	function show_next_move_slowly() {
-		if(!!imported_game) {
-			var steps = imported_game.get_steps_in_next_move();
+		var node = gametree.select_node(current_gametree_id);
 
+		//console.log(node);
+		
+		//var steps = imported_game.get_steps_in_next_move();
+		if(node.moves_from_node.length > 0) {
+			var steps = node.moves_from_node[0].steps;
 			show_steps_slowly(steps);
-		}			
+		}
 	}
 
 	function show_next_move() {
@@ -217,7 +229,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	}
 	
 	function show_next() {
-		var nextid = gametree.next_moveid(current_gametree_id);
+		var nextid = gametree.next_nodeid(current_gametree_id);
 		if(!!nextid) {
 			gametree_goto(nextid);
 			show_board(board);
@@ -225,7 +237,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	}
 
 	function show_previous() {
-		var previd = gametree.previous_moveid(current_gametree_id);
+		var previd = gametree.previous_nodeid(current_gametree_id);
 		if(!!previd) {
 			gametree_goto(previd);
 			show_board(board);
@@ -244,12 +256,23 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		
     $(window).keydown(function(event) {
       var code = getKeyCode(event);
-      if(is_right_arrow_key(code)) show_next();
-      if(code === 37) show_previous();
+      if(is_right_arrow_key(code)) {
+      	showing_slowly = false;
+      	show_next();
+      }
+      if(code === 37) {
+      	showing_slowly = false;
+      	show_previous();
+      }
 
       //console.log(code);
       if(code === 38) import_game(); // for debugging purposes quick importing
-      if(code === 40) show_next_move_slowly();
+      if(code === 40) {
+      	if(showing_slowly) return;
+				showing_slowly = true;
+				show_next_move_slowly();
+      }
+      
       update_selected_nodehandle_view();
     });
   }
@@ -280,7 +303,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		});
 
 		GENERIC.for_each(gametree.get_nodehandles(), function(nodehandle) {
-			console.log(nodehandle);
+			//console.log(nodehandle);
 			var dom_nodehandle = create_dom_nodehandle(nodehandle);
 			$('.gametree').append(dom_nodehandle);
 			apply_gametree_stylistics();
@@ -306,7 +329,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	
 	function gametree_goto(id) {
 		current_gametree_id = id;
-		var node = gametree.select_move(id);
+		var node = gametree.select_node(id);
 		
 		board = node.board;
 		gamestate = node.gamestate;
@@ -315,6 +338,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	function bind_select_nodehandle() {
 		$('.nodehandle').live('click', function() {
 			var id = parseInt($(this).attr('id'));
+			showing_slowly = false;
 			gametree_goto(id);
 			show_board(board);		
 		});
@@ -351,6 +375,12 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		$('.arrowhover').mouseout(function() {
 			$(this).hide();
 			$(this).closest('.arrow').find('.arrownormal').show();		
+		});
+		
+		$('.show').click(function() {
+				if(showing_slowly) return;
+				showing_slowly = true;
+				show_next_move_slowly();
 		});
 		
 	});

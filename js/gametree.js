@@ -77,13 +77,13 @@ function create_gametree() {
 		return new_nodehandle;
 	}
 	
-	function next_moveid(prev_node_id) {
+	function next_nodeid(prev_node_id) {
 		if(prev_node_id === undefined) return first_id;
 		else if(prev_node_id >= ids) ids;
 		else return prev_node_id + 1;
 	}
 	
-	function previous_moveid(prev_node_id) {
+	function previous_nodeid(prev_node_id) {
 		if(prev_node_id === undefined) return first_id;
 		else if(prev_node_id <= first_id) first_id;
 		else return prev_node_id - 1;
@@ -92,7 +92,7 @@ function create_gametree() {
 	function previous_move() {
 	}
 	
-	function select_move(id) {
+	function select_node(id) {
 		return nodes[id];
 	}
 	
@@ -109,9 +109,9 @@ function create_gametree() {
   return {
   	'get_initial_nodehandle': get_initial_nodehandle,
     'make_move': make_move,
-    'next_moveid': next_moveid,
-    'previous_moveid': previous_moveid,
-    'select_move': select_move,
+    'next_nodeid': next_nodeid,
+    'previous_nodeid': previous_nodeid,
+    'select_node': select_node,
     'get_nodehandles': get_nodehandles
   }
 }
