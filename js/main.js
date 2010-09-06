@@ -3,6 +3,8 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	var gametree = create_gametree();
 	var current_gametree_id = undefined;
 	
+	var stepbuffer = [];
+	
 	var showing_slowly = false; // when moves are showed slowly, controls are locked
 	
 	//FIXME: should be probably removed since they are in gametree
@@ -11,6 +13,8 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	
 	var selected = undefined; // what square is selected currently
 
+	function get_current_node() { return gametree.select_node(current_gametree_id); }
+	
 	//FIXME: piece testing should be in arimaa logic
 	function is_piece(piece) { return piece !== undefined && piece['type'] !== undefined; }
 	
@@ -39,16 +43,35 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		
 		return result;
 	}
-	
 
-	function make_move_to_gametree(move) {
-		return;
-		var nodehandle = gametree.make_move(move);
+	function make_step_to_gametree(step) {
+		// step = { 'from': selected, 'to': new_coordinate, 'piece': piece }
+		stepbuffer.push(step);
+	}	
+
+	function make_move_to_gametree() {
+		var current_nodehandle = gametree.select_node(current_gametree_id);
+
+		// FIXME: something smarter for the name 
+		var variation_name = (function(){
+			if(current_nodehandle.moves_from_node.length > 0) {
+				return current_nodehandle.moves_from_node[0].id + "_" + current_nodehandle.moves_from_node.length;
+			} else return current_nodehandle.id;
+		})();
+
+		var move = {
+			'id': variation_name, 
+			'steps': stepbuffer
+		}
+		
+		var nodehandle = gametree.make_move(move, current_nodehandle);
 		var dom_nodehandle = create_dom_nodehandle(nodehandle);
 		$('.gametree').append(dom_nodehandle);
 	}
 	
 	function show_board(board) {
+		show_comments(); //FIXME not the best place
+		
   	var dom_board = create_dom_board(board);
   	$('.board').html(dom_board);
   	GENERIC.for_each(ARIMAA.traps, function(trap) {
@@ -95,9 +118,13 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 
 		var piece = board[selected.row][selected.col];
 		var move = { 'from': selected, 'to': new_coordinate, 'piece': piece } 
-		make_move_to_gametree(move);
 		//FIXME: making move to gametree should be behind common interface with getting new board
 		result = ARIMAA.move_piece(gamestate, board, selected, new_coordinate);
+		
+		make_step_to_gametree(move); // move should be renamed to step
+		// if turn changed, commit the steps into gametree as a move
+		if(result.gamestate.turn !== gamestate.turn) make_move_to_gametree();
+		
 		board = result.board;
 		gamestate = result.gamestate;
 		show_board(board);
@@ -276,7 +303,22 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
       update_selected_nodehandle_view();
     });
   }
-  
+
+	function show_comments() {
+		var current = get_current_node();
+		if(!current) return;
+		
+  	var comments = current.comments;
+  	
+  	var text = "";
+  	GENERIC.for_each(comments, function(comment) {
+  		text += "\n" + comment;
+  	});
+
+		if(comments.length > 0) console.log(comments);  	
+  	$('.comments_for_node').val(text);
+	}
+	
   function update_selected_nodehandle_view() {
   	$('.selected_handle').removeClass('selected_handle');
   	$('.nodehandle[id="' + current_gametree_id + '"]').addClass('selected_handle');
@@ -293,6 +335,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 
 
   function build_move_tree(moves) {
+  	gametree = create_gametree();
   	var nodehandle = gametree.get_initial_nodehandle();
 		$('.nodehandle').remove();
 
@@ -381,6 +424,16 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 				if(showing_slowly) return;
 				showing_slowly = true;
 				show_next_move_slowly();
+		});
+		
+		$('.make_comment').click(function() {
+				var comment = $('.comment').val();
+				$('.comment').val('');
+
+				if(comment !== '') {
+					gametree.comment_node(comment, current_gametree_id);
+					show_comments();
+				}
 		});
 		
 	});

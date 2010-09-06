@@ -39,7 +39,7 @@ function create_gametree() {
 			'board': board,
 			'gamestate': gamestate,
 			'moves_from_node': [],
-			'previous_nodehandle': undefined
+			'comments': []
 		}
 		
 		nodes[id] = initial_handle;
@@ -66,8 +66,8 @@ function create_gametree() {
 			'id': id,
 		  'board': result.board,
 		  'gamestate': result.gamestate,
-		  'previous_nodehandle': nodehandle,
-		  'moves_from_node': []
+		  'moves_from_node': [],
+		  'comments': []
 		}
 
 		link_nodes(move, nodehandle, new_nodehandle);
@@ -106,12 +106,17 @@ function create_gametree() {
 		return result;
 	}
 	
+	function comment_node(text, id) {
+		select_node(id).comments.push(text);
+	}
+	
   return {
   	'get_initial_nodehandle': get_initial_nodehandle,
     'make_move': make_move,
     'next_nodeid': next_nodeid,
     'previous_nodeid': previous_nodeid,
     'select_node': select_node,
-    'get_nodehandles': get_nodehandles
+    'get_nodehandles': get_nodehandles,
+    'comment_node': comment_node
   }
 }

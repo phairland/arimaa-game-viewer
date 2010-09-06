@@ -1,8 +1,6 @@
 body {
 	/* font-family: Verdana; */
-  width: 1000px;
-  background-color: #333;
-  margin: 0;
+  width: 1000px; background-color: #333; margin: 0;
 }
 
 p {
@@ -10,148 +8,66 @@ p {
 }
 
 h1 {
-  color: gray;
-  font-family: Verdana;
-  margin: 15px;
-  font-size: 1.0em;
+  color: gray; font-family: Verdana;  margin: 15px; font-size: 1.0em;
 }
 
-.prev, .next, .show {
-	cursor: pointer;
-}
+.prev, .next, .show {	cursor: pointer; }
 
-.selected {
-	border: 1px red solid !important;
-}
+.selected {	border: 1px red solid !important; }
 
-.arrow {
-	padding: 0px;
-	margin: 0px;
-	border: 0px;
-	position: absolute;
-	display: none;
-}
+.arrow { 	padding: 0px; margin: 0px; border: 0px; 	position: absolute; 	display: none; }
 
-/*
-.arrow:hover {
-	background-color: red;
-}
-*/
+.nodeinfobox { width: 200px; height: 200px; float: right; }
+.nodeinfobox p { font-size: 0.9em; margin: 5px; }
+.comments_for_node { width: 160px; background-color: #ddd; color: black; padding: 5px; margin: 5px; }
 
+.comment { height: 50px; width: 420px; float: left; }
+.comment_box { float: left; margin: 5px; }
+.make_comment {}
 
-.arrowhover {
-	display: none;
-}
+.arrowhover { display: none; }
 
-.arrow img {
-	width: 35px;
-	margin: 0px,
-	padding: 0px
-	border: 0px;
-}
+.arrow img { width: 35px;	margin: 0px; padding: 0px;	border: 0px; }
 
-.clear {
-	clear: both;
-}
+.clear { clear: both; }
 
-.trap {
-	background-color: red !important; 
-}
+.trap { background-color: red !important; }
 
-.wrapper {
-	width: 760px;
-	border: 1px solid gray;
-}
+.wrapper { width: 760px; border: 1px solid gray; }
 
-.gametree {
-	border: 1px solid red;
-	float: left;
-	width: 200px;
-	margin: 5px;
-}
+.gametree { border: 1px solid red; float: right;	width: 200px; margin: 5px; }
 
-.nodehandle:hover {
-	background-color: pink !important;
-}
+.nodehandle:hover {	background-color: pink !important; }
 
-.selected_handle {
-	background-color: white !important;
-}
+.selected_handle { background-color: white !important; }
 
-.selected_handle, .nodehandle:hover {
-	cursor: pointer;
-	border: 1px white solid;
-	color: black !important;
-}
+.selected_handle, .nodehandle:hover { cursor: pointer; border: 1px white solid;	color: black !important; }
 
-.nodehandle {
-	float: left;
-	margin: 0;
-	padding: 5px;
-	width: 35px;
-	height: 20px;
-	background-color: orange;
-	color: white;
-	font-size: 0.9em;
-	text-align: center;
-	border: 1px red solid;
+.nodehandle {	
+	float: left; margin: 0;	padding: 5px;	width: 35px; height: 20px; 
+  background-color: orange; color: white; font-size: 0.9em; text-align: center; border: 1px red solid; 
 }
 
 .board {
-	float: left;
-	width: 500px;
-	padding: 20px;
-	border: 1px white solid;
-	background-color: brown;
+	float: left; width: 500px; padding: 20px;	border: 1px white solid; background-color: brown; 
 }
 
-.square {
-	width: 50px;
-	height: 50px;
-	padding: 2px;
-	border: 1px #ddd solid;
-	background-color: #bbb;
-	float: left;
-}
+.square { width: 50px; height: 50px; padding: 2px; border: 1px #ddd solid; background-color: #bbb; float: left; }
 
-.square img {
-	width: 100%;
-}
+.square img {	width: 100%; }
 
-.row {
-}
+.row {}
 
-#imported_game {
-	width: 50px;
-}
+#imported_game { width: 100px; height: 50px; float: left;	margin: 0;	padding: 0; }
 
-#import_game {
-	width: 100px;
-}
+#import_game { width: 80px;	height: 50px;	margin: 5px; }
 
-.controls {
-	width: 200px;
-	height: 100px;
-	background-color: #ccc;
-	margin: 5px;
-	color: black;
-	float: left;
-}
+.importbox { width: 200px; float: left; }
 
-.control img {
-	margin: 0;
-	padding: 0;
-}
+.controls {	width: 200px; height: 200px; background-color: #ccc; margin: 5px;	color: black;	float: right; }
 
-.control {
-	width: 50px;
-	height: 50px;
-	border: 1px solid blue;
-	float: left;
-	margin: 5px;
-	background-color: #aaa555
-}
+.control img { margin: 0;	padding: 0; }
 
-.feedback {
-	margin-left: 20px;
-}
+.control { width: 60px;	height: 50px;	border: 1px solid blue;	float: left;	margin: 5px;	background-color: #aaa555 }
+
+.feedback { margin-left: 20px; }
