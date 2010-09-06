@@ -16,7 +16,7 @@ h1 {
   font-size: 1.0em;
 }
 
-.prev, .next {
+.prev, .next, .show {
 	cursor: pointer;
 }
 

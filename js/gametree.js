@@ -52,23 +52,13 @@ function create_gametree() {
 	function link_nodes(move, nodehandle_from, nodehandle_to) {
 		move.nodehandle_after_move = nodehandle_to;
 		nodehandle_from.moves_from_node.push(move);
-
-		// is this necessary?
-	  //nodehandle_to.move = move, // move that lead to this position
 	}
 	
 	function make_move(move, nodehandle) {
-		//console.log(move);
-		//console.log(nodehandle.gamestate.steps);
-		//var gamestate_prev = !!nodehandle ? nodehandle.gamestate : ARIMAA.get_initial_gamestate();
-		//var board_prev = !!nodehandle ? nodehandle.board : empty_board();
 		var gamestate_prev = nodehandle.gamestate;
 		var board_prev = nodehandle.board;
 
-		//FIXME: making move to gametree should be behind common interface with getting new board
 		var result = make_steps(gamestate_prev, board_prev, move.steps);
-		
-		//console.log(result.gamestate.turn);
 		
 		var id = get_unique_id();
 		
