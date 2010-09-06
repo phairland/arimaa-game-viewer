@@ -325,15 +325,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		var current = get_current_node();
 		if(!current) return;
 		
-  	var comments = current.comments;
-  	
-  	var text = "";
-  	GENERIC.for_each(comments, function(comment) {
-  		text += "\n" + comment;
-  	});
-
-		if(comments.length > 0) console.log(comments);  	
-  	$('.comments_for_node').val(text);
+  	$('.comments_for_node').val(current.comment);
 	}
 	
   function update_selected_nodehandle_view() {
@@ -365,10 +357,34 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		GENERIC.for_each(gametree.get_nodehandles(), function(nodehandle) {
 			//console.log(nodehandle);
 			var dom_nodehandle = create_dom_nodehandle(nodehandle);
-			$('.gametree').append(dom_nodehandle);
+			//$('.gametree').append(dom_nodehandle);
 			apply_gametree_stylistics();
 		});
+		
+		GENERIC.for_each(gametree.get_nodehandles(), function(nodehandle) {
+			var dom_nodehandle = create_tree_nodehandle(nodehandle);
+			$('.gametree2').append(dom_nodehandle);
+			//apply_gametree_stylistics();
+		});
+		
+		$('.gametree2').jstree();		
   }
+  
+  function create_tree_nodehandle(nodehandle) {
+  	if(nodehandle.moves_from_node.length === 0) return $('');
+
+		var movename = nodehandle.moves_from_node[0].id /* show main variant */;
+		var side = nodehandle.gamestate.turn.side;									 
+
+  	var result = '';
+  	result += '<ul>';
+			result += '<li id="' + nodehandle.id + '">';
+			result += '<a href="#">' + movename + '</a>';
+			result += '</li>';
+  	result += '</ul>';
+  	return $(result);
+  }
+  
   
 	function import_game() {
 		var notated_game = $('#imported_game').val();
@@ -443,14 +459,18 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 				show_next_move_slowly();
 		});
 		
-		$('.make_comment').click(function() {
-				var comment = $('.comment').val();
-				$('.comment').val('');
+		$('.comments_for_node').focusout(function() {
+				var comment = $(this).val();
 
-				if(comment !== '') {
-					gametree.comment_node(comment, current_gametree_id);
-					show_comments();
-				}
+				gametree.comment_node(comment, current_gametree_id);
+		});
+		
+		$('.gametree2 li').live('click', function() {
+			var id = parseInt($(this).attr('id'));
+			console.log(id);
+			showing_slowly = false;
+			gametree_goto(id);
+			show_board(board);		
 		});
 		
 	});

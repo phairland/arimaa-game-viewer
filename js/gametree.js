@@ -39,7 +39,7 @@ function create_gametree() {
 			'board': board,
 			'gamestate': gamestate,
 			'moves_from_node': [],
-			'comments': []
+			'comment': ''
 		}
 		
 		nodes[id] = initial_handle;
@@ -67,7 +67,7 @@ function create_gametree() {
 		  'board': result.board,
 		  'gamestate': result.gamestate,
 		  'moves_from_node': [],
-		  'comments': []
+		  'comment': ''
 		}
 
 		link_nodes(move, nodehandle, new_nodehandle);
@@ -107,7 +107,7 @@ function create_gametree() {
 	}
 	
 	function comment_node(text, id) {
-		select_node(id).comments.push(text);
+		select_node(id).comment = text;
 	}
 	
   return {

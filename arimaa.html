@@ -6,6 +6,9 @@
 	<link rel="stylesheet" type="text/css" href="css.css" />
   <title>Arimaa collaborative analysis board</title>
   <script type="text/Javascript" src="js/jquery.js"></script>
+  <script type="text/javascript" src="js/jquerytree/jquery.hotkeys.js"></script> 
+  <script type="text/javascript" src="js/jquerytree/jquery.cookie.js"></script>
+  <script type="text/javascript" src="js/jquerytree/jquery.jstree.js"></script>  
   <script type="text/Javascript" src="js/generic.js"></script>
   <script type="text/Javascript" src="js/arimaa.js"></script>
   <script type="text/Javascript" src="js/board.js"></script>
@@ -24,30 +27,55 @@
   <div id="arrow_right" class="arrow"><img src="pics/arrow_right.png" class="arrownormal" /><img src="pics/arrow_right_selected.png" class="arrowhover" /></div>
 
   <div class="wrapper">
-		<div class="board"></div>
-		<div class="controls">
-		  <div class="importbox">
-		    <input type="textarea" id="imported_game"></input>
-		    <input type="button" id="import_game" value="Import"></input>
-		  </div>
-		  
-		  <button class="prev control"><img src="pics/arrow_left.png"/></button>
-		  <button class="next control"><img src="pics/arrow_right.png"/></button>
-		  <button class="show control">Show</button>
+		<div class="wrapper">
+			<div class="board"></div>
+			<div class="controls">
+				<div class="importbox">
+					<input type="textarea" id="imported_game"></input>
+					<input type="button" id="import_game" value="Import"></input>
+				</div>
+				
+				<button class="prev control"><img src="pics/arrow_left.png"/></button>
+				<button class="next control"><img src="pics/arrow_right.png"/></button>
+				<button class="show control">Show</button>
+			</div>
+			<div class="nodeinfobox">
+				<div class="turn"></div>
+				<p>Comments</p>
+				<textarea class="comments_for_node">saa</textarea>
+			</div>
+			<div class="comment_box">
+				<textarea class="comment"></textarea
+				<button class="make_comment control">Send</button>
+			</div>
+			
+			<div class="clear"></div>
 		</div>
-		<div class="nodeinfobox">
-		  <div class="turn"></div>
-		  <p>Comments</p>
-		  <textarea class="comments_for_node">saa</textarea>
-		</div>
-    <div class="gametree"></div>		
-    <div class="comment_box">
-      <textarea class="comment"></textarea
-      <button class="make_comment control">Send</button>
-    </div>
-		
+		<div class="gametree"></div>
 		<div class="clear"></div>
-  </div>
+	</div>
+
+		<div class="gametree2">
+		<!--
+			<ul>
+				<li id="phtml_1">
+					<a href="#">Root node 1</a>
+					<ul>
+						<li id="phtml_2">
+							<a href="#">Child node 1</a>
+						</li>
+						<li id="phtml_3">
+							<a href="#">Child node 2</a>
+						</li>
+					</ul>
+				</li>
+				<li id="phtml_4">
+					<a href="#">Root node 2</a>
+				</li>
+			</ul>
+			-->
+		<div>		
+
 		
   <div class="feedback">
    

@@ -1,3 +1,11 @@
+
+.gametree2 {
+	width: 500px;
+	position: absolute;
+	top: 50px;
+	left: 800px;
+}
+
 body {
 	/* font-family: Verdana; */
   width: 1000px; background-color: #333; margin: 0;
@@ -17,11 +25,11 @@ h1 {
 
 .arrow { 	padding: 0px; margin: 0px; border: 0px; 	position: absolute; 	display: none; }
 
-.nodeinfobox { width: 200px; height: 200px; float: right; }
+.nodeinfobox { width: 200px; float: right; }
 .nodeinfobox p { font-size: 0.9em; margin: 5px; }
 
 .turn { color: red; }
-.comments_for_node { width: 160px; background-color: #ddd; color: black; padding: 5px; margin: 5px; }
+.comments_for_node { width: 190px; height: 200px; background-color: #ddd; color: black; padding: 5px; margin: 10px; font-size: 0.8em; float: right; }
 
 .comment { height: 50px; width: 420px; float: left; }
 .comment_box { float: left; margin: 5px; }
@@ -37,7 +45,7 @@ h1 {
 
 .wrapper { width: 760px; border: 1px solid gray; }
 
-.gametree { border: 1px solid red; float: right;	width: 200px; margin: 5px; }
+.gametree { border: 1px solid red; float: left;	width: 200px; margin: 5px; }
 
 .nodehandle:hover {	background-color: pink !important; }
 
