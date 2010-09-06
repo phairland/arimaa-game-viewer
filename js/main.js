@@ -68,9 +68,11 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		var nodehandle = result.nodehandle;
 		var move_index = result.move_index;
 
+		var id = current_nodehandle.id + "_" + move_index;
+		
 		// id and name for treenode
 		var js = {
-			'attr': {'id': current_nodehandle.id.toString(), 'move_index': move_index.toString() },
+			'attr': {'id': id, 'move_index': move_index.toString() },
 			'data': variation_name.toString()
 		}
 		
@@ -286,9 +288,6 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	function show_next_move_slowly() {
 		var node = gametree.select_node(current_gametree_id);
 
-		console.log(node);
-		//console.log(node);
-		
 		//var steps = imported_game.get_steps_in_next_move();
 		if(node.moves_from_node.length > 0) {
 			var steps = node.moves_from_node[0].steps;
@@ -367,8 +366,10 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
   	$('.selected_handle').removeClass('selected_handle');
   	$('.nodehandle[id="' + current_gametree_id + '"]').addClass('selected_handle');
   	*/
+  	var nodeid = current_gametree_id + "_" + "0";
+  	
   	$('.gametree2').jstree('deselect_all');
-  	$('.gametree2').jstree('select_node', '#' + current_gametree_id);
+  	$('.gametree2').jstree('select_node', '#' + nodeid); //FIXME: should work on variations too, 0 = main game line
   }
 
  	function create_dom_nodehandle(nodehandle) {
@@ -390,6 +391,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		$('.nodehandle').remove();
 		$('.gametree2').children().remove();
 
+		//FIXME: can be recursive with variations
   	GENERIC.for_each(moves, function(move) {
 			var result = gametree.make_move(move, nodehandle);
 			var new_nodehandle = result.nodehandle;
@@ -407,14 +409,14 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		
 		GENERIC.for_each(gametree.get_nodehandles(), function(nodehandle) {
 			if(nodehandle.moves_from_node.length > 0) {
-				var dom_nodehandle = create_tree_nodehandle(nodehandle);
+				var dom_nodehandle = create_tree_nodehandle(nodehandle, 0);
 				$('.gametree2').append(dom_nodehandle);
 				//apply_gametree_stylistics();
 			}
 		});
 		
 		current_gametree_id = initial_handle.id;
-		var initially_selected_node = initial_handle.id.toString();
+		var initially_selected_node = initial_handle.id + "_" + 0;
 		
 		$('.gametree2').jstree({
 				"ui": { "initially_select" : [ initially_selected_node ] },
@@ -422,7 +424,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 			});
   }
   
-  function create_tree_nodehandle(nodehandle) {
+  function create_tree_nodehandle(nodehandle, move_index) {
   	
 		var movename = nodehandle.moves_from_node.length === 0 ? 
 										nodehandle.gamestate.turn.side.slice(0, 1) + "#"
@@ -439,7 +441,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 
   	var result = '';
   	result += '<ul>';
-			result += '<li id="' + nodehandle.id + '">';
+			result += '<li id="' + nodehandle.id + "_" + move_index + '">';
 			result += '<a href="#">' + movename + '</a>';
 			result += '</li>';
   	result += '</ul>';
@@ -527,12 +529,17 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		});
 		
 		$('.gametree2 li').live('click', function() {
-			var id = parseInt($(this).attr('id'));
+			var id = get_nodehandle_id_from_tree_elem($(this));
 			showing_slowly = false;
 			gametree_goto(id);
 			show_board(board);		
 		});
 		
 	});
+		
+	function get_nodehandle_id_from_tree_elem(elem) {
+		var id = elem.attr('id').split("_")[0];
+		return parseInt(id);
+	}
 	
 }();
