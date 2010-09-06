@@ -68,9 +68,26 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		var dom_nodehandle = create_dom_nodehandle(nodehandle);
 		$('.gametree').append(dom_nodehandle);
 	}
+
+	function show_turn() {
+		if(gamestate.turn === ARIMAA.gold) {
+			$('.turn')
+				.text("Gold to move")
+				.css('color', "yellow");			
+		} else {
+			$('.turn')
+				.text("Silver to move")
+				.css('color', "#ccc");
+		}
+	}
+	
+	function show_current_position_info() {
+		show_comments(); //FIXME not the best place
+		show_turn();
+	}
 	
 	function show_board(board) {
-		show_comments(); //FIXME not the best place
+		show_current_position_info(); //FIXME not the best place
 		
   	var dom_board = create_dom_board(board);
   	$('.board').html(dom_board);

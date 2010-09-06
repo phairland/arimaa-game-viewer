@@ -19,6 +19,8 @@ h1 {
 
 .nodeinfobox { width: 200px; height: 200px; float: right; }
 .nodeinfobox p { font-size: 0.9em; margin: 5px; }
+
+.turn { color: red; }
 .comments_for_node { width: 160px; background-color: #ddd; color: black; padding: 5px; margin: 5px; }
 
 .comment { height: 50px; width: 420px; float: left; }
