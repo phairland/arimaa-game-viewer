@@ -73,6 +73,7 @@ var ARIMAA = ARIMAA || function() {
 				 
 			if(!!piece) {
 				if(is_coordinate_capturing(trap_coord, board)) {
+					 console.log("captured", piece);
 					 board[trap_coord.row][trap_coord.col] = {} // captures piece
 					 return board;
 				}
@@ -316,6 +317,7 @@ var ARIMAA = ARIMAA || function() {
   			new_gamestate.steps = steps_in_setting_move;
   		} else {
   			new_gamestate.steps = steps_in_move;
+  			new_gamestate.type = 'normal';
   		}
 
   	  new_gamestate.turn = gamestate.turn === gold ? silver : gold;
@@ -336,7 +338,8 @@ var ARIMAA = ARIMAA || function() {
   function get_initial_gamestate() {
   	return {
 	  'turn': gold,
-	  'steps': steps_in_setting_move
+	  'steps': steps_in_setting_move,
+	  'type': 'setting'
 	  }
 	}
   

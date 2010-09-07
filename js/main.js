@@ -85,7 +85,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 
 		// node where there's no moves yet
 		if(current_nodehandle.moves_from_node.length === 0) {
-			make_continuation_to_variation(current_nodehandle);
+			//make_continuation_to_variation(current_nodehandle);
 			return;
 		}
 		
@@ -100,6 +100,8 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 			'id': variation_name, 
 			'steps': stepbuffer
 		}
+		
+		stepbuffer = [];
 		
 		var result = gametree.make_move(move, current_nodehandle);
 		var nodehandle = result.nodehandle;
@@ -123,12 +125,12 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		// if first move in this line of play, put it as a sibling, otherwise it's a variation (of maybe a variation)
 		var node_position_in_tree = current_nodehandle.moves_from_node.length === 1 ? "last" : "inside";
 		
-		console.log(current_nodehandle);
-		console.log(node_position_in_tree);
+		//console.log(current_nodehandle);
+		//console.log(node_position_in_tree);
 		
 		//var where_to = "#" + current_gametree_id;
 		var where_to = $('.gametree2').jstree('get_selected');
-		console.log(where_to);
+		//console.log(where_to);
 		
 		// create variation
 		$('.gametree2').jstree("create", where_to, node_position_in_tree, js, false, true);
@@ -198,20 +200,20 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	function bind_move_piece() {
 		$('.arrow').click(function() {
 			var new_coordinate = coordinates_from_arrow($(this));
-			move_piece(selected, new_coordinate);
+			make_step_for_piece(selected, new_coordinate);
 		});
 	}
 	
 	// this is for making a new move
-	function move_piece(selected, new_coordinate) {
+	function make_step_for_piece(selected, new_coordinate) {
 		if(selected === undefined) return;
 
 		var piece = board[selected.row][selected.col];
-		var move = { 'from': selected, 'to': new_coordinate, 'piece': piece } 
+		var step = { 'from': selected, 'to': new_coordinate, 'piece': piece } 
 		//FIXME: making move to gametree should be behind common interface with getting new board
 		result = ARIMAA.move_piece(gamestate, board, selected, new_coordinate);
 		
-		make_step_to_gametree(move); // move should be renamed to step
+		make_step_to_gametree(step);
 		// if turn changed, commit the steps into gametree as a move
 		if(result.gamestate.turn !== gamestate.turn) make_move_to_gametree();
 		
@@ -222,7 +224,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	}
 
 	// this is for showing already made moves
-	function show_move_piece(selected, new_coordinate) {
+	function show_make_step_for_piece(selected, new_coordinate) {
 		var piece = board[selected.row][selected.col];
 		var move = { 'from': selected, 'to': new_coordinate, 'piece': piece } 
 		//FIXME: making move to gametree should be behind common interface with getting new board
@@ -316,7 +318,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 			//show_board(board);
 			
 		} else {
-			show_move_piece(step.from, step.to);
+			show_make_step_for_piece(step.from, step.to);
 		}
 	}
 
@@ -351,7 +353,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		var id = elem.attr('id');
 		if(id === undefined) throw "get_move_index: id is undefined";
 		var move_index = id.split("_")[1];
-		console.log(move_index);
+		//console.log(move_index);
 		if(move_index === undefined || move_index === '') return false;
 		return parseInt(move_index); 
 	}
@@ -362,9 +364,10 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 
 	function show_variation(move_index) {
 		if(move_index >= gametree.select_node(current_gametree_id).moves_from_node.length) {
-			console.log("no variation: " + move_index);
 			return;
 		}
+		
+		console.log(gametree.select_node(current_gametree_id).moves_from_node[move_index]);
 		
 		var nextid = gametree.next_nodeid(current_gametree_id, move_index);
 		current_move_index = 0;
@@ -406,7 +409,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
       	show_previous();
       }
 
-      console.log(code);
+      //console.log(code);
       if(code === 38) import_game(); // for debugging purposes quick importing
       if(code === 40) {
       	if(showing_slowly) return;

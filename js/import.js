@@ -48,6 +48,7 @@ function create_import_game(moves) {
 	}
 	
 	function get_steps_in_next_move() {
+		console.log("get steps");
 		var result = [];
 
 		var current = currentmove;
