@@ -53,6 +53,7 @@ function create_gametree() {
 	function link_nodes(move, nodehandle_from, nodehandle_to) {
 		move.nodehandle_after_move = nodehandle_to;
 		nodehandle_from.moves_from_node.push(move);
+	  nodehandle_to.previous_nodehandle = nodehandle_from;
 		return nodehandle_from.moves_from_node.length - 1;
 	}
 	
@@ -82,16 +83,19 @@ function create_gametree() {
 		}
 	}
 	
-	function next_nodeid(prev_node_id) {
+	function next_nodeid(prev_node_id, move_index) {
 		if(prev_node_id === undefined) return first_id;
 		else if(prev_node_id >= ids) ids;
-		else return prev_node_id + 1;
+		else return	select_node(prev_node_id).moves_from_node[!!move_index ? move_index : 0].nodehandle_after_move.id
+//	else return prev_node_id + 1; //FIXME: this is ugly hack
 	}
 	
 	function previous_nodeid(prev_node_id) {
 		if(prev_node_id === undefined) return first_id;
 		else if(prev_node_id <= first_id) first_id;
-		else return prev_node_id - 1;
+		else return	select_node(prev_node_id).previous_nodehandle.id;
+//			
+		//else return prev_node_id - 1;
 	}
 	
 	function previous_move() {
