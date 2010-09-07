@@ -75,14 +75,28 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 			'attr': {'id': id, 'move_index': move_index.toString() },
 			'data': variation_name.toString()
 		}
+
+		var id2 = nodehandle.id + "_" + 0; // no moves there yet
+
+		var js2 = {
+			'attr': {'id': id2 },
+			'data': "-"
+		}
 		
 		// if first move in this line of play, put it as a sibling, otherwise it's a variation (of maybe a variation)
-		var node_position_in_tree = current_nodehandle.moves_from_node.length === 1 ? "last" : "inside";
+		var node_position_in_tree = current_nodehandle.moves_from_node.length === 1 ? "after" : "inside";
 		
 		console.log(current_nodehandle);
 		console.log(node_position_in_tree);
 		
-		$('.gametree2').jstree("create", "#" + current_gametree_id, node_position_in_tree, js, false, true);
+		//var where_to = "#" + current_gametree_id;
+		var where_to = $('.gametree2').jstree('get_selected');
+		console.log(where_to);
+		
+		// create variation
+		$('.gametree2').jstree("create", where_to, node_position_in_tree, js, false, true);
+		// create after variation
+		$('.gametree2').jstree("create", "#" + id /* after just created node */, "after", js2, false, true);
 		
 		/*
 		var dom_nodehandle = create_dom_nodehandle(nodehandle);
@@ -419,6 +433,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		var initially_selected_node = initial_handle.id + "_" + 0;
 		
 		$('.gametree2').jstree({
+				"core": { "animation": 0, "html_titles": true },
 				"ui": { "initially_select" : [ initially_selected_node ] },
 				"plugins" : [ "themes", "html_data", "ui", "crrm" ]
 			});
@@ -431,9 +446,9 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 									: nodehandle.moves_from_node[0].id /* show main variant */;
 
 		if(nodehandle.moves_from_node.length > 0) {
-			movename += " " + GENERIC.reduce("", nodehandle.moves_from_node[0].steps, function(result, step) { return step.notated + " " + result; });
-			if(movename.length > 20) {
-			  movename = movename.slice(0, 20) + "...";
+			movename = "<strong>" + movename + "</strong>&nbsp;" + GENERIC.reduce("", nodehandle.moves_from_node[0].steps, function(result, step) { return step.notated + " " + result; });
+			if(movename.length > 50) {
+			  movename = movename.slice(0, 50) + "...";
 			}
 		}
 									
