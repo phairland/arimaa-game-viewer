@@ -1,5 +1,6 @@
 var GENERIC = GENERIC || function() {
   return {
+  	'log': log,
     'for_all': for_all,
     'map': map,
     'filter': filter,
@@ -18,7 +19,11 @@ var GENERIC = GENERIC || function() {
     'existsIn': existsIn,
     'exists': exists
   };
-
+  
+  function log(message) {
+  	if(!!console) console.log(message); else alert(message);
+  }
+  
   function existsIn(value, array) {
     return exists(array, function(elem) { return elem === value; });
   } 

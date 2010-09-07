@@ -85,7 +85,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 
 		// node where there's no moves yet
 		if(current_nodehandle.moves_from_node.length === 0) {
-			//make_continuation_to_variation(current_nodehandle);
+			make_continuation_to_variation(current_nodehandle);
 			return;
 		}
 		
@@ -134,8 +134,10 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		
 		// create variation
 		$('.gametree2').jstree("create", where_to, node_position_in_tree, js, false, true);
+		$('.gametree2').jstree('set_type', 'singleton_before', '#' + id);
+		
 		// create after variation
-		$('.gametree2').jstree("create", "#" + id /* after just created node */, "after", js2, false, true);
+		//$('.gametree2').jstree("create", "#" + id /* after just created node */, "after", js2, false, true);
 		
 		/*
 		var dom_nodehandle = create_dom_nodehandle(nodehandle);
@@ -363,11 +365,12 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	}
 
 	function show_variation(move_index) {
-		if(move_index >= gametree.select_node(current_gametree_id).moves_from_node.length) {
+		var cur_node = gametree.select_node(current_gametree_id);
+		if(move_index >= cur_node.moves_from_node.length) {
 			return;
 		}
 		
-		console.log(gametree.select_node(current_gametree_id).moves_from_node[move_index]);
+		//GENERIC.log(gametree.select_node(current_gametree_id).moves_from_node[move_index]);
 		
 		var nextid = gametree.next_nodeid(current_gametree_id, move_index);
 		current_move_index = 0;
@@ -375,7 +378,19 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		if(!!nextid) {
 			gametree_goto(nextid);
 			show_board(board);
-		}		
+		}
+		
+		// NOTE! current_gametree_id has been updated by gametree_goto
+		var node_now = gametree.select_node(current_gametree_id);
+		if(node_now.moves_from_node.length === 0) {
+			var treenode_id = "#" + cur_node.id + "_" + move_index;
+			GENERIC.log(treenode_id);
+			$('.gametree2').jstree('set_type', 'singleton_after', treenode_id);
+			//$('.gametree2').jstree('select_node', treenode_id);
+			//current_move_index = move_index;
+			//current_gametree_id = 			
+			GENERIC.log("here we are at the end");
+		}
 	}
 
 	function show_previous() {
@@ -491,8 +506,34 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		
 		$('.gametree2').jstree({
 				"core": { "animation": 0, "html_titles": true },
-				"ui": { "initially_select" : [ initially_selected_node ] },
-				"plugins" : [ "themes", "html_data", "ui", "crrm" ]
+				"ui": { "initially_select" : [ /* initially_selected_node */ ] },
+				"types" : {
+											"valid_children" : [ "all" ],
+											"types" : {
+													"singleton_before" : {
+															"icon" : {
+																	"image" : "pics/move_before.png"
+															},
+															"valid_children" : [ "all" ],
+															"max_depth" : 2,
+															"hover_node" : false,
+															"select_node" : function () {return true;}
+													},
+													"singleton_after" : {
+															"icon" : {
+																	"image" : "pics/move_after.png"
+															},
+															"valid_children" : [ "all" ],
+															"max_depth" : 2,
+															"hover_node" : false,
+															"select_node" : function () {return true;}
+													},
+													"default" : {
+															"valid_children" : [ "default" ]
+													}
+											}
+									},				
+					"plugins" : [ "themes", "html_data", "ui", "crrm", "types" ]
 			});
   }
   
@@ -523,13 +564,19 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
   
 	function import_game() {
 		var notated_game = $('#imported_game').val();
-		
-		if(notated_game === "") return;
+
+		if(notated_game === "") {
+			return;
+		}
 		else {
 			board = empty_board();
 			
-			var structured_moves = TRANSLATOR.convert_to_gametree(notated_game)
-			build_move_tree(generate_moves(structured_moves));
+			var structured_moves = TRANSLATOR.convert_to_gametree(notated_game);
+			//console.log(structured_moves);
+			var moves = generate_moves(structured_moves);
+			//console.log(moves);
+			build_move_tree(moves);
+						
 			show_board(board);
 		}
 	}

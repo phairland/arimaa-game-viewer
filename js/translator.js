@@ -38,7 +38,7 @@ var TRANSLATOR = TRANSLATOR || function() {
 	}
 	
 	function get_step_from_token(token) {
-		return token;
+		return token !== "" ? token : false; 
 	}
 	
 	function get_steps(tokens) {
@@ -48,7 +48,9 @@ var TRANSLATOR = TRANSLATOR || function() {
 			if(!!get_moveid(tokens[i])) return result;
 			else {
 				var step = get_step_from_token(tokens[i]);
-				result.push(step);
+				if(!!step) {
+				  result.push(step);
+				}
 			}
 		}
 		

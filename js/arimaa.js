@@ -73,7 +73,6 @@ var ARIMAA = ARIMAA || function() {
 				 
 			if(!!piece) {
 				if(is_coordinate_capturing(trap_coord, board)) {
-					 console.log("captured", piece);
 					 board[trap_coord.row][trap_coord.col] = {} // captures piece
 					 return board;
 				}

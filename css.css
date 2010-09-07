@@ -35,7 +35,7 @@ h1 {
 
 .comment { height: 50px; width: 420px; float: left; }
 .comment_box { float: left; margin: 5px; }
-.make_comment {}
+.make_comment { }
 
 .arrowhover { display: none; }
 

@@ -2,7 +2,6 @@
 - verification of imported annotated game
 
 - stepbuffer clearing (undo & user presses next/prev move)
-- show comments in nodes
 
 - players could suggest a move to particular node, so that they are put into suggested moves and one who has control could pick it up
 
