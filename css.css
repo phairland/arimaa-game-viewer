@@ -1,11 +1,16 @@
 
-.gametree2 {
-	font-family: Courier;
-	font-size: 0.8em;
-	width: 500px;
+.scrollabletree {
 	position: absolute;
 	top: 50px;
 	left: 800px;
+  overflow:auto;
+  height: 600px;
+	width: 500px;
+}
+
+.gametree2 {
+	font-family: Courier;
+	font-size: 0.8em;
 }
 
 body {

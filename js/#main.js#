@@ -565,8 +565,6 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 					"plugins" : [ "themes", "html_data", "ui", "crrm", "types" ]
 			});
 		
-		  $('.scrollabletree').stop();
-		
 		  var treedom = $('.gametree2');
 		  
 
