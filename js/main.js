@@ -484,20 +484,11 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		});
 
 		GENERIC.for_each(gametree.get_nodehandles(), function(nodehandle) {
-			//console.log(nodehandle);
-			var dom_nodehandle = create_dom_nodehandle(nodehandle);
-			//$('.gametree').append(dom_nodehandle);
-			apply_gametree_stylistics();
-		});
-		
-	  
-		GENERIC.for_each(gametree.get_nodehandles(), function(nodehandle) {
 			if(nodehandle.moves_from_node.length > 0) {
 				var dom_nodehandle = create_tree_nodehandle(nodehandle, 0);
 				$('.gametree2').append(dom_nodehandle);
 				//lastnode = $('#' + dom_nodehandle.find('li').attr('id'));
 				//console.log(lastnode);
-				//apply_gametree_stylistics();
 			}
 		});
 		
@@ -528,12 +519,61 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 															"hover_node" : false,
 															"select_node" : function () {return true;}
 													},
+													"gmove_before" : {
+															"icon" : {
+																	"image" : "pics/gmove_before.png"
+															},
+															"valid_children" : [ "all" ],
+															"max_depth" : 2,
+															"hover_node" : false,
+															"select_node" : function () {return true;}
+													},
+													"gmove_after" : {
+															"icon" : {
+																	"image" : "pics/gmove_after.png"
+															},
+															"valid_children" : [ "all" ],
+															"max_depth" : 2,
+															"hover_node" : false,
+															"select_node" : function () {return true;}
+													},
+													"smove_before" : {
+															"icon" : {
+																	"image" : "pics/smove_before.png"
+															},
+															"valid_children" : [ "all" ],
+															"max_depth" : 2,
+															"hover_node" : false,
+															"select_node" : function () {return true;}
+													},
+													"smove_after" : {
+															"icon" : {
+																	"image" : "pics/smove_after.png"
+															},
+															"valid_children" : [ "all" ],
+															"max_depth" : 2,
+															"hover_node" : false,
+															"select_node" : function () {return true;}
+													},
+													
 													"default" : {
 															"valid_children" : [ "default" ]
 													}
 											}
 									},				
 					"plugins" : [ "themes", "html_data", "ui", "crrm", "types" ]
+			});
+		
+		  var treedom = $('.gametree2');
+
+			GENERIC.for_each(gametree.get_nodehandles(), function(nodehandle) {
+				for(var i = 0; i < nodehandle.moves_from_node.length; ++i) {
+					var nodetype = nodehandle.gamestate.turn === ARIMAA.gold ? "gmove_before" : "smove_before";
+					var move_index = i;
+					var selector = "#" + nodehandle.id + "_" + move_index;
+					//console.log(selector);
+					treedom.jstree('set_type', nodetype, selector);
+				}
 			});
   }
   
@@ -594,18 +634,6 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		gamestate = node.gamestate;
 	}
 	
-	function apply_gametree_stylistics() {
-		$('.nodehandle[side="silver"]').css('background-color', 'gray');
-		$('.nodehandle[side="gold"]')
-			.css('background-color', 'yellow')
-			.css('color', 'black');
-			$('.nodehandle:first').click();
-			$('.nodehandle').live('click', function(){
-				$('.selected_handle').removeClass('selected_handle');
-				$(this).addClass('selected_handle');
-			});
-	}
-	
 	$(function() {
 		bind_import_game();
 
@@ -638,9 +666,10 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 				gametree.comment_node(comment, current_gametree_id);
 		});
 		
-		$('.gametree2 li').live('click', function() {
-			var id = get_nodehandle_id_from_tree_elem($(this));
-			current_move_index = get_move_index_from_tree_elem($(this)); 
+		$('.gametree2 li a').live('click', function() {
+			var elem = $(this).closest('li');
+			var id = get_nodehandle_id_from_tree_elem(elem);
+			current_move_index = get_move_index_from_tree_elem(elem); 
 
 			showing_slowly = false;
 			gametree_goto(id);
