@@ -1,9 +1,6 @@
-	function show_comments() {
-		return; // FIXME: needs access to current node
-		var current = get_current_node();
-		if(!current) return;
-		
-  	$('.comments_for_node').val(current.comment);
+	function show_comments(current_node) {
+		if(!current_node) return;
+  	$('.comments_for_node').val(current_node.comment);
 	}	
 
 	function show_turn(gamestate) {
@@ -18,14 +15,12 @@
 		}
 	}
 	
-	function show_current_position_info(gamestate) {
-		show_comments(); //FIXME not the best place
+	function show_current_position_info(gamestate, current_node) {
+		show_comments(current_node);
 		show_turn(gamestate);
 	}
 	
-	function show_board(board, gamestate) {
-		show_current_position_info(gamestate); //FIXME not the best place
-		
+	function show_dom_board(board, gamestate) {
   	var dom_board = create_dom_board(board);
   	$('.board').html(dom_board);
   	GENERIC.for_each(ARIMAA.traps, function(trap) {

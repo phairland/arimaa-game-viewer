@@ -69,7 +69,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	}
 	
 	function make_move_to_gametree() {
-		var current_nodehandle = gametree.select_node(viewer.current_id());
+		var current_nodehandle = get_current_node();
 
 		// node where there's no moves yet
 		if(current_nodehandle.moves_from_node.length === 0) {
@@ -190,7 +190,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		*/
 		viewer.setBoard(result.board);
 		viewer.setGamestate(result.gamestate);
-		show_board(viewer.board(), viewer.gamestate());
+		show_board();
 		clear_arrows();
 	}
 
@@ -209,7 +209,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		board = result.board;
 		gamestate = result.gamestate;
 		*/
-		show_board(viewer.board(), viewer.gamestate());
+		
 		clear_arrows();
 	}
 	
@@ -220,7 +220,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	// whether new move can be made:
   // either singleton or only followup is singleton
  function can_make_move() {
-		var cur_node = gametree.select_node(viewer.current_id());
+		var cur_node = get_current_node();
 		
 		if(moves_from(cur_node) === 0) return true; // singleton
 		
@@ -328,7 +328,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	}
 	
 	function show_next_move_slowly() {
-		var node = gametree.select_node(viewer.current_id());
+		var node = get_current_node();
 
 		if(node.moves_from_node.length > 0) {
 			var move_index = current_move_index;
@@ -351,7 +351,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 			if(viewer.current_id() !== nodeid) {
 				// set correct starting position first and have a delay
 				viewer.gametree_goto(nodeid);
-				show_board(viewer.board(), viewer.gamestate());
+				show_board();
 				setTimeout(show_fun, show_step_delay);
 			} else {
 				show_fun();
@@ -365,7 +365,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	}
 
 	function show_variation(move_index) {
-		var cur_node = gametree.select_node(viewer.current_id());
+		var cur_node = get_current_node();
 		if(move_index >= cur_node.moves_from_node.length) {
 			return;
 		}
@@ -378,10 +378,10 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		if(!nextid) return;
 		
 		viewer.gametree_goto(nextid);
-		show_board(viewer.board(), viewer.gamestate());
+		show_board();
 		
 		// NOTE! current_gametree_id has been updated by gametree_goto
-		var node_now = gametree.select_node(viewer.current_id());
+		var node_now = get_current_node();
 		if(node_now.moves_from_node.length === 0) {
 			var treenode_id = "#" + cur_node.id + "_" + move_index;
 			
@@ -408,7 +408,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		//var previd = gametree.previous_nodeid(current_gametree_id);
 		if(!!previd) {
 			viewer.gametree_goto(previd);
-			show_board(viewer.board(), viewer.gamestate());
+			show_board();
 			update_selected_nodehandle_view();
 		}		
 	}
@@ -452,7 +452,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		var jqueryNode = current_domtree_node;
 
   	if(jqueryNode.length > 0) {
-  	  GENERIC.log("updating");
+  	  //GENERIC.log("updating");
   		var last_selected = domtree.jstree('get_selected');
   		domtree.jstree('deselect_node', last_selected);
 			//domtree.jstree('deselect_all');
@@ -489,7 +489,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 
 		build_move_tree(moves);
 
-		show_board(viewer.board(), viewer.gamestate());
+		show_board();
 	}
 	
 	function build_move_tree(moves) {
@@ -507,6 +507,11 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		build_dom_tree(gametree, domtree);
 	}
 
+	function show_board() {
+		show_current_position_info(viewer.gamestate(), get_current_node());
+		show_dom_board(viewer.board(), viewer.gamestate());
+	}
+	
 	function bind_import_game() {
 		$('#import_game').click(import_game);
 	}
@@ -552,7 +557,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 			current_move_index = get_move_index_from_tree_elem(elem); 
 			showing_slowly = false;
 			viewer.gametree_goto(id);
-			show_board(viewer.board(), viewer.gamestate());
+			show_board();
 			update_selected_nodehandle_view(); // should this be done here?
 		});
 		
@@ -568,7 +573,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 				
 				showing_slowly = false;
 				viewer.gametree_goto(to_node_id);
-				show_board(viewer.board(), viewer.gamestate());
+				show_board();
 				
 				if(elem.attr('rel').indexOf("singleton_before") >= 0) {
 				  var prefix = gametree.select_node(id).gamestate.turn.side.slice(0, 1); 
