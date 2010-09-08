@@ -29,7 +29,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 
 	// where there's no move for current nodehandle, it's a "direct continuation" 
 	function make_continuation_to_variation(current_nodehandle) {
-		console.log("continuation");
+		GENERIC.log("continuation");
 		var variation_name = "-";
 		
 		var move = {
@@ -76,7 +76,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 			return;
 		}
 		
-		console.log("variation");
+		GENERIC.log("variation");
 		
 		// FIXME: something smarter for the name 
 		var variation_name = (function(){
@@ -214,7 +214,27 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	
 	function clear_arrows() {	$('.arrow').hide();	}
 	
+	function moves_from(node) { return node.moves_from_node.length; }
+
+	// whether new move can be made:
+  // either singleton or only followup is singleton
+ function can_make_move() {
+		var cur_node = gametree.select_node(viewer.current_id());
+		
+		if(moves_from(cur_node) === 0) return true; // singleton
+		
+ 		var followup = gametree.select_node(gametree.next_nodeid(viewer.current_id(), current_move_index));
+		var follow_ups_moves = moves_from(followup);
+		
+		return follow_ups_moves !== 0; 
+	}
+	
 	function show_arrows(elem) {
+		// this prevent's making same board to appear in different level in the tree
+		// i.e. variation A can have variation B and C but variation A that has variation B cannot have C
+		// only if B has a continuation, then it can be varied in subtrees
+		if(!can_make_move()) return;
+		
 		$('.arrow').hide();
 		
 		var coordinate = {
@@ -226,7 +246,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		
 		var possible_moves = ARIMAA.legal_moves(viewer.gamestate(), viewer.board(), coordinate);
 
-		//console.log(possible_moves);
+		//GENERIC.log(possible_moves);
 		
 		GENERIC.for_each(possible_moves, function(move) {
 				var x_change = move.col - coordinate.col;
@@ -385,7 +405,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
       	show_previous();
       }
 
-      //console.log(code);
+      //GENERIC.log(code);
       //if(code === 38) import_game(); // for debugging purposes quick importing
       
       if(code === 40) { // down key
@@ -407,14 +427,14 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		var jqueryNode = current_domtree_node;
 
   	if(jqueryNode.length > 0) {
-  	  console.log("updating");
+  	  GENERIC.log("updating");
   		var last_selected = domtree.jstree('get_selected');
   		domtree.jstree('deselect_node', last_selected);
 			//domtree.jstree('deselect_all');
 			domtree.jstree('select_node', jqueryNode); //FIXME: should work on variations too, 0 = main game line
 			$('.scrollabletree').scrollTo(jqueryNode, {offset: -100});
 		} else {
-			console.log("node does not exist");
+			GENERIC.log("node does not exist");
 		}
   }
 
@@ -425,7 +445,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	
   function refresh_domtree() {
   	//return;
-  	console.log("refreshing");
+  	GENERIC.log("refreshing");
 		domtree.jstree('refresh');
   }  
   
@@ -456,7 +476,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 			var new_nodehandle = result.nodehandle;
   			
 			nodehandle = new_nodehandle;
-			//console.log(nodehandle.gamestate.steps);
+			//GENERIC.log(nodehandle.gamestate.steps);
 		});
 
 		build_dom_tree(gametree, domtree);
@@ -509,6 +529,39 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 			viewer.gametree_goto(id);
 			show_board(viewer.board(), viewer.gamestate());
 			update_selected_nodehandle_view(); // should this be done here?
+		});
+		
+		$('.jstree-icon').live('mouseover', function() {
+				$(this).closest('li').addClass('icon_hover');
+		});
+
+		$('.jstree-icon').live('mouseout', function() {
+				$(this).closest('li').removeClass('icon_hover');
+		});
+		
+		$('.jstree-icon').live('click', function() {
+				var elem = $(this).closest('li');
+				
+				var id = get_nodehandle_id_from_tree_elem(elem);
+				current_move_index = get_move_index_from_tree_elem(elem);
+				var to_node_id = gametree.next_nodeid(id, current_move_index);
+				current_domtree_node = $('#' + to_node_id + "_0");				 
+				
+				showing_slowly = false;
+				viewer.gametree_goto(to_node_id);
+				show_board(viewer.board(), viewer.gamestate());
+				
+				if(elem.attr('rel').indexOf("singleton_before") >= 0) {
+				  var prefix = gametree.select_node(id).gamestate.turn.side.slice(0, 1); 
+				  domtree.jstree('set_type', prefix + 'singleton_after', elem);
+				}
+				
+				domtree.jstree('select_node', current_domtree_node);
+				update_selected_nodehandle_view(); // should this be done here?
+				
+				console.log(elem);
+				console.log(current_domtree_node);
+				return false; // don't let event buble
 		});
 		
 	  domtree.bind("deselect_node.jstree", function(event, data) {

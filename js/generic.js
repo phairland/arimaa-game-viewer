@@ -20,8 +20,14 @@ var GENERIC = GENERIC || function() {
     'exists': exists
   };
   
+  var show_alert = true;
+  
   function log(message) {
-  	if(!!console) console.log(message); else alert(message);
+  	if(console !== undefined) console.log(message); 
+  	else if(show_alert) {
+  		alert("got message (after which I say nothing: " + message);
+  		show_alert = false;
+  	}
   }
   
   function existsIn(value, array) {
