@@ -35,10 +35,20 @@
 
   	var initial_handle = gametree.get_initial_nodehandle();
 		var initially_selected_node = initial_handle.id + "_" + 0;
+
+/*		
+		function sort_tree(a, b) {
+			var ai = $(a).attr('id').split("_")[1]; // move index
+			var bi = $(b).attr('id').split("_")[1];
+			return $(a).parent() === $(b).parent() && ai > bi ? 1 : -1;
+			//return $(a).parent() === $(b).parent() && this.get_text(a) > this.get_text(b) ? 1 : -1; 
+		}
+		*/
 		
 		domtree.jstree({
 				"core": { "animation": 0, "html_titles": true },
 				"ui": { "initially_select" : [ initially_selected_node ], "select_limit": 1 },
+			//n 	"sort": sort_tree,
 				"types" : {
 											"valid_children" : [ "all" ],
 											"types" : {
@@ -139,7 +149,7 @@
 													}
 											}
 									},				
-					"plugins" : [ "themes", "html_data", "ui", "crrm", "types" ]
+							"plugins" : [ "themes", "html_data", "ui", "crrm", "types" ] //, "sort" ]
 			});
 		
 			GENERIC.for_each(gametree.get_nodehandles(), function(nodehandle) {

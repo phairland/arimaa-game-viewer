@@ -174,31 +174,41 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	function make_step_for_piece(selected, new_coordinate) {
 		if(selected === undefined) return;
 
-		var piece = board[selected.row][selected.col];
+		var piece = viewer.board()[selected.row][selected.col];
 		var step = { 'from': selected, 'to': new_coordinate, 'piece': piece } 
 		//FIXME: making move to gametree should be behind common interface with getting new board
-		result = ARIMAA.move_piece(gamestate, board, selected, new_coordinate);
+		result = ARIMAA.move_piece(viewer.gamestate(), viewer.board(), selected, new_coordinate);
 		
 		make_step_to_gametree(step);
 		// if turn changed, commit the steps into gametree as a move
-		if(result.gamestate.turn !== gamestate.turn) make_move_to_gametree();
+		if(result.gamestate.turn !== viewer.gamestate().turn) make_move_to_gametree();
 		
+		/*
 		board = result.board;
 		gamestate = result.gamestate;
-		show_board(board);
+		*/
+		viewer.setBoard(result.board);
+		viewer.setGamestate(result.gamestate);
+		show_board(viewer.board(), viewer.gamestate());
 		clear_arrows();
 	}
 
 	// this is for showing already made moves
 	function show_make_step_for_piece(selected, new_coordinate) {
-		var piece = board[selected.row][selected.col];
-		var move = { 'from': selected, 'to': new_coordinate, 'piece': piece } 
-		//FIXME: making move to gametree should be behind common interface with getting new board
-		result = ARIMAA.move_piece(gamestate, board, selected, new_coordinate);
+		var piece = viewer.board()[selected.row][selected.col];
+		var move = { 'from': selected, 'to': new_coordinate, 'piece': piece }
 		
+		//FIXME: making move to gametree should be behind common interface with getting new board
+		// í.e. this should be done to a gametree
+		result = ARIMAA.move_piece(viewer.gamestate(), viewer.board(), selected, new_coordinate);
+		
+		viewer.setBoard(result.board);
+		viewer.setGamestate(result.gamestate);
+		/*
 		board = result.board;
 		gamestate = result.gamestate;
-		show_board(board);
+		*/
+		show_board(viewer.board(), viewer.gamestate());
 		clear_arrows();
 	}
 	
@@ -500,6 +510,18 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 			show_board(viewer.board(), viewer.gamestate());
 			update_selected_nodehandle_view(); // should this be done here?
 		});
+		
+	  domtree.bind("deselect_node.jstree", function(event, data) {
+	  	var node = data.rslt.obj;
+	  	var type = node.attr('rel');
+	  	
+	  	if(type.indexOf("singleton_after") >= 0) {
+	  		var new_type = type.replace("singleton_after", "singleton_before");
+	  		domtree.jstree("set_type", new_type, node);
+	  		//update_selected_nodehandle_view();
+	  	}
+	  });
+
 		
 	  import_game();		
 	});

@@ -58,6 +58,7 @@ function create_viewer(gametree_, domtree_) {
 		'board': function() { return board; },
 		'gamestate': function() { return gamestate; },
 		'setBoard': function(b) { board = b; },
+		'setGamestate': function(g) { gamestate = g; },
 		'gametree': function(){ return gametree; },
 		'current_id': function(){ return current_id; }
 	}

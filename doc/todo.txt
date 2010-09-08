@@ -1,9 +1,11 @@
 - should rename moves to steps in code
-- verification of imported annotated game
+- verification of imported annotated game (important for user)
 
-- stepbuffer clearing (undo & user presses next/prev move)
+- stepbuffer clearing (undo & when user presses next/prev move)
 
 - players could suggest a move to particular node, so that they are put into suggested moves and one who has control could pick it up
 
 - how to show variations in UI?
+
+- steps less than 4 in a move (pass)
 
