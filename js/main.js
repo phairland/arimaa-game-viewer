@@ -322,15 +322,6 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		return parseInt(elems_in_row.index(elem));
 	}
 
-/*	
-	function show_gametree() {
-		return;
-		var handles = gametree.get_nodehandles();
-		
-		GENERIC.for_each(handles, function(elem) { $('.gametree').append(create_dom_nodehandle(elem)); });
-	}
-*/
-	
 	function show_step(step) {
 		if(step.type === 'setting') {
 			result = ARIMAA.add_piece(step.piece, step.to, board, gamestate);
@@ -492,16 +483,6 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 			console.log("node does not exist");
 		}
   }
-
- 	function create_dom_nodehandle(nodehandle) {
-		//var movename = nodehandle.gamestate.turn.slice(0, 1);
-		//FIXME last position should also be shown even though no moves yet
-		if(nodehandle.moves_from_node.length > 0) { // if moves for this position
-			var movename = nodehandle.moves_from_node[0].id /* show main variant */;
-			var side = nodehandle.gamestate.turn.side;									 
-			return $('<div class="nodehandle" side="' + side + '" id="' + nodehandle.id + '">' + movename + '</div>');
-		}
-	}
 
 	function create_tree_and_viewer(domtree) {
   	gametree = create_gametree();
