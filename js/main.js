@@ -209,7 +209,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		board = result.board;
 		gamestate = result.gamestate;
 		*/
-		
+		show_board();		
 		clear_arrows();
 	}
 	
@@ -292,17 +292,16 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 
 	function show_step(step) {
 		if(step.type === 'setting') {
-			result = ARIMAA.add_piece(step.piece, step.to, board, gamestate);
-			board = result.board;
-			gamestate = result.gamestate;
-			show_board(board);
+			var result = ARIMAA.add_piece(step.piece, step.to, viewer.board(), viewer.gamestate());
+			viewer.setBoard(result.board);
+			viewer.setGamestate(result.gamestate);
+			show_board();
 		} else if(step.type === 'removal') {
 			throw "removal step should not be handled here, the game logic should take care of it";			
 			// this can be skipped, since the effect is already done in previous step
 			
 			//board = ARIMAA.remove_piece(step.coordinate, board);
 			//show_board(board);
-			
 		} else {
 			show_make_step_for_piece(step.from, step.to);
 		}
@@ -529,6 +528,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		bind_move_piece();
 		
 		$('.arrownormal').mouseover(function() {
+			if(show_slowly) return;
 			$(this).hide();
 			$(this).closest('.arrow').find('.arrowhover').show();		
 		});
@@ -536,6 +536,10 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		$('.arrowhover').mouseout(function() {
 			$(this).hide();
 			$(this).closest('.arrow').find('.arrownormal').show();		
+		});
+		
+		$('.board').mouseout(function() {
+			$(this).find('.arrow').hide();
 		});
 		
 		$('.show').click(function() {
