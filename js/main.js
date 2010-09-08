@@ -1,5 +1,6 @@
 
 var ARIMAA_MAIN = ARIMAA_MAIN || function() {
+	var domtree;
 	var gametree = create_gametree();
 	var current_gametree_id = undefined;
 	var current_move_index = 0;
@@ -73,11 +74,20 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 
 		// if first move in this line of play, put it as a sibling, otherwise it's a variation (of maybe a variation)
 		//var where_to = "#" + current_gametree_id;
-		var where_to = $('.gametree2').jstree('get_selected');
+		var where_to = domtree.jstree('get_selected');
+		
+		
+		var nodetype = 'singleton_after';
 		
 		// create variation
-		$('.gametree2').jstree("create", where_to, "after", js, false, true);
-		
+		domtree.jstree("create", where_to, "after", js, false, true);
+		domtree.jstree('set_type', nodetype, '#' + id);
+			
+		// if node that precedes was a singleton, it must be changed to normal
+		var nodetype_preceding = 
+			current_nodehandle.previous_nodehandle.gamestate.turn.side.slice(0, 1) + 'move_before';		
+		domtree.jstree('set_type', nodetype_preceding, where_to);
+		 
 	}
 	
 	function make_move_to_gametree() {
@@ -92,7 +102,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		// FIXME: something smarter for the name 
 		var variation_name = (function(){
 			if(current_nodehandle.moves_from_node.length > 0) {
-				return "<strong>[" + current_nodehandle.moves_from_node.length + "]</strong>" + current_nodehandle.moves_from_node[0].id;
+				return current_nodehandle.moves_from_node[0].id + "&nbsp;<strong>[" + current_nodehandle.moves_from_node.length + "]</strong>";
 			} else return current_nodehandle.id;
 		})();
 
@@ -125,17 +135,21 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		// if first move in this line of play, put it as a sibling, otherwise it's a variation (of maybe a variation)
 		var node_position_in_tree = current_nodehandle.moves_from_node.length === 1 ? "last" : "inside";
 		
-		//console.log(current_nodehandle);
-		//console.log(node_position_in_tree);
-		
 		//var where_to = "#" + current_gametree_id;
-		var where_to = $('.gametree2').jstree('get_selected');
+		var where_to = domtree.jstree('get_selected');
 		//console.log(where_to);
+
+		// this must be before creating the node, since deselecting trigger event that changes the singletontype
+		domtree.jstree('deselect_all');
 		
 		// create variation
-		$('.gametree2').jstree("create", where_to, node_position_in_tree, js, false, true);
-		$('.gametree2').jstree('set_type', 'singleton_before', '#' + id);
+		domtree.jstree("create", where_to, node_position_in_tree, js, false, true);
+		domtree.jstree('set_type', 'singleton_after', '#' + id);
 		
+		var treenodeid = '#' + id;
+		console.log(treenodeid);
+		domtree.jstree('select_node', treenodeid);
+
 		// create after variation
 		//$('.gametree2').jstree("create", "#" + id /* after just created node */, "after", js2, false, true);
 		
@@ -328,9 +342,11 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 
 	function show_steps_slowly(steps) {
 		if(steps.length === 0) {
-			gametree_goto(gametree.next_nodeid(current_gametree_id, current_move_index));
+			var cur_node = gametree.next_nodeid(current_gametree_id, current_move_index);
+			gametree_goto(cur_node);
 			current_move_index = 0; // FIXME: doesn't prolly work in general
 			showing_slowly = false;
+
       update_selected_nodehandle_view();
 			return;
 		}
@@ -375,21 +391,21 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		var nextid = gametree.next_nodeid(current_gametree_id, move_index);
 		current_move_index = 0;
 		
-		if(!!nextid) {
-			gametree_goto(nextid);
-			show_board(board);
-		}
+		if(!nextid) return;
+		
+		gametree_goto(nextid);
+		show_board(board);
 		
 		// NOTE! current_gametree_id has been updated by gametree_goto
 		var node_now = gametree.select_node(current_gametree_id);
 		if(node_now.moves_from_node.length === 0) {
 			var treenode_id = "#" + cur_node.id + "_" + move_index;
-			GENERIC.log(treenode_id);
-			$('.gametree2').jstree('set_type', 'singleton_after', treenode_id);
-			//$('.gametree2').jstree('select_node', treenode_id);
+			domtree.jstree('set_type', 'singleton_after', treenode_id);
+			domtree.jstree('select_node', treenode_id);
 			//current_move_index = move_index;
 			//current_gametree_id = 			
-			GENERIC.log("here we are at the end");
+		} else {
+			update_selected_nodehandle_view();			
 		}
 	}
 
@@ -400,6 +416,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		if(!!previd) {
 			gametree_goto(previd);
 			show_board(board);
+			update_selected_nodehandle_view();
 		}		
 	}
 
@@ -410,8 +427,8 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	function is_right_arrow_key(code) { return code === 39; }
 	
 	function bind_control_move() {
-		$('.next').click(function() { show_next(); update_selected_nodehandle_view(); });
-		$('.prev').click(function() { show_previous(); update_selected_nodehandle_view(); });
+		$('.next').click(function() { show_next(); });
+		$('.prev').click(function() { show_previous(); });
 		
     $(window).keydown(function(event) {
       var code = getKeyCode(event);
@@ -436,8 +453,6 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
       if(code >= 96 && code <= 105) {
       	show_variation(code - 96);
       }
-      
-      update_selected_nodehandle_view();
     });
   }
 
@@ -450,10 +465,14 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	
   function update_selected_nodehandle_view() {
   	var nodeid = current_gametree_id + "_" + current_move_index;
-  	//console.log(nodeid);
-  	
-  	$('.gametree2').jstree('deselect_all');
-  	$('.gametree2').jstree('select_node', '#' + nodeid); //FIXME: should work on variations too, 0 = main game line
+  	var jqueryNode = $('#' + nodeid);
+
+  	if(jqueryNode.length > 0) {
+			domtree.jstree('deselect_all');
+			domtree.jstree('select_node', jqueryNode); //FIXME: should work on variations too, 0 = main game line
+
+			$('.scrollabletree').scrollTo(jqueryNode, {offset: -100});
+		}
   }
 
  	function create_dom_nodehandle(nodehandle) {
@@ -473,7 +492,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
   	var nodehandle = initial_handle;
   	
 		$('.nodehandle').remove();
-		$('.gametree2').children().remove();
+		domtree.children().remove();
 
 		//FIXME: can be recursive with variations
   	GENERIC.for_each(moves, function(move) {
@@ -487,7 +506,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		GENERIC.for_each(gametree.get_nodehandles(), function(nodehandle) {
 			if(nodehandle.moves_from_node.length > 0) {
 				var dom_nodehandle = create_tree_nodehandle(nodehandle, 0);
-				$('.gametree2').append(dom_nodehandle);
+				domtree.append(dom_nodehandle);
 				//lastnode = $('#' + dom_nodehandle.find('li').attr('id'));
 				//console.log(lastnode);
 			}
@@ -496,9 +515,9 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		current_gametree_id = initial_handle.id;
 		var initially_selected_node = initial_handle.id + "_" + 0;
 		
-		$('.gametree2').jstree({
+		domtree.jstree({
 				"core": { "animation": 0, "html_titles": true },
-				"ui": { "initially_select" : [ /* initially_selected_node */ ] },
+				"ui": { "initially_select" : [ initially_selected_node ], "select_limit": 1 },
 				"types" : {
 											"valid_children" : [ "all" ],
 											"types" : {
@@ -565,18 +584,13 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 					"plugins" : [ "themes", "html_data", "ui", "crrm", "types" ]
 			});
 		
-		  $('.scrollabletree').stop();
-		
-		  var treedom = $('.gametree2');
-		  
-
 			GENERIC.for_each(gametree.get_nodehandles(), function(nodehandle) {
 				for(var i = 0; i < nodehandle.moves_from_node.length; ++i) {
 					var nodetype = nodehandle.gamestate.turn === ARIMAA.gold ? "gmove_before" : "smove_before";
 					var move_index = i;
 					var selector = "#" + nodehandle.id + "_" + move_index;
 					//console.log(selector);
-					treedom.jstree('set_type', nodetype, selector);
+					domtree.jstree('set_type', nodetype, selector);
 				}
 			});
   }
@@ -639,6 +653,8 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	}
 	
 	$(function() {
+		domtree = $('.gametree2');
+		
 		bind_import_game();
 
 		bind_control_move();
@@ -677,8 +693,13 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 
 			showing_slowly = false;
 			gametree_goto(id);
-			show_board(board);		
+			show_board(board);
+			update_selected_nodehandle_view(); // should this be done here?
 		});
+		
+		domtree.bind("deselect_all.jstree", function (event, data) {
+	    	domtree.jstree('set_type', 'singleton_before', 'li[rel="singleton_after"]');
+	    })
 		
 	});
 		
