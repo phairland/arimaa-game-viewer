@@ -1,0 +1,154 @@
+  function create_tree_nodehandle(nodehandle, move_index) {
+		var movename = nodehandle.moves_from_node.length === 0 ? 
+										nodehandle.gamestate.turn.side.slice(0, 1) + "#"
+									: nodehandle.moves_from_node[0].id /* show main variant */;
+
+		if(nodehandle.moves_from_node.length > 0) {
+			movename = "<strong>" + movename + "</strong>&nbsp;" + GENERIC.reduce("", nodehandle.moves_from_node[0].steps, function(result, step) { return step.notated + " " + result; });
+			if(movename.length > 50) {
+			  movename = movename.slice(0, 50) + "...";
+			}
+		}
+									
+		var side = nodehandle.gamestate.turn.side;									 
+
+  	var result = '';
+  	result += '<ul>';
+			result += '<li id="' + nodehandle.id + "_" + move_index + '">';
+			result += '<a href="#">' + movename + '</a>';
+			result += '</li>';
+  	result += '</ul>';
+  	return $(result);
+  }
+
+	function build_dom_tree(gametree, domtree, moves) {
+		domtree.children().remove();
+
+		GENERIC.for_each(gametree.get_nodehandles(), function(nodehandle) {
+			if(nodehandle.moves_from_node.length > 0) {
+				var dom_nodehandle = create_tree_nodehandle(nodehandle, 0);
+				domtree.append(dom_nodehandle);
+				//lastnode = $('#' + dom_nodehandle.find('li').attr('id'));
+				//console.log(lastnode);
+			}
+		});
+
+  	var initial_handle = gametree.get_initial_nodehandle();
+		var initially_selected_node = initial_handle.id + "_" + 0;
+		
+		domtree.jstree({
+				"core": { "animation": 0, "html_titles": true },
+				"ui": { "initially_select" : [ initially_selected_node ], "select_limit": 1 },
+				"types" : {
+											"valid_children" : [ "all" ],
+											"types" : {
+													"singleton_before" : {
+															"icon" : {
+																	"image" : "pics/move_before.png"
+															},
+															"valid_children" : [ "all" ],
+															"max_depth" : 2,
+															"hover_node" : false,
+															"select_node" : function () {return true;}
+													},
+													"singleton_after" : {
+															"icon" : {
+																	"image" : "pics/move_after.png"
+															},
+															"valid_children" : [ "all" ],
+															"max_depth" : 2,
+															"hover_node" : false,
+															"select_node" : function () {return true;}
+													},
+													"gsingleton_before" : {
+															"icon" : {
+																	"image" : "pics/gmove_before.png"
+															},
+															"valid_children" : [ "all" ],
+															"max_depth" : 2,
+															"hover_node" : false,
+															"select_node" : function () {return true;}
+													},
+													"gsingleton_after" : {
+															"icon" : {
+																	"image" : "pics/gmove_after.png"
+															},
+															"valid_children" : [ "all" ],
+															"max_depth" : 2,
+															"hover_node" : false,
+															"select_node" : function () {return true;}
+													},
+													"ssingleton_before" : {
+															"icon" : {
+																	"image" : "pics/smove_before.png"
+															},
+															"valid_children" : [ "all" ],
+															"max_depth" : 2,
+															"hover_node" : false,
+															"select_node" : function () {return true;}
+													},
+													"ssingleton_after" : {
+															"icon" : {
+																	"image" : "pics/smove_after.png"
+															},
+															"valid_children" : [ "all" ],
+															"max_depth" : 2,
+															"hover_node" : false,
+															"select_node" : function () {return true;}
+													},
+
+													"gmove_before" : {
+															"icon" : {
+																	"image" : "pics/gmove_before.png"
+															},
+															"valid_children" : [ "all" ],
+															"max_depth" : 2,
+															"hover_node" : false,
+															"select_node" : function () {return true;}
+													},
+													"gmove_after" : {
+															"icon" : {
+																	"image" : "pics/gmove_after.png"
+															},
+															"valid_children" : [ "all" ],
+															"max_depth" : 2,
+															"hover_node" : false,
+															"select_node" : function () {return true;}
+													},
+													"smove_before" : {
+															"icon" : {
+																	"image" : "pics/smove_before.png"
+															},
+															"valid_children" : [ "all" ],
+															"max_depth" : 2,
+															"hover_node" : false,
+															"select_node" : function () {return true;}
+													},
+													"smove_after" : {
+															"icon" : {
+																	"image" : "pics/smove_after.png"
+															},
+															"valid_children" : [ "all" ],
+															"max_depth" : 2,
+															"hover_node" : false,
+															"select_node" : function () {return true;}
+													},
+													
+													"default" : {
+															"valid_children" : [ "default" ]
+													}
+											}
+									},				
+					"plugins" : [ "themes", "html_data", "ui", "crrm", "types" ]
+			});
+		
+			GENERIC.for_each(gametree.get_nodehandles(), function(nodehandle) {
+				for(var i = 0; i < nodehandle.moves_from_node.length; ++i) {
+					var nodetype = nodehandle.gamestate.turn === ARIMAA.gold ? "gmove_before" : "smove_before";
+					var move_index = i;
+					var selector = "#" + nodehandle.id + "_" + move_index;
+					//console.log(selector);
+					domtree.jstree('set_type', nodetype, selector);
+				}
+			});
+	}

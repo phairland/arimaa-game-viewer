@@ -3,7 +3,6 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	var domtree;
 	var gametree;
 	var viewer;
-	var current_gametree_id = undefined;
 	var current_move_index = 0;
 	var current_domtree_node = undefined;
 	
@@ -11,42 +10,9 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	
 	var showing_slowly = false; // when moves are showed slowly, controls are locked
 	
-	//FIXME: should be probably removed since they are in gametree
-	var board = init_arimaa_board()['board'];
-	var gamestate = ARIMAA.get_initial_gamestate();
-	
 	var selected = undefined; // what square is selected currently
 
-	function get_current_node() { return gametree.select_node(current_gametree_id); }
-	
-	//FIXME: piece testing should be in arimaa logic
-	function is_piece(piece) { return piece !== undefined && piece['type'] !== undefined; }
-	
-	function get_pic(piece, side) {
-		return piece.type + ".png";
-	}
-	
-	function sideprefix(piece) {
-		return piece.side === ARIMAA.gold ? 'g' : piece.side === ARIMAA.silver ? 's' : '';
-	}
-	
-	function create_square(piece) {
-		if(is_piece(piece)) {
-			return '<div class="square"><img src="pics/' + sideprefix(piece) + get_pic(piece) + '" /></div>';
-		} else return '<div class="square"></div>';
-	}
-	 
-	function create_dom_board(board) {
-		var result = "";
-		for(var i = 0; i < board.length; ++i) {
-			var mapped_row = GENERIC.map(board[i], create_square);
-			var row = GENERIC.reduce("", mapped_row, function(s1, s2) { return s1 + s2; });
-			result += "<div class='row'>" + row + "</div>";
-			result += "<div class='clear'></div>";
-		}
-		
-		return result;
-	}
+	function get_current_node() { return gametree.select_node(viewer.current_id()); }
 	
 	function opposite_turn(turn) { return turn === ARIMAA.gold ? ARIMAA.silver : ARIMAA.gold }
 	function singleton_after_opposite(turn) {
@@ -102,7 +68,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	}
 	
 	function make_move_to_gametree() {
-		var current_nodehandle = gametree.select_node(current_gametree_id);
+		var current_nodehandle = gametree.select_node(viewer.current_id());
 
 		// node where there's no moves yet
 		if(current_nodehandle.moves_from_node.length === 0) {
@@ -170,33 +136,6 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		//$('.gametree').jstree("create", "#" + id /* after just created node */, "after", js2, false, true);
 	}
 
-	function show_turn() {
-		if(gamestate.turn === ARIMAA.gold) {
-			$('.turn')
-				.text("Gold to move")
-				.css('color', "yellow");			
-		} else {
-			$('.turn')
-				.text("Silver to move")
-				.css('color', "#ccc");
-		}
-	}
-	
-	function show_current_position_info() {
-		show_comments(); //FIXME not the best place
-		show_turn();
-	}
-	
-	function show_board(board) {
-		show_current_position_info(); //FIXME not the best place
-		
-  	var dom_board = create_dom_board(board);
-  	$('.board').html(dom_board);
-  	GENERIC.for_each(ARIMAA.traps, function(trap) {
-  			$('.row').eq(trap[0]).find('.square').eq(trap[1]).addClass('trap');
-  	});
-	}
-	
 	function bind_select_piece() {
 		$('.square').live('click', function() {
 			$(this).toggleClass('selected');
@@ -275,7 +214,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		
 		selected = coordinate;
 		
-		var possible_moves = ARIMAA.legal_moves(gamestate, board, coordinate);
+		var possible_moves = ARIMAA.legal_moves(viewer.gamestate(), viewer.board(), coordinate);
 
 		//console.log(possible_moves);
 		
@@ -338,12 +277,10 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		}
 	}
 
-
-
 	function show_steps_slowly(steps) {
 		if(steps.length === 0) {
-			var cur_node = gametree.next_nodeid(current_gametree_id, current_move_index);
-			gametree_goto(cur_node);
+			var cur_node = gametree.next_nodeid(viewer.current_id(), current_move_index);
+			viewer.gametree_goto(cur_node);
 			current_move_index = 0; // FIXME: doesn't prolly work in general
 			showing_slowly = false;
 
@@ -358,7 +295,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	}
 	
 	function show_next_move_slowly() {
-		var node = gametree.select_node(current_gametree_id);
+		var node = gametree.select_node(viewer.current_id());
 
 		if(node.moves_from_node.length > 0) {
 			var move_index = current_move_index;
@@ -372,23 +309,23 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	}
 
 	function show_variation(move_index) {
-		var cur_node = gametree.select_node(current_gametree_id);
+		var cur_node = gametree.select_node(viewer.current_id());
 		if(move_index >= cur_node.moves_from_node.length) {
 			return;
 		}
 		
 		//GENERIC.log(gametree.select_node(current_gametree_id).moves_from_node[move_index]);
 		
-		var nextid = gametree.next_nodeid(current_gametree_id, move_index);
+		var nextid = gametree.next_nodeid(viewer.current_id(), move_index);
 		current_move_index = 0;
 		
 		if(!nextid) return;
 		
-		gametree_goto(nextid);
-		show_board(board);
+		viewer.gametree_goto(nextid);
+		show_board(viewer.board(), viewer.gamestate());
 		
 		// NOTE! current_gametree_id has been updated by gametree_goto
-		var node_now = gametree.select_node(current_gametree_id);
+		var node_now = gametree.select_node(viewer.current_id());
 		if(node_now.moves_from_node.length === 0) {
 			var treenode_id = "#" + cur_node.id + "_" + move_index;
 			
@@ -404,19 +341,18 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 			//current_gametree_id = 			
 		} else {
 			current_domtree_node = $('#' + nextid + '_' + current_move_index);
-			console.log("urgh");
-			update_selected_nodehandle_view();			
+			update_selected_nodehandle_view();
 		}
 	}
 
 	function show_previous() {
 		var move_index = current_move_index;
-		var previd = gametree.previous_nodeid(current_gametree_id, move_index);
+		var previd = gametree.previous_nodeid(viewer.current_id(), move_index);
 		current_domtree_node = $('#' + previd + '_' + move_index);
 		//var previd = gametree.previous_nodeid(current_gametree_id);
 		if(!!previd) {
-			gametree_goto(previd);
-			show_board(board);
+			viewer.gametree_goto(previd);
+			show_board(viewer.board(), viewer.gamestate());
 			update_selected_nodehandle_view();
 		}		
 	}
@@ -454,16 +390,9 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
     });
   }
 
-	function show_comments() {
-		var current = get_current_node();
-		if(!current) return;
-		
-  	$('.comments_for_node').val(current.comment);
-	}
-	
   function update_selected_nodehandle_view() {
 
-  	var nodeid = current_gametree_id + "_" + current_move_index;
+  	var nodeid = viewer.current_id() + "_" + current_move_index;
 //  	var jqueryNode = $('#' + nodeid);
 		var jqueryNode = current_domtree_node;
 
@@ -488,9 +417,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
   	//return;
   	console.log("refreshing");
 		domtree.jstree('refresh');
-  }
-  
-  
+  }  
   
 	function import_game() {
 		var notated_game = $('#imported_game').val();
@@ -498,41 +425,46 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		// default
 		if(notated_game === "") {	notated_game = example_game; }
 		
-		board = empty_board();
-		
 		var structured_moves = TRANSLATOR.convert_to_gametree(notated_game);
 		var moves = generate_moves(structured_moves);
 
   	create_tree_and_viewer(domtree);
-		current_gametree_id = gametree.get_initial_nodehandle().id;
+		viewer.setBoard(empty_board());
+		gametree.get_initial_nodehandle().id;
 
-		build_move_tree(gametree, domtree, moves);					
-		show_board(board);
+		build_move_tree(moves);
+
+		show_board(viewer.board(), viewer.gamestate());
+	}
+	
+	function build_move_tree(moves) {
+  	var nodehandle = gametree.get_initial_nodehandle();
+
+		//FIXME: can be recursive with variations
+  	GENERIC.for_each(moves, function(move) {
+			var result = gametree.make_move(move, nodehandle);
+			var new_nodehandle = result.nodehandle;
+  			
+			nodehandle = new_nodehandle;
+			//console.log(nodehandle.gamestate.steps);
+		});
+
+		build_dom_tree(gametree, domtree);
 	}
 
 	function bind_import_game() {
 		$('#import_game').click(import_game);
 	}
 	
-	function gametree_goto(id) {
-		current_gametree_id = id;
-		
-		var node = gametree.select_node(id);
-		
-		board = node.board;
-		gamestate = node.gamestate;
-	}
-	
 	$(function() {
 		domtree = $('.gametree');
+
 		create_tree_and_viewer(domtree);
-		
+				
 		bind_import_game();
 
 		bind_control_move();
 
-		show_board(board);
-		//show_gametree();
 		bind_select_piece();
 		bind_move_piece();
 		
@@ -555,9 +487,19 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		$('.comments_for_node').focusout(function() {
 				var comment = $(this).val();
 
-				gametree.comment_node(comment, current_gametree_id);
+				gametree.comment_node(comment, viewer.current_id());
+		});		
+
+		$('.gametree li a').live('click', function() {
+			var elem = $(this).closest('li');
+			current_domtree_node = elem;
+			var id = get_nodehandle_id_from_tree_elem(elem);
+			current_move_index = get_move_index_from_tree_elem(elem); 
+			showing_slowly = false;
+			viewer.gametree_goto(id);
+			show_board(viewer.board(), viewer.gamestate());
+			update_selected_nodehandle_view(); // should this be done here?
 		});
-		
 		
 	  import_game();		
 	});

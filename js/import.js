@@ -36,6 +36,7 @@ function create_import_game(moves) {
 			
 			// if step is only indicating a removal, let's skip it since it is done by the game logic
 			if(step.type === 'removal') return get_next_step();
+			//if(step.type === 'pass') return get_next_step();
 			else return step;
 		}
 	}

@@ -16,6 +16,8 @@ var TRANSLATOR = TRANSLATOR || function() {
 		} else return false;
 	}
 	
+	var pass_step = "pass";
+	
 	function divide_into_moves(tokens) {
 		var result = [];
 		
@@ -24,6 +26,7 @@ var TRANSLATOR = TRANSLATOR || function() {
 			
 			if(!!moveid) {
 				var steps = get_steps(tokens.slice(i+1));
+				//if(steps.length < ARIMAA.steps_in_move) steps.push(pass_step);
 				
 				var move = {
 					'steps': steps,
@@ -139,6 +142,7 @@ var TRANSLATOR = TRANSLATOR || function() {
 	}
 	
 	function is_resign_step(step) { return step === "resigns"; }
+	function is_pass_step(step) { return step === "pass"; }
 	
 	function convert_notated_step_to_coordinates(step) {
 		if(is_board_setting_step(step)) {
@@ -148,6 +152,10 @@ var TRANSLATOR = TRANSLATOR || function() {
 		} else if(is_resign_step(step)) {
 			return {
 				'type': 'resign'
+			}
+		} else if(is_pass_step(step)) {
+			return {
+				'type': 'pass'
 			}
 		}
 		
