@@ -34,10 +34,7 @@ function create_import_game(moves) {
 			var step = TRANSLATOR.convert_notated_step_to_coordinates(nextstep);
 			step.notated = nextstep;
 			
-			// if step is only indicating a removal, let's skip it since it is done by the game logic
-			if(step.type === 'removal') return get_next_step();
-			//if(step.type === 'pass') return get_next_step();
-			else return step;
+			return step;
 		}
 	}
 	
@@ -55,9 +52,13 @@ function create_import_game(moves) {
 
 		do {
 			var step = get_next_step();
-			//if(!step) return result;
+
 			if(!step) return create_move(moves[current], result);
-			result.push(step);
+
+			// if step is only indicating a removal, let's skip it since it is done by the game logic
+			if(step.type !== 'removal' && step.type !== 'pass') {
+				result.push(step);
+			}
 		} while(current === currentmove) // get_next_step updates currentmove
 		
 		return create_move(moves[current], result);;

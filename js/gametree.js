@@ -22,6 +22,16 @@ function create_gametree() {
 				board = result.board;
 			}
 		}
+
+		// since in one move there can be strictly either setting or normal moves,
+		// we can infer that if the ARIMAA.steps_in_move amount of steps isn't made, the last one is a pass
+	  if(steps.length === 0 || steps[0].type !== 'setting') {
+	  	if(steps.length < ARIMAA.steps_in_move) {
+	  		result = ARIMAA.pass(state, board);
+	  		state = result.gamestate;
+	  		board = result.board;
+	  	}
+	  }
 		
 		return {
 			'gamestate': state,

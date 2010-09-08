@@ -341,6 +341,17 @@ var ARIMAA = ARIMAA || function() {
 	  'type': 'setting'
 	  }
 	}
+	
+	function pass(board, gamestate) {
+		var new_gamestate = GENERIC.shallowCopyObject(gamestate);
+		new_gamestate.turn = gamestate.turn === gold ? silver : gold;
+		new_gamestate.steps = steps_in_move;
+		
+		return {
+			'board': board,
+			'gamestate': new_gamestate
+		}
+	}
   
   return {
   	'board_width': board_width,
@@ -363,7 +374,8 @@ var ARIMAA = ARIMAA || function() {
   	'get_piece_with_side': get_piece_with_side,
   	'add_piece': add_piece,
   	'remove_piece': remove_piece,
-  	'get_initial_gamestate': get_initial_gamestate
+  	'get_initial_gamestate': get_initial_gamestate,
+  	'pass': pass
   }
   
 }();
