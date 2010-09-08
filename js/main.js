@@ -45,7 +45,15 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		
 		return result;
 	}
-
+	
+	function opposite_turn(turn) { return turn === ARIMAA.gold ? ARIMAA.silver : ARIMAA.gold }
+	function singleton_after_opposite(turn) {
+		return opposite_turn(turn).side.slice(0, 1) + "singleton_after";
+	}
+	function singleton_before_opposite(turn) {
+		return opposite_turn(turn).side.slice(0, 1) + "singleton_before";
+	}
+	
 	function make_step_to_gametree(step) {
 		// step = { 'from': selected, 'to': new_coordinate, 'piece': piece }
 		stepbuffer.push(step);
@@ -77,7 +85,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		var where_to = domtree.jstree('get_selected');
 		
 		
-		var nodetype = 'singleton_after';
+		var nodetype = nodehandle.gamestate.turn.side.slice(0, 1) + 'singleton_after';
 		
 		// create variation
 		domtree.jstree("create", where_to, "after", js, false, true);
@@ -137,26 +145,20 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		
 		//var where_to = "#" + current_gametree_id;
 		var where_to = domtree.jstree('get_selected');
-		//console.log(where_to);
 
 		// this must be before creating the node, since deselecting trigger event that changes the singletontype
 		domtree.jstree('deselect_all');
 		
 		// create variation
 		domtree.jstree("create", where_to, node_position_in_tree, js, false, true);
-		domtree.jstree('set_type', 'singleton_after', '#' + id);
+		var nodetype = nodehandle.gamestate.turn.side.slice(0, 1) + 'singleton_after';
+		domtree.jstree('set_type', nodetype, '#' + id);
 		
 		var treenodeid = '#' + id;
-		console.log(treenodeid);
-		domtree.jstree('select_node', treenodeid);
+  	domtree.jstree('select_node', treenodeid);
 
 		// create after variation
-		//$('.gametree2').jstree("create", "#" + id /* after just created node */, "after", js2, false, true);
-		
-		/*
-		var dom_nodehandle = create_dom_nodehandle(nodehandle);
-		$('.gametree').append(dom_nodehandle);
-		*/
+		//$('.gametree').jstree("create", "#" + id /* after just created node */, "after", js2, false, true);
 	}
 
 	function show_turn() {
@@ -400,11 +402,15 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		var node_now = gametree.select_node(current_gametree_id);
 		if(node_now.moves_from_node.length === 0) {
 			var treenode_id = "#" + cur_node.id + "_" + move_index;
-			domtree.jstree('set_type', 'singleton_after', treenode_id);
+			
+//			domtree.jstree('set_type', singleton_after_opposite(node_now.gamestate.turn), treenode_id);
+			var prefix = node_now.gamestate.turn.side.slice(0, 1); 
+			domtree.jstree('set_type', prefix + 'singleton_after', treenode_id);
 			domtree.jstree('select_node', treenode_id);
 			//current_move_index = move_index;
 			//current_gametree_id = 			
 		} else {
+			console.log("urgh");
 			update_selected_nodehandle_view();			
 		}
 	}
@@ -442,7 +448,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
       }
 
       //console.log(code);
-      if(code === 38) import_game(); // for debugging purposes quick importing
+      //if(code === 38) import_game(); // for debugging purposes quick importing
       
       if(code === 40) { // down key
       	if(showing_slowly) return;
@@ -484,7 +490,6 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 			return $('<div class="nodehandle" side="' + side + '" id="' + nodehandle.id + '">' + movename + '</div>');
 		}
 	}
-
 
   function build_move_tree(moves) {
   	gametree = create_gametree();
@@ -539,6 +544,43 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 															"hover_node" : false,
 															"select_node" : function () {return true;}
 													},
+													"gsingleton_before" : {
+															"icon" : {
+																	"image" : "pics/gmove_before.png"
+															},
+															"valid_children" : [ "all" ],
+															"max_depth" : 2,
+															"hover_node" : false,
+															"select_node" : function () {return true;}
+													},
+													"gsingleton_after" : {
+															"icon" : {
+																	"image" : "pics/gmove_after.png"
+															},
+															"valid_children" : [ "all" ],
+															"max_depth" : 2,
+															"hover_node" : false,
+															"select_node" : function () {return true;}
+													},
+													"ssingleton_before" : {
+															"icon" : {
+																	"image" : "pics/smove_before.png"
+															},
+															"valid_children" : [ "all" ],
+															"max_depth" : 2,
+															"hover_node" : false,
+															"select_node" : function () {return true;}
+													},
+													"ssingleton_after" : {
+															"icon" : {
+																	"image" : "pics/smove_after.png"
+															},
+															"valid_children" : [ "all" ],
+															"max_depth" : 2,
+															"hover_node" : false,
+															"select_node" : function () {return true;}
+													},
+
 													"gmove_before" : {
 															"icon" : {
 																	"image" : "pics/gmove_before.png"
@@ -624,19 +666,15 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		var notated_game = $('#imported_game').val();
 
 		if(notated_game === "") {
-			return;
+			notated_game = example_game;
 		}
-		else {
-			board = empty_board();
-			
-			var structured_moves = TRANSLATOR.convert_to_gametree(notated_game);
-			//console.log(structured_moves);
-			var moves = generate_moves(structured_moves);
-			//console.log(moves);
-			build_move_tree(moves);
-						
-			show_board(board);
-		}
+		board = empty_board();
+		
+		var structured_moves = TRANSLATOR.convert_to_gametree(notated_game);
+		var moves = generate_moves(structured_moves);
+		build_move_tree(moves);
+					
+		show_board(board);
 	}
 
 	function bind_import_game() {
@@ -653,7 +691,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	}
 	
 	$(function() {
-		domtree = $('.gametree2');
+		domtree = $('.gametree');
 		
 		bind_import_game();
 
@@ -686,7 +724,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 				gametree.comment_node(comment, current_gametree_id);
 		});
 		
-		$('.gametree2 li a').live('click', function() {
+		$('.gametree li a').live('click', function() {
 			var elem = $(this).closest('li');
 			var id = get_nodehandle_id_from_tree_elem(elem);
 			current_move_index = get_move_index_from_tree_elem(elem); 
@@ -698,9 +736,16 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		});
 		
 		domtree.bind("deselect_all.jstree", function (event, data) {
-	    	domtree.jstree('set_type', 'singleton_before', 'li[rel="singleton_after"]');
-	    })
-		
+			// gold turn to silver, vice versa
+	    domtree.jstree('set_type', 'gsingleton_before', 'li[rel="ssingleton_after"]');
+	    domtree.jstree('set_type', 'ssingleton_before', 'li[rel="gsingleton_after"]');
+				/*
+	    domtree.jstree('set_type', 'gsingleton_before', 'li[rel="gsingleton_after"]');
+	    domtree.jstree('set_type', 'ssingleton_before', 'li[rel="ssingleton_after"]');
+	    */
+	  });
+	  
+	  import_game();		
 	});
 		
 	function get_nodehandle_id_from_tree_elem(elem) {
