@@ -1,9 +1,11 @@
 
 var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	var domtree;
-	var gametree = create_gametree();
+	var gametree;
+	var viewer;
 	var current_gametree_id = undefined;
 	var current_move_index = 0;
+	var current_domtree_node = undefined;
 	
 	var stepbuffer = [];
 	
@@ -61,6 +63,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 
 	// where there's no move for current nodehandle, it's a "direct continuation" 
 	function make_continuation_to_variation(current_nodehandle) {
+		console.log("continuation");
 		var variation_name = "-";
 		
 		var move = {
@@ -107,6 +110,8 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 			return;
 		}
 		
+		console.log("variation");
+		
 		// FIXME: something smarter for the name 
 		var variation_name = (function(){
 			if(current_nodehandle.moves_from_node.length > 0) {
@@ -147,15 +152,19 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		var where_to = domtree.jstree('get_selected');
 
 		// this must be before creating the node, since deselecting trigger event that changes the singletontype
-		domtree.jstree('deselect_all');
+		//domtree.jstree('deselect_all');
 		
 		// create variation
 		domtree.jstree("create", where_to, node_position_in_tree, js, false, true);
 		var nodetype = nodehandle.gamestate.turn.side.slice(0, 1) + 'singleton_after';
 		domtree.jstree('set_type', nodetype, '#' + id);
 		
+		current_domtree_node = $('#' + id);
 		var treenodeid = '#' + id;
-  	domtree.jstree('select_node', treenodeid);
+  	//domtree.jstree('select_node', treenodeid);
+
+		//refresh_domtree();
+		update_selected_nodehandle_view();
 
 		// create after variation
 		//$('.gametree').jstree("create", "#" + id /* after just created node */, "after", js2, false, true);
@@ -369,15 +378,6 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		}
 	}
 
-	function get_move_index_from_tree_elem(elem) {
-		var id = elem.attr('id');
-		if(id === undefined) throw "get_move_index: id is undefined";
-		var move_index = id.split("_")[1];
-		//console.log(move_index);
-		if(move_index === undefined || move_index === '') return false;
-		return parseInt(move_index); 
-	}
-	
 	function show_next() {
 		show_variation(current_move_index);
 	}
@@ -406,10 +406,15 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 //			domtree.jstree('set_type', singleton_after_opposite(node_now.gamestate.turn), treenode_id);
 			var prefix = node_now.gamestate.turn.side.slice(0, 1); 
 			domtree.jstree('set_type', prefix + 'singleton_after', treenode_id);
-			domtree.jstree('select_node', treenode_id);
+			current_domtree_node = $(treenode_id);
+			//refresh_domtree();			
+
+			//domtree.jstree('select_node', treenode_id);
+			update_selected_nodehandle_view();
 			//current_move_index = move_index;
 			//current_gametree_id = 			
 		} else {
+			current_domtree_node = $('#' + nextid + '_' + current_move_index);
 			console.log("urgh");
 			update_selected_nodehandle_view();			
 		}
@@ -418,6 +423,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	function show_previous() {
 		var move_index = current_move_index;
 		var previd = gametree.previous_nodeid(current_gametree_id, move_index);
+		current_domtree_node = $('#' + previd + '_' + move_index);
 		//var previd = gametree.previous_nodeid(current_gametree_id);
 		if(!!previd) {
 			gametree_goto(previd);
@@ -470,14 +476,20 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	}
 	
   function update_selected_nodehandle_view() {
+
   	var nodeid = current_gametree_id + "_" + current_move_index;
-  	var jqueryNode = $('#' + nodeid);
+//  	var jqueryNode = $('#' + nodeid);
+		var jqueryNode = current_domtree_node;
 
   	if(jqueryNode.length > 0) {
-			domtree.jstree('deselect_all');
+  	  console.log("updating");
+  		var last_selected = domtree.jstree('get_selected');
+  		domtree.jstree('deselect_node', last_selected);
+			//domtree.jstree('deselect_all');
 			domtree.jstree('select_node', jqueryNode); //FIXME: should work on variations too, 0 = main game line
-
 			$('.scrollabletree').scrollTo(jqueryNode, {offset: -100});
+		} else {
+			console.log("node does not exist");
 		}
   }
 
@@ -491,8 +503,13 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		}
 	}
 
-  function build_move_tree(moves) {
+	function create_tree_and_viewer(domtree) {
   	gametree = create_gametree();
+  	viewer = create_viewer(gametree, domtree);
+	}
+	
+  function build_move_tree(moves) {
+  	create_tree_and_viewer(domtree);
   	var initial_handle = gametree.get_initial_nodehandle();
   	var nodehandle = initial_handle;
   	
@@ -633,8 +650,15 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 					var selector = "#" + nodehandle.id + "_" + move_index;
 					//console.log(selector);
 					domtree.jstree('set_type', nodetype, selector);
+					current_domtree_node = $(selector);
 				}
 			});
+  }
+  
+  function refresh_domtree() {
+  	//return;
+  	console.log("refreshing");
+		domtree.jstree('refresh');
   }
   
   function create_tree_nodehandle(nodehandle, move_index) {
@@ -692,6 +716,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	
 	$(function() {
 		domtree = $('.gametree');
+		create_tree_and_viewer(domtree);
 		
 		bind_import_game();
 
@@ -724,33 +749,9 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 				gametree.comment_node(comment, current_gametree_id);
 		});
 		
-		$('.gametree li a').live('click', function() {
-			var elem = $(this).closest('li');
-			var id = get_nodehandle_id_from_tree_elem(elem);
-			current_move_index = get_move_index_from_tree_elem(elem); 
-
-			showing_slowly = false;
-			gametree_goto(id);
-			show_board(board);
-			update_selected_nodehandle_view(); // should this be done here?
-		});
 		
-		domtree.bind("deselect_all.jstree", function (event, data) {
-			// gold turn to silver, vice versa
-	    domtree.jstree('set_type', 'gsingleton_before', 'li[rel="ssingleton_after"]');
-	    domtree.jstree('set_type', 'ssingleton_before', 'li[rel="gsingleton_after"]');
-				/*
-	    domtree.jstree('set_type', 'gsingleton_before', 'li[rel="gsingleton_after"]');
-	    domtree.jstree('set_type', 'ssingleton_before', 'li[rel="ssingleton_after"]');
-	    */
-	  });
-	  
 	  import_game();		
 	});
 		
-	function get_nodehandle_id_from_tree_elem(elem) {
-		var id = elem.attr('id').split("_")[0];
-		return parseInt(id);
-	}
 	
 }();
