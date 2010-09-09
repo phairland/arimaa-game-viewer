@@ -27,7 +27,6 @@ var TRANSLATOR = TRANSLATOR || function() {
 			if(!!moveid) {
 				var steps = get_steps(tokens.slice(i+1));
 				if(steps.length < ARIMAA.steps_in_move) {
-					console.log("pass");
 					steps.push(pass_step);
 				}
 				

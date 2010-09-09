@@ -24,6 +24,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	}
 	
 	function make_step_to_gametree(step) {
+		console.log("pushing to stepbuffer");
 		// step = { 'from': selected, 'to': new_coordinate, 'piece': piece }
 		stepbuffer.push(step);
 	}	
@@ -70,6 +71,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	
 	function make_move_to_gametree() {
 		var current_nodehandle = get_current_node();
+		console.log("current_nodehandle", current_nodehandle);
 
 		// node where there's no moves yet
 		if(current_nodehandle.moves_from_node.length === 0) {
@@ -80,11 +82,9 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		GENERIC.log("variation");
 		
 		// FIXME: something smarter for the name 
-		var variation_name = (function(){
-			if(current_nodehandle.moves_from_node.length > 0) {
-				return current_nodehandle.moves_from_node[0].id + "&nbsp;<strong>[" + current_nodehandle.moves_from_node.length + "]</strong>";
-			} else return current_nodehandle.id;
-		})();
+		var variation_name =
+			current_nodehandle.moves_from_node[0].id +
+				"&nbsp;<strong>[" + current_nodehandle.moves_from_node.length + "]</strong>";
 
 		var move = {
 			'id': variation_name, 
@@ -98,26 +98,23 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		var move_index = result.move_index;
 
 		var id = current_nodehandle.id + "_" + move_index;
+		console.log("id", id);
 		
 		// id and name for treenode
 		var js = {
-			'attr': {'id': id, 'move_index': move_index.toString() },
+			'attr': {'id': id, 'move_index': move_index.toString(), 'after': nodehandle.id },
 			'data': variation_name.toString()
 		}
 
-		var id2 = nodehandle.id + "_0"; // no moves there yet
-
-		var js2 = {
-			'attr': {'id': id2 },
-			'data': "-"
-		}
-		
 		// if first move in this line of play, put it as a sibling, otherwise it's a variation (of maybe a variation)
 		var node_position_in_tree = current_nodehandle.moves_from_node.length === 1 ? "last" : "inside";
+		console.log(node_position_in_tree);
 		
 		//var where_to = "#" + current_gametree_id;
-		var where_to = domtree.jstree('get_selected');
-
+		//var where_to = domtree.jstree('get_selected');
+		var where_to = '#' + current_nodehandle.id + "_0"; // the "parent" node
+		console.log("whereto", where_to);
+		
 		// this must be before creating the node, since deselecting trigger event that changes the singletontype
 		//domtree.jstree('deselect_all');
 		
@@ -127,14 +124,12 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		domtree.jstree('set_type', nodetype, '#' + id);
 		
 		current_domtree_node = $('#' + id);
-		var treenodeid = '#' + id;
+		//var treenodeid = '#' + id;
   	//domtree.jstree('select_node', treenodeid);
 
+  	viewer.gametree_goto(nodehandle.id);
 		//refresh_domtree();
 		update_selected_nodehandle_view();
-
-		// create after variation
-		//$('.gametree').jstree("create", "#" + id /* after just created node */, "after", js2, false, true);
 	}
 
 	function bind_select_piece() {
@@ -145,6 +140,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 
 	function bind_select_piece() {
 		$('.square').live('mouseover', function() {
+			if(showing_slowly) return;
 			selected = coordinate_for_element($(this));
 			show_arrows($(this));
 		});
@@ -173,7 +169,9 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	
 	// this is for making a new move
 	function make_step_for_piece(selected, new_coordinate) {
+		console.log("making step");
 		if(selected === undefined) return;
+		console.log(selected, new_coordinate);
 
 		var piece = viewer.board()[selected.row][selected.col];
 		var step = { 'from': selected, 'to': new_coordinate, 'piece': piece } 
@@ -182,7 +180,12 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		
 		make_step_to_gametree(step);
 		// if turn changed, commit the steps into gametree as a move
-		if(result.gamestate.turn !== viewer.gamestate().turn) make_move_to_gametree();
+		if(result.gamestate.turn !== viewer.gamestate().turn) {
+			console.log("make move to gametree");
+			make_move_to_gametree();
+		} else {
+			console.log("not gametree move");
+		}
 		
 		/*
 		board = result.board;
@@ -327,6 +330,9 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	}
 	
 	function show_next_move_slowly() {
+		show_move_slowly(viewer.current_id(), current_move_index);
+		/*
+		undo_all_steps();
 		var node = get_current_node();
 
 		if(node.moves_from_node.length > 0) {
@@ -335,6 +341,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 			showing_slowly = true;
 			show_steps_slowly(steps);
 		}
+		*/
 	}
 
 	function show_move_slowly(nodeid, move_index) {
@@ -347,7 +354,8 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 				show_steps_slowly(steps);
 			}
 
-			if(viewer.current_id() !== nodeid) {
+			if(viewer.current_id() !== nodeid || stepbuffer.length > 0) {
+				undo_all_steps();
 				// set correct starting position first and have a delay
 				viewer.gametree_goto(nodeid);
 				show_board();
@@ -364,6 +372,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	}
 
 	function show_variation(move_index) {
+		undo_all_steps();
 		var cur_node = get_current_node();
 		if(move_index >= cur_node.moves_from_node.length) {
 			return;
@@ -401,6 +410,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	}
 
 	function show_previous() {
+		undo_all_steps();
 		var move_index = current_move_index;
 		var previd = gametree.previous_nodeid(viewer.current_id(), move_index);
 		current_domtree_node = $('#' + previd + '_' + move_index);
@@ -458,6 +468,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 			domtree.jstree('select_node', jqueryNode); //FIXME: should work on variations too, 0 = main game line
 			$('.scrollabletree').scrollTo(jqueryNode, {offset: -100});
 		} else {
+			console.log(jqueryNode);
 			GENERIC.log("node does not exist");
 		}
   }
@@ -514,6 +525,10 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	function bind_import_game() {
 		$('#import_game').click(import_game);
 	}
+
+	function undo_all_steps() {
+		stepbuffer = [];
+	}
 	
 	$(function() {
 		domtree = $('.gametree');
@@ -528,7 +543,6 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		bind_move_piece();
 		
 		$('.arrownormal').mouseover(function() {
-			if(show_slowly) return;
 			$(this).hide();
 			$(this).closest('.arrow').find('.arrowhover').show();		
 		});
