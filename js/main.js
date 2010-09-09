@@ -1,5 +1,6 @@
 
 var ARIMAA_MAIN = ARIMAA_MAIN || function() {
+	var marker = undefined;
 	var show_step_delay = 300; // milliseconds between steps
 	var domtree;
 	var gametree;
@@ -149,15 +150,50 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		update_selected_nodehandle_view();
 	}
 
-	function bind_select_piece() {
-		$('.square').live('click', function() {
-			$(this).toggleClass('selected');
+	function show_markers() {
+		var markings = gametree.get_markings(viewer.current_id());
+		console.log(markings);
+		GENERIC.for_each(markings, function(marking) {
+			console.log("markings");
+			console.log(marking.row, marking.col, marking.marking);
+			$('.row').eq(marking.row).find('.square').eq(marking.col).addClass("marker_" + marking.marking);
 		});
 	}
+	
+	function toggle_marker(elem) {
+		console.log("toggle");
+		if(marker === undefined) return;
+		
+		var clazz = 'marker_' + marker;
+		var coordinate = coordinate_for_element(elem);
+		gametree.toggle_marking(viewer.current_id(), coordinate, marker);
+		console.log("toggle");
+		elem.toggleClass(clazz);
+	}
 
+
+	function hover_marker(elem) {
+		if(marker === undefined) return;
+
+		var clazz = 'hovermarker_' + marker;
+		elem.addClass(clazz);
+	}
+
+	function unhover_marker(elem) {
+		if(marker === undefined) return;
+
+		var clazz = 'hovermarker_' + marker;
+		elem.removeClass(clazz);
+	}
+	
+			
 	function bind_select_piece() {
 		$('.square').live('mouseover', function() {
 			if(showing_slowly) return;
+			if(marker !== "") {
+				hover_marker($(this));
+				return;
+			}
 			selected = coordinate_for_element($(this));
 			show_arrows($(this));
 		});
@@ -658,6 +694,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	function show_board() {
 		show_current_position_info(viewer.gamestate(), get_current_node());
 		show_dom_board(viewer.board(), viewer.gamestate());
+		show_markers();
 	}
 	
 	function bind_import_game() {
@@ -699,6 +736,10 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 				showing_slowly = true;
 				show_next_move_slowly();
 		});
+
+		$('.square').live('mouseout', function() {
+			if(marker !== "") unhover_marker($(this));
+		});
 		
 		$('.comments_for_node').focusout(function() {
 				var comment = $(this).val();
@@ -725,7 +766,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		
 		$('.jstree-icon').live('click', function() {
 				console.log("icon-click");
-				/*
+				/*F
 				var elem = $(this).closest('li');
 				
 				current_move_index = get_move_index_from_tree_elem(elem);
@@ -765,6 +806,27 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 			
 				return false; // don't let event buble
 		});
+		
+		$('.marker').click(function() {
+				var marker_down = 'marker_pressed';
+				if($(this).hasClass(marker_down)) {
+					$(this).removeClass(marker_down);
+					marker = "";					
+				} else {
+					marker = $(this).text();
+					$('.marker').removeClass(marker_down);
+					$(this).addClass(marker_down);
+				}
+		});
+
+		$('.square').live('click', function() {
+			console.log("foo");
+				
+			if(marker !== "") {
+				toggle_marker($(this));
+			}
+		});
+
 		
 		/*
 	  domtree.bind("deselect_node.jstree", function(event, data) {

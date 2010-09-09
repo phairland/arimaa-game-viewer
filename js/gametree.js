@@ -144,6 +144,61 @@ function create_gametree() {
 		select_node(id).comment = text;
 	}
 	
+	function toggle_marking(nodeid, coordinate, marker){
+		
+		var node = select_node(nodeid);
+		if(node.markings === undefined) {
+			node.markings = {};
+		}
+		
+		var old = node.markings[coordinate.row];
+		
+		if(old === undefined) node.markings[coordinate.row] = {}
+		old = node.markings[coordinate.row][coordinate.col];
+		
+		if(old === undefined) {
+			node.markings[coordinate.row][coordinate.col] = []
+			old = node.markings[coordinate.row][coordinate.col];
+		}
+		
+	  var index =	old.indexOf(marker);
+	  if(index === -1) {
+	  	old.push(marker);
+	  	console.log(old);
+	  	
+	  } else {
+	  	old.splice(index, index+1);
+	  }
+	}
+	
+	function get_markings(id) {
+		var node = select_node(id);
+		if(node.markings === undefined) return [];
+		
+		var result = [];
+
+		//FIXME: quite horrible
+		for(var row = 0; row < 8; ++row) {
+			var r = node.markings[row];
+			if(r === undefined) continue;
+			
+			for(var col = 0; col < 8; ++col) {
+				 if(r[col] !== undefined) {
+				 	var all = r[col];
+				 	for(var i = 0; i < all.length; ++i) {
+						result.push({
+							'col': parseInt(col),
+							'row': parseInt(row),
+							'marking': all[i]
+						});
+					}
+				}
+			}
+		}
+    
+    return result;
+	}
+	
   return {
   	'get_initial_nodehandle': get_initial_nodehandle,
     'make_move': make_move,
@@ -151,6 +206,8 @@ function create_gametree() {
     'previous_nodeid': previous_nodeid,
     'select_node': select_node,
     'get_nodehandles': get_nodehandles,
-    'comment_node': comment_node
+    'comment_node': comment_node,
+    'toggle_marking': toggle_marking,
+ 		'get_markings': get_markings
   }
 }
