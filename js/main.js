@@ -240,6 +240,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	// whether new move can be made:
   // either singleton or only followup is singleton
  function can_make_move() {
+ 	 return true; //FIXME
 		var cur_node = get_current_node();
 		
 		if(moves_from(cur_node) === 0) return true; // singleton

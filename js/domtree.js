@@ -52,12 +52,13 @@
 				"types" : {
 											"valid_children" : [ "all" ],
 											"types" : {
+													"max_depth": -2, // disables max_depth checking
 													"singletonbefore" : {
 															"icon" : {
 																	"image" : "pics/move_before.png"
 															},
 															"valid_children" : [ "all" ],
-															"max_depth" : 2,
+															"max_depth": -1,
 															"hover_node" : false,
 															"select_node" : function () {return true;}
 													},
@@ -66,7 +67,7 @@
 																	"image" : "pics/move_after.png"
 															},
 															"valid_children" : [ "all" ],
-															"max_depth" : 2,
+															"max_depth": -1,
 															"hover_node" : false,
 															"select_node" : function () {return true;}
 													},
@@ -75,7 +76,7 @@
 																	"image" : "pics/gmove_before.png"
 															},
 															"valid_children" : [ "all" ],
-															"max_depth" : 2,
+															"max_depth": -1,
 															"hover_node" : false,
 															"select_node" : function () {return true;}
 													},
@@ -84,7 +85,7 @@
 																	"image" : "pics/gmove_after.png"
 															},
 															"valid_children" : [ "all" ],
-															"max_depth" : 2,
+															"max_depth": -1,
 															"hover_node" : false,
 															"select_node" : function () {return true;}
 													},
@@ -93,7 +94,7 @@
 																	"image" : "pics/smove_before.png"
 															},
 															"valid_children" : [ "all" ],
-															"max_depth" : 2,
+															"max_depth": -1,
 															"hover_node" : false,
 															"select_node" : function () {return true;}
 													},
@@ -102,7 +103,7 @@
 																	"image" : "pics/smove_after.png"
 															},
 															"valid_children" : [ "all" ],
-															"max_depth" : 2,
+															"max_depth": -1,
 															"hover_node" : false,
 															"select_node" : function () {return true;}
 													},
@@ -112,7 +113,7 @@
 																	"image" : "pics/gmove_before.png"
 															},
 															"valid_children" : [ "all" ],
-															"max_depth" : 2,
+															"max_depth": -1,
 															"hover_node" : false,
 															"select_node" : function () {return true;}
 													},
@@ -121,7 +122,7 @@
 																	"image" : "pics/gmove_after.png"
 															},
 															"valid_children" : [ "all" ],
-															"max_depth" : 2,
+															"max_depth": -1,
 															"hover_node" : false,
 															"select_node" : function () {return true;}
 													},
@@ -130,7 +131,7 @@
 																	"image" : "pics/smove_before.png"
 															},
 															"valid_children" : [ "all" ],
-															"max_depth" : 2,
+															"max_depth": -1,
 															"hover_node" : false,
 															"select_node" : function () {return true;}
 													},
@@ -139,7 +140,7 @@
 																	"image" : "pics/smove_after.png"
 															},
 															"valid_children" : [ "all" ],
-															"max_depth" : 2,
+															"max_depth": -1,
 															"hover_node" : false,
 															"select_node" : function () {return true;}
 													},
