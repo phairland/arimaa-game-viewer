@@ -33,12 +33,14 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	function make_continuation_to_variation(current_nodehandle) {
 		GENERIC.log("continuation");
 		
-		var variation_name = current_nodehandle.previous_nodehandle.gamestate.turn.side.slice(0, 1) + "#";
+		var variation_name = current_nodehandle.gamestate.turn.side.slice(0, 1) + "...";
 		
 		var move = {
 			'id': variation_name, 
 			'steps': stepbuffer
 		}
+
+		stepbuffer = [];
 		
 		var result = gametree.make_move(move, current_nodehandle);
 		var nodehandle = result.nodehandle;
@@ -57,7 +59,8 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 
 		//		var where_to = domtree.jstree('get_selected');
 		//FIXME: THIS COULD BE TOTALLY WRONG?!
-		var where_to = domtree.find("li[after='" + current_nodehandle.id + "']");
+		//var where_to = domtree.find("li[after='" + current_nodehandle.id + "']"); // FIXME: ugly, shouldn't depend on dom nodes
+		var where_to = $('#' + current_nodehandle.previous_nodehandle.id + "_" + current_nodehandle.move_index_from_previous); //FIXME ugly
 		//var where_to = '#' + current_nodehandle.id + "_" + current_move_index ; // the "parent" node
 		console.log("where_to", where_to);		
 		
@@ -76,9 +79,10 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 				console.log("preceding IS singleton");
 		    domtree.jstree('set_type', nodetype_preceding, where_to);
 		  } else console.log("preceding not singleton");
-		 
+
+ 		current_move_index = move_index;
 		current_domtree_node = $('#' + id);
-		//viewer.gametree_goto(nodehandle.id);
+		viewer.gametree_goto(nodehandle.id);
 		update_selected_nodehandle_view();
 	}
 	
@@ -584,7 +588,8 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
   }
 
   function update_selected_nodehandle_view(scroll_viewer) {
-
+  	show_comments(get_current_node());
+  	
   	var nodeid = viewer.current_id() + "_" + current_move_index;
 //  	var jqueryNode = $('#' + nodeid);
 		var jqueryNode = current_domtree_node;

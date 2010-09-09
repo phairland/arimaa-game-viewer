@@ -63,6 +63,7 @@ function create_gametree() {
 	function link_nodes(move, nodehandle_from, nodehandle_to) {
 		move.nodehandle_after_move = nodehandle_to;
 		nodehandle_from.moves_from_node.push(move);
+	  nodehandle_to.move_index_from_previous = nodehandle_from.moves_from_node.length - 1; 
 	  nodehandle_to.previous_nodehandle = nodehandle_from;
 		return nodehandle_from.moves_from_node.length - 1;
 	}
@@ -94,9 +95,23 @@ function create_gametree() {
 	}
 	
 	function next_nodeid(prev_node_id, move_index) {
-		if(prev_node_id === undefined) return first_id;
-		else if(prev_node_id >= ids) ids;
-		else return	select_node(prev_node_id).moves_from_node[!!move_index ? move_index : 0].nodehandle_after_move.id
+		if(prev_node_id === undefined) throw "undefined prev_node_id";
+		else if(prev_node_id > ids) throw "prev_node is too big: " + prev_node;
+		var node = select_node(prev_node_id);
+		if(node === undefined) throw "node is undefined";
+		
+		var prev_node_moves = select_node(prev_node_id).moves_from_node;
+		
+		if(prev_node_moves === undefined) {
+			console.log(prev_node_moves);
+			throw "prev_node_moves is undefined";
+		}
+		
+		var move = prev_node_moves[move_index !== undefined ? move_index : 0]
+		
+		console.log("prev_nodes_move", move);
+		return move.nodehandle_after_move !== undefined ?
+					 move.nodehandle_after_move.id : prev_node_id; 
 //	else return prev_node_id + 1; //FIXME: this is ugly hack
 	}
 	
