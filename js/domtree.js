@@ -52,7 +52,7 @@
 				"types" : {
 											"valid_children" : [ "all" ],
 											"types" : {
-													"singleton_before" : {
+													"singletonbefore" : {
 															"icon" : {
 																	"image" : "pics/move_before.png"
 															},
@@ -61,7 +61,7 @@
 															"hover_node" : false,
 															"select_node" : function () {return true;}
 													},
-													"singleton_after" : {
+													"singletonafter" : {
 															"icon" : {
 																	"image" : "pics/move_after.png"
 															},
@@ -70,7 +70,7 @@
 															"hover_node" : false,
 															"select_node" : function () {return true;}
 													},
-													"gsingleton_before" : {
+													"gsingletonbefore" : {
 															"icon" : {
 																	"image" : "pics/gmove_before.png"
 															},
@@ -79,7 +79,7 @@
 															"hover_node" : false,
 															"select_node" : function () {return true;}
 													},
-													"gsingleton_after" : {
+													"gsingletonafter" : {
 															"icon" : {
 																	"image" : "pics/gmove_after.png"
 															},
@@ -88,7 +88,7 @@
 															"hover_node" : false,
 															"select_node" : function () {return true;}
 													},
-													"ssingleton_before" : {
+													"ssingletonbefore" : {
 															"icon" : {
 																	"image" : "pics/smove_before.png"
 															},
@@ -97,7 +97,7 @@
 															"hover_node" : false,
 															"select_node" : function () {return true;}
 													},
-													"ssingleton_after" : {
+													"ssingletonafter" : {
 															"icon" : {
 																	"image" : "pics/smove_after.png"
 															},
@@ -107,7 +107,7 @@
 															"select_node" : function () {return true;}
 													},
 
-													"gmove_before" : {
+													"gmovebefore" : {
 															"icon" : {
 																	"image" : "pics/gmove_before.png"
 															},
@@ -116,7 +116,7 @@
 															"hover_node" : false,
 															"select_node" : function () {return true;}
 													},
-													"gmove_after" : {
+													"gmoveafter" : {
 															"icon" : {
 																	"image" : "pics/gmove_after.png"
 															},
@@ -125,7 +125,7 @@
 															"hover_node" : false,
 															"select_node" : function () {return true;}
 													},
-													"smove_before" : {
+													"smovebefore" : {
 															"icon" : {
 																	"image" : "pics/smove_before.png"
 															},
@@ -134,7 +134,7 @@
 															"hover_node" : false,
 															"select_node" : function () {return true;}
 													},
-													"smove_after" : {
+													"smoveafter" : {
 															"icon" : {
 																	"image" : "pics/smove_after.png"
 															},
@@ -154,7 +154,7 @@
 		
 			GENERIC.for_each(gametree.get_nodehandles(), function(nodehandle) {
 				for(var i = 0; i < nodehandle.moves_from_node.length; ++i) {
-					var nodetype = nodehandle.gamestate.turn === ARIMAA.gold ? "gmove_before" : "smove_before";
+					var nodetype = nodehandle.gamestate.turn === ARIMAA.gold ? "gmovebefore" : "smovebefore";
 					var move_index = i;
 					var selector = "#" + nodehandle.id + "_" + move_index;
 					//console.log(selector);
