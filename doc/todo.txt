@@ -5,12 +5,17 @@
 - players could suggest a move to particular node, so that they are put into suggested moves and one who has control could pick it up
 
 - how to show variations in UI?
-* fix the browsing (icon changes etc)
 
+- markers for game positions
+- easy way to see what moves have comments
 
 http://arimaa.com/arimaa/graphics/
 
 ----------------
 current
 ----------------
-fix show next move
+
+1. fix show next move
+ * fix the browsing (correct ui-node is not selected after shown move)
+2. add a variation of a variation
+
