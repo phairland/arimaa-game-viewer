@@ -205,7 +205,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	
 			
 	function bind_select_piece() {
-		$('.square').live('mouseover', function() {
+		$('.square').live('mouseenter', function() {
 			if(showing_slowly) return;
 			if(marker !== "") {
 				hover_marker($(this));
@@ -764,28 +764,35 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 
 		bind_select_piece();
 		bind_move_piece();
+
+		// clears the arrows when mouse leaves the board		
+		$('.board').live('mouseleave', function(event) {
+				var x = event.pageX;
+				var y = event.pageY;
+				// for some reason, the event is triggered when subelement is leaved, so
+				// we need to check current coordinate that it's out of bounds
+				if(x < 0 || y < 0 || x >= $(this).width() || y >= $(this).height()) {
+				  $('.arrow').hide();
+				}
+		});
 		
-		$('.arrownormal').mouseover(function() {
+		$('.arrownormal').mouseenter(function() {
 			$(this).hide();
 			$(this).closest('.arrow').find('.arrowhover').show();		
 		});
 		
-		$('.arrowhover').mouseout(function() {
+		$('.arrowhover').mouseleave(function() {
 			$(this).hide();
 			$(this).closest('.arrow').find('.arrownormal').show();		
 		});
-		
-		$('.board').mouseout(function() {
-			$(this).find('.arrow').hide();
-		});
-		
+
 		$('.show').click(function() {
 				if(showing_slowly) return;
 				showing_slowly = true;
 				show_next_move_slowly();
 		});
 
-		$('.square').live('mouseout', function() {
+		$('.square').live('mouseleave', function() {
 			if(marker !== "") unhover_marker($(this));
 		});
 		
