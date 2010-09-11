@@ -29,6 +29,7 @@ Features | Max priority
  ** gimme control -button?
  ** give her control -button?
  ** might have timeout so that if user doesn't do anything in x seconds, the control is free to take by anyone
+ ** players could suggest a move to particular node, so that they are put into suggested moves and one who has control could pick it up
  * only legal moves possible
  * different kind (color, shape) of marks that help to identify the key positions, e.g. a circle
 

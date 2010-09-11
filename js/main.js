@@ -578,11 +578,33 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 
 	function show_previous() {
 		undo_all_steps();
-		var move_index = current_move_index;
-		var previd = gametree.previous_nodeid(viewer.current_id(), move_index);
-		current_domtree_node = $('#' + previd + '_' + move_index);
+		var previd = gametree.previous_nodeid(viewer.current_id(), current_move_index);
+		console.log("current_id", viewer.current_id());
+		console.log("current_move_index", current_move_index);
+		console.log("previd initially", previd);
+		
 		//var previd = gametree.previous_nodeid(current_gametree_id);
 		if(!!previd) {
+			//var move_index = 0;
+			var move_index_from_previous = 
+				gametree.select_node(viewer.current_id()).move_index_from_previous;
+			console.log("move_index_from_previous", move_index_from_previous);
+			var move_index;
+			// if we are inside variation just before main variant,
+			// backup to the main variant, NOT move before main variant
+			if(current_move_index > 0) {
+				previd = viewer.current_id();
+				move_index = 0;
+			} else if(move_index_from_previous > 0) {
+				move_index = move_index_from_previous;
+			} else move_index = 0; // prev node's move_index in prev's previous
+			
+			console.log("new id", previd);
+			console.log("move_index", move_index);
+			current_domtree_node = $('#' + previd + '_' + move_index);
+			current_move_index = move_index;
+
+			console.log(previd);
 			viewer.gametree_goto(previd);
 			show_board();
 			update_selected_nodehandle_view();

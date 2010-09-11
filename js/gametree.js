@@ -116,8 +116,9 @@ function create_gametree() {
 	}
 	
 	function previous_nodeid(prev_node_id) {
-		if(prev_node_id === undefined) return first_id;
-		else if(prev_node_id <= first_id) first_id;
+		if(prev_node_id === undefined) throw "prev_node_id is undefined";
+		else if(prev_node_id < first_id) throw "illegal prev_node_id: " + prev_node_id;
+		else if(prev_node_id === first_id) return first_id;
 		else return	select_node(prev_node_id).previous_nodehandle.id;
 //			
 		//else return prev_node_id - 1;

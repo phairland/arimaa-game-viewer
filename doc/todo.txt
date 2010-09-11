@@ -1,20 +1,20 @@
-- verification of imported annotated game (important for user)
+games by id: http://arimaa.com/arimaa/games/pgn.cgi
 
-- players could suggest a move to particular node, so that they are put into suggested moves and one who has control could pick it up
+- verification of imported annotated game (important for user)
 
 - easy way to see what moves have comments
 
 - missing rules:
   * repetition
   * winning
+  
+- passing!
 
-- setup changing
+- board setup changing at the beginning
 - markers
+
   * square, circle, X, A, B
 
-http://arimaa.com/arimaa/graphics/
 
-games by id:
-http://arimaa.com/arimaa/games/pgn.cgi
-
-stepbuffer ei tyhjene jos j‰tt‰‰ kesken ja painaa ikonia (ent‰ muita?)
+current: FIX show previous move doesn't update tree selection
+ * should update singleton_after to singleton_before
