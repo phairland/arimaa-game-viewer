@@ -9,8 +9,12 @@
   * winning
 
 - setup changing
+- markers
+  * square, circle, X, A, B
 
 http://arimaa.com/arimaa/graphics/
 
 games by id:
 http://arimaa.com/arimaa/games/pgn.cgi
+
+stepbuffer ei tyhjene jos j‰tt‰‰ kesken ja painaa ikonia (ent‰ muita?)

@@ -517,6 +517,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 				show_board();
 				setTimeout(show_fun, show_step_delay);
 			} else {
+				// does not need to undo stepbuffer, is empty
 				show_fun();
 			}
 		} else {
@@ -772,6 +773,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		});		
 
 		$('.gametree li a').live('click', function() {
+			undo_all_steps();
 			var elem = $(this).closest('li');
 			current_domtree_node = elem;
 			var id = get_nodehandle_id_from_tree_elem(elem);
