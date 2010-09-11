@@ -1,6 +1,8 @@
 
 var ARIMAA_MAIN = ARIMAA_MAIN || function() {
-	var marker = undefined;
+	var all_markers = GENERIC.map(["A", "B", "C"], function(elem) { return "marker_" + elem; })
+	console.log(all_markers);
+	var marker = "";
 	var show_step_delay = 300; // milliseconds between steps
 	var domtree;
 	var gametree;
@@ -25,7 +27,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	}
 	
 	function make_step_to_gametree(step) {
-		console.log("pushing to stepbuffer");
+		GENERIC.log("pushing to stepbuffer");
 		// step = { 'from': selected, 'to': new_coordinate, 'piece': piece }
 		stepbuffer.push(step);
 	}	
@@ -63,7 +65,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		//var where_to = domtree.find("li[after='" + current_nodehandle.id + "']"); // FIXME: ugly, shouldn't depend on dom nodes
 		var where_to = $('#' + current_nodehandle.previous_nodehandle.id + "_" + current_nodehandle.move_index_from_previous); //FIXME ugly
 		//var where_to = '#' + current_nodehandle.id + "_" + current_move_index ; // the "parent" node
-		console.log("where_to", where_to);		
+		GENERIC.log("where_to", where_to);		
 		
 		var nodetype = current_nodehandle.gamestate.turn.side.slice(0, 1) + 'singletonafter';
 		
@@ -77,9 +79,9 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 
 			var preceding_type = where_to.attr('rel');			
 			if(preceding_type.indexOf("singleton") >= 0) {
-				console.log("preceding IS singleton");
+				GENERIC.log("preceding IS singleton");
 		    domtree.jstree('set_type', nodetype_preceding, where_to);
-		  } else console.log("preceding not singleton");
+		  } else GENERIC.log("preceding not singleton");
 
  		current_move_index = move_index;
 		current_domtree_node = $('#' + id);
@@ -89,7 +91,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	
 	function make_move_to_gametree() {
 		var current_nodehandle = get_current_node();
-		console.log("current_nodehandle", current_nodehandle);
+		GENERIC.log("current_nodehandle", current_nodehandle);
 
 		// node where there's no moves yet
 		if(current_nodehandle.moves_from_node.length === 0) {
@@ -116,7 +118,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		var move_index = result.move_index;
 
 		var id = current_nodehandle.id + "_" + move_index;
-		console.log("id", id);
+		GENERIC.log("id", id);
 		
 		// id and name for treenode
 		var js = {
@@ -126,12 +128,12 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 
 		// if first move in this line of play, put it as a sibling, otherwise it's a variation (of maybe a variation)
 		var node_position_in_tree = current_nodehandle.moves_from_node.length === 1 ? "last" : "inside";
-		console.log(node_position_in_tree);
+		GENERIC.log(node_position_in_tree);
 		
 		//var where_to = "#" + current_gametree_id;
 		//var where_to = domtree.jstree('get_selected');
 		var where_to = '#' + current_nodehandle.id + "_0"; // the "parent" node
-		console.log("whereto", where_to);
+		GENERIC.log("whereto", where_to);
 		
 		// this must be before creating the node, since deselecting trigger event that changes the singletontype
 		//domtree.jstree('deselect_all');
@@ -150,24 +152,39 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		update_selected_nodehandle_view();
 	}
 
+	function clear_markers_from_node() {
+		gametree.clear_markings(viewer.current_id());
+	}
+	
+	function clear_markers_from_dom_board() {
+		var squares = $('.square');
+		GENERIC.for_each(all_markers, function(marker) {
+			squares.removeClass(marker);
+		});
+	}
+
 	function show_markers() {
+		// it's possible that new board hasn't been constructed (for a reason)
+		// so old markers must be wiped out
+		clear_markers_from_dom_board();
+		
 		var markings = gametree.get_markings(viewer.current_id());
-		console.log(markings);
+		GENERIC.log(markings);
 		GENERIC.for_each(markings, function(marking) {
-			console.log("markings");
-			console.log(marking.row, marking.col, marking.marking);
+			GENERIC.log("markings");
+			GENERIC.log(marking.row, marking.col, marking.marking);
 			$('.row').eq(marking.row).find('.square').eq(marking.col).addClass("marker_" + marking.marking);
 		});
 	}
 	
 	function toggle_marker(elem) {
-		console.log("toggle");
+		GENERIC.log("toggle");
 		if(marker === undefined) return;
 		
 		var clazz = 'marker_' + marker;
 		var coordinate = coordinate_for_element(elem);
 		gametree.toggle_marking(viewer.current_id(), coordinate, marker);
-		console.log("toggle");
+		GENERIC.log("toggle");
 		elem.toggleClass(clazz);
 	}
 
@@ -222,9 +239,9 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	
 	// this is for making a new move
 	function make_step_for_piece(selected, new_coordinate) {
-		console.log("making step");
+		GENERIC.log("making step");
 		if(selected === undefined) return;
-		console.log(selected, new_coordinate);
+		GENERIC.log(selected, new_coordinate);
 
 		var piece = viewer.board()[selected.row][selected.col];
 		var step = { 'from': selected, 'to': new_coordinate, 'piece': piece } 
@@ -234,10 +251,10 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		make_step_to_gametree(step);
 		// if turn changed, commit the steps into gametree as a move
 		if(result.gamestate.turn !== viewer.gamestate().turn) {
-			console.log("make move to gametree");
+			GENERIC.log("make move to gametree");
 			make_move_to_gametree();
 		} else {
-			console.log("not gametree move");
+			GENERIC.log("not gametree move");
 		}
 		
 		/*
@@ -365,21 +382,21 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	}
 
 	function show_steps_slowly(steps, nodeid, move_index) {
-		console.log("show_steps_slowly");
-		console.log(nodeid);
-		console.log(move_index);
+		GENERIC.log("show_steps_slowly");
+		GENERIC.log(nodeid);
+		GENERIC.log(move_index);
 		if(steps.length === 0) {
 // just added
 			var cur_node = gametree.next_nodeid(nodeid, move_index);
 			
 			var node = gametree.select_node(cur_node);
 			
-			console.log("cur_node", cur_node);
-			console.log("node", node);
+			GENERIC.log("cur_node", cur_node);
+			GENERIC.log("node", node);
 			
 			var moves_from_current = node.moves_from_node;
-			console.log(moves_from_current);
-			console.log(moves_from_current.length);
+			GENERIC.log(moves_from_current);
+			GENERIC.log(moves_from_current.length);
 
 			current_move_index = move_index;
 			
@@ -394,11 +411,11 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	
 				//domtree.jstree('select_node', treenode_id);
 				*/
-				console.log("zeroooooooo");
+				GENERIC.log("zeroooooooo");
 
 				//var node_this = 
 				var elem = $('#' + nodeid + "_" + move_index);
-				console.log(elem);
+				GENERIC.log(elem);
 				current_domtree_node = elem;
 
 				if(elem.attr('rel').indexOf("singletonbefore") >= 0) {
@@ -413,14 +430,14 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 			}	else if(moves_from_current.length === 1) { // this is singleton 'before' position
 
 				var followups_moves = moves_from_current[0].nodehandle_after_move.moves_from_node;
-				console.log("follow", followups_moves);
-				console.log(followups_moves);
+				GENERIC.log("follow", followups_moves);
+				GENERIC.log(followups_moves);
 				
 				if(followups_moves.length === 0) {
-					console.log("yoyoyoy");
+					GENERIC.log("yoyoyoy");
 
 					var elem = $('#' + gametree.next_nodeid(nodeid, move_index) + "_0");
-					console.log(elem);
+					GENERIC.log(elem);
 					current_domtree_node = elem;
 					current_move_index = 0;
 
@@ -444,7 +461,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 			
 
 // just added end of			
-			console.log("defaultiiiiiii");
+			GENERIC.log("defaultiiiiiii");
 			
 			viewer.gametree_goto(cur_node);
 			current_move_index = 0; // FIXME: how about variation of variation?
@@ -479,12 +496,12 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 
 	function show_move_slowly(nodeid, move_index) {
 		var node = gametree.select_node(nodeid);
-		console.log(" ");
-		console.log("------------------------------------------");
-		console.log("------------------------------------------");
-		console.log(" ");
-		console.log("show_slowly", nodeid, move_index);
-		console.log("node", node);
+		GENERIC.log(" ");
+		GENERIC.log("------------------------------------------");
+		GENERIC.log("------------------------------------------");
+		GENERIC.log(" ");
+		GENERIC.log("show_slowly", nodeid, move_index);
+		GENERIC.log("node", node);
 
 		if(node.moves_from_node.length > 0) {
 			function show_fun() {
@@ -503,7 +520,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 				show_fun();
 			}
 		} else {
-			console.log("no moves from current node");
+			GENERIC.log("no moves from current node");
 		}		 
 	}
 
@@ -536,11 +553,11 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 			var treenode_id = "#" + cur_node.id + "_" + move_index;
 			
 //			domtree.jstree('set_type', singleton_after_opposite(node_now.gamestate.turn), treenode_id);
-		  console.log(node_now);
+		  GENERIC.log(node_now);
 			var prefix = node_now.gamestate.turn.side.slice(0, 1);
 			var new_type = prefix + 'singletonafter';
-			console.log("new_type", new_type);
-			console.log("for", $(treenode_id));			
+			GENERIC.log("new_type", new_type);
+			GENERIC.log("for", $(treenode_id));			
 			domtree.jstree('set_type', new_type, treenode_id);
 			//domtree.jstree('set_type', "gsingleton_after", treenode_id);
 
@@ -553,7 +570,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 			//current_gametree_id = 			
 		} else {
 			current_domtree_node = $('#' + nextid + '_' + current_move_index);
-			console.log("new cur domtree node", current_domtree_node);
+			GENERIC.log("new cur domtree node", current_domtree_node);
 			update_selected_nodehandle_view();
 		}
 	}
@@ -606,12 +623,12 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
   
   function set_singleton_to_before() {
   	return;
-  	console.log("set_singleton_to_before");
+  	GENERIC.log("set_singleton_to_before");
 		var cur_node = gametree.next_nodeid(viewer.current_id(), current_move_index);
 		var node = gametree.select_node(cur_node);
 		var moves_from_current = node.moves_from_node;
 
-  	console.log("node", node);
+  	GENERIC.log("node", node);
   	
 		if(moves_from_current.length === 1) { // this is singleton 'before' position
 			var followups_moves = moves_from_current[0].nodehandle_after_move.moves_from_node.length;
@@ -626,6 +643,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 
   function update_selected_nodehandle_view(scroll_viewer) {
   	show_comments(get_current_node());
+  	show_markers();
   	
   	var nodeid = viewer.current_id() + "_" + current_move_index;
 //  	var jqueryNode = $('#' + nodeid);
@@ -642,7 +660,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 			  $('.scrollabletree').scrollTo(jqueryNode, {offset: -100});
 			}
 		} else {
-			console.log(jqueryNode);
+			GENERIC.log(jqueryNode);
 			GENERIC.log("node does not exist");
 		}
   }
@@ -741,6 +759,12 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 			if(marker !== "") unhover_marker($(this));
 		});
 		
+		$('.clear_markers_control').click(function() {
+				marker = "";
+				clear_markers_from_dom_board();
+				clear_markers_from_node();
+		});
+		
 		$('.comments_for_node').focusout(function() {
 				var comment = $(this).val();
 
@@ -765,7 +789,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		});
 		
 		$('.jstree-icon').live('click', function() {
-				console.log("icon-click");
+				GENERIC.log("icon-click");
 				/*F
 				var elem = $(this).closest('li');
 				
@@ -820,7 +844,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		});
 
 		$('.square').live('click', function() {
-			console.log("foo");
+			GENERIC.log("foo");
 				
 			if(marker !== "") {
 				toggle_marker($(this));

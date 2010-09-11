@@ -1,21 +1,16 @@
 - verification of imported annotated game (important for user)
 
-- stepbuffer clearing (undo & when user presses next/prev move)
-
 - players could suggest a move to particular node, so that they are put into suggested moves and one who has control could pick it up
 
-- how to show variations in UI?
-
-- markers for game positions
 - easy way to see what moves have comments
+
+- missing rules:
+  * repetition
+  * winning
+
+- setup changing
 
 http://arimaa.com/arimaa/graphics/
 
-----------------
-current
-----------------
-
-1. fix show next move
- * fix the browsing (correct ui-node is not selected after shown move)
-2. add a variation of a variation
-
+games by id:
+http://arimaa.com/arimaa/games/pgn.cgi

@@ -109,7 +109,7 @@ function create_gametree() {
 		
 		var move = prev_node_moves[move_index !== undefined ? move_index : 0]
 		
-		console.log("prev_nodes_move", move);
+		GENERIC.log("prev_nodes_move", move);
 		return move.nodehandle_after_move !== undefined ?
 					 move.nodehandle_after_move.id : prev_node_id; 
 //	else return prev_node_id + 1; //FIXME: this is ugly hack
@@ -199,6 +199,11 @@ function create_gametree() {
     return result;
 	}
 	
+	function clear_markings(id) {
+		var node = select_node(id);
+		node.markings = undefined;
+	}
+	
   return {
   	'get_initial_nodehandle': get_initial_nodehandle,
     'make_move': make_move,
@@ -208,6 +213,7 @@ function create_gametree() {
     'get_nodehandles': get_nodehandles,
     'comment_node': comment_node,
     'toggle_marking': toggle_marking,
- 		'get_markings': get_markings
+ 		'get_markings': get_markings,
+ 		'clear_markings': clear_markings
   }
 }

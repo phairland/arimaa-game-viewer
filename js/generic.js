@@ -1,3 +1,6 @@
+var ARIMAA_DEBUG_ON = false;
+	
+
 var GENERIC = GENERIC || function() {
   return {
   	'log': log,
@@ -23,7 +26,7 @@ var GENERIC = GENERIC || function() {
   var show_alert = true;
   
   function log(message) {
-  	if(console !== undefined) console.log(message); 
+  	if(ARIMAA_DEBUG_ON && console !== undefined) console.log(message); 
   	else if(show_alert) {
   		alert("got message (after which I say nothing: " + message);
   		show_alert = false;

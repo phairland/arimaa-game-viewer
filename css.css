@@ -1,6 +1,6 @@
 
 .marker_A, .hovermarker_A {
-	background-color: #66CC66 !important;
+	background-color: #FFFF99 !important;
 }
 
 .marker_B, .hovermarker_B {
@@ -15,16 +15,11 @@
 	cursor: pointer;
 }
 
-.markers {
-	width: 300px;
-	height: 60px;
-	background-color: #555;
-}
+.markers { width: 488px; height: 80px;	background-color: #555; margin: 5px; float: left; }
 
 .markers p {
 	color: white;
-	margin: 2px;
-	
+	margin: 2px;	
 }
 
 .marker:hover {
@@ -64,33 +59,24 @@
 	font-size: 0.8em;
 }
 
-body {
-	/* font-family: Verdana; */
-  width: 1000px; background-color: #333; margin: 0;
-}
+body { font-family: Verdana; font-size: 0.8em; width: 1000px; background-color: #333; margin: 0; }
 
-p {
-  color: white;	
-}
+p { color: white; }
 
-h1 {
-  color: gray; font-family: Verdana;  margin: 15px; font-size: 1.0em;
-}
-
-.prev, .next, .show {	cursor: pointer; }
+h1 { color: gray; font-family: Verdana;  margin: 15px; font-size: 1.0em; }
 
 .selected {	border: 1px red solid !important; }
 
 .arrow { 	padding: 0px; margin: 0px; border: 0px; 	position: absolute; 	display: none; }
 
-.nodeinfobox { width: 200px; float: right; }
-.nodeinfobox p { font-size: 0.9em; margin: 5px; }
+.nodeinfobox { width: 200px; float: left; margin: 5px; }
+.nodeinfobox p { font-size: 0.9em; margin: 10px 5px 5px 5px; }
 
-.turn { color: red; }
-.comments_for_node { width: 190px; height: 200px; background-color: #ddd; color: black; padding: 5px; margin: 10px; font-size: 0.8em; float: right; }
+.turn { color: red; margin: 5px 5px; }
+.comments_for_node { width: 185px; height: 175px; background-color: #ddd; color: black; padding: 5px; margin: 10px; font-size: 0.8em; float: left; }
 
 .comment { height: 50px; width: 420px; float: left; }
-.comment_box { float: left; margin: 5px; }
+.comment_box { float: left; margin: 5px;}
 .make_comment { }
 
 .arrowhover { display: none; }
@@ -101,7 +87,7 @@ h1 {
 
 .trap { background-color: pink !important; border: 1px solid black !important; }
 
-.wrapper { width: 760px; border: 1px solid gray; }
+.wrapper { width: 720px; border: 1px solid gray; }
 
 .nodehandle:hover {	background-color: pink !important; }
 
@@ -115,7 +101,7 @@ h1 {
 }
 
 .board {
-	float: left; width: 500px; padding: 20px;	border: 1px white solid; background-color: brown; 
+	float: left; width: 450px; padding: 20px;	border: 1px white solid; background-color: brown; 
 }
 
 .square { width: 50px; height: 50px; padding: 2px; border: 1px #ddd solid; background-color: #bbb; float: left; }
@@ -130,10 +116,13 @@ h1 {
 
 .importbox { width: 200px; float: left; }
 
-.controls {	width: 200px; height: 200px; background-color: #ccc; margin: 5px;	color: black;	float: right; }
+.controls {	width: 200px; height: 200px; background-color: #ccc; margin: 5px;	color: black;	float: right; padding: 5px; }
 
-.control img { margin: 0;	padding: 0; }
+.control img { margin: 0;	padding: 0; height: 50px;	}
 
-.control { width: 60px;	height: 50px;	border: 1px solid blue;	float: left;	margin: 5px;	background-color: #aaa555 }
+.control { width: 60px;	border: 1px solid blue;	float: left;	margin: 5px;	background-color: #aaa555; cursor: pointer; text-align: center; }
+
+.clear_markers_control, .show { padding: 7px;}
+.clear_markers_control { width: 190px; }
 
 .feedback { margin-left: 20px; }
