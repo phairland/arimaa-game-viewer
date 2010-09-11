@@ -1,7 +1,7 @@
 
 var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	var all_markers = GENERIC.map(["A", "B", "C"], function(elem) { return "marker_" + elem; })
-	console.log(all_markers);
+	
 	var marker = "";
 	var show_step_delay = 300; // milliseconds between steps
 	var domtree;
@@ -579,16 +579,16 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	function show_previous() {
 		undo_all_steps();
 		var previd = gametree.previous_nodeid(viewer.current_id(), current_move_index);
-		console.log("current_id", viewer.current_id());
-		console.log("current_move_index", current_move_index);
-		console.log("previd initially", previd);
+		GENERIC.log("current_id", viewer.current_id());
+		GENERIC.log("current_move_index", current_move_index);
+		GENERIC.log("previd initially", previd);
 		
 		//var previd = gametree.previous_nodeid(current_gametree_id);
 		if(!!previd) {
 			//var move_index = 0;
 			var move_index_from_previous = 
 				gametree.select_node(viewer.current_id()).move_index_from_previous;
-			console.log("move_index_from_previous", move_index_from_previous);
+			GENERIC.log("move_index_from_previous", move_index_from_previous);
 			var move_index;
 			// if we are inside variation just before main variant,
 			// backup to the main variant, NOT move before main variant
@@ -599,12 +599,19 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 				move_index = move_index_from_previous;
 			} else move_index = 0; // prev node's move_index in prev's previous
 			
-			console.log("new id", previd);
-			console.log("move_index", move_index);
-			current_domtree_node = $('#' + previd + '_' + move_index);
+			GENERIC.log("new id", previd);
+			GENERIC.log("move_index", move_index);
+			var elem = $('#' + previd + '_' + move_index);
+			current_domtree_node = elem;
+			
+			if(elem.attr('rel').indexOf("singletonafter") >= 0) {
+				var prefix = opposite_turn(gametree.select_node(previd).gamestate.turn).side.slice(0, 1); 
+				domtree.jstree('set_type', prefix + 'singletonbefore', elem);
+			}
+			
 			current_move_index = move_index;
 
-			console.log(previd);
+			GENERIC.log(previd);
 			viewer.gametree_goto(previd);
 			show_board();
 			update_selected_nodehandle_view();
