@@ -54,7 +54,7 @@
 	float: left;
   overflow:auto;
   height: 587px;
-	width: 500px;
+	width: 350px;
 	margin-left: 2px;
 	border: 5px solid white;
 }
@@ -78,7 +78,10 @@ h1 { color: gray; font-family: Verdana;  margin: 15px; font-size: 1.0em; }
 .nodeinfobox p { font-size: 0.9em; margin: 10px 5px 5px 5px; }
 
 .turn { color: red; margin: 5px 5px; }
-.comments_for_node { width: 185px; height: 175px; background-color: #ddd; color: black; padding: 5px; margin: 10px; font-size: 0.8em; float: left; }
+.comments_for_node {
+	font-family: Verdana;
+	font-size: 1.2em;
+	width: 185px; height: 175px; background-color: #ddd; color: black; padding: 5px; margin: 10px; font-size: 0.8em; float: left; }
 
 .comment { height: 50px; width: 420px; float: left; }
 .comment_box { float: left; margin: 5px;}

@@ -179,7 +179,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	
 	function toggle_marker(elem) {
 		GENERIC.log("toggle");
-		if(marker === undefined) return;
+		if(marker === "") return;
 		
 		var clazz = 'marker_' + marker;
 		var coordinate = coordinate_for_element(elem);
@@ -767,12 +767,16 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 
 		// clears the arrows when mouse leaves the board		
 		$('.board').live('mouseleave', function(event) {
-				var x = event.pageX;
-				var y = event.pageY;
+				var x = event.pageX + $(this).offset().left;
+				var y = event.pageY + $(this).offset().top;
+				console.log(x, y);
+				console.log(event);
+				console.log($(this));
+				
 				// for some reason, the event is triggered when subelement is leaved, so
 				// we need to check current coordinate that it's out of bounds
 				if(x < 0 || y < 0 || x >= $(this).width() || y >= $(this).height()) {
-				  $('.arrow').hide();
+				  //$('.arrow').hide();
 				}
 		});
 		

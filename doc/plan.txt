@@ -50,6 +50,12 @@ Features | Medium priority
 - google app engine for server?
   * clojure or scala backend
 
+-----------------------------------
+Features | Low priority
+-----------------------------------
+
+- heatmaps for piece locations
+
 
 -----------------------------------
 Implementation
