@@ -33,7 +33,7 @@
 }
 
 .marker {
-	font-size: 1.0em;
+	font-size: 1.2em;
 	width: 40px;
 	height: 30px;
 	float: left;
@@ -46,12 +46,17 @@
 }
 
 .scrollabletree {
+	/*
 	position: absolute;
 	top: 50px;
 	left: 800px;
+	*/
+	float: left;
   overflow:auto;
-  height: 500px;
+  height: 587px;
 	width: 500px;
+	margin-left: 2px;
+	border: 5px solid white;
 }
 
 .gametree {
@@ -59,7 +64,7 @@
 	font-size: 0.8em;
 }
 
-body { font-family: Verdana; font-size: 0.8em; width: 1000px; background-color: #333; margin: 0; }
+body { font-family: Verdana; font-size: 0.8em; width: 1500px; background-color: #333; margin: 0; }
 
 p { color: white; }
 
@@ -87,7 +92,7 @@ h1 { color: gray; font-family: Verdana;  margin: 15px; font-size: 1.0em; }
 
 .trap { background-color: pink !important; border: 1px solid black !important; }
 
-.wrapper { width: 720px; border: 1px solid gray; }
+.wrapper { width: 720px; border: 1px solid gray; float: left; background-color: #666;}
 
 .nodehandle:hover {	background-color: pink !important; }
 
@@ -101,7 +106,7 @@ h1 { color: gray; font-family: Verdana;  margin: 15px; font-size: 1.0em; }
 }
 
 .board {
-	float: left; width: 450px; padding: 20px;	border: 1px white solid; background-color: brown; 
+	float: left; width: 450px; padding: 20px;	border: 1px white solid; background-color: brown;
 }
 
 .square { width: 50px; height: 50px; padding: 2px; border: 1px #ddd solid; background-color: #bbb; float: left; }
