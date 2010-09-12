@@ -313,7 +313,7 @@ var ARIMAA = ARIMAA || function() {
   	new_gamestate.steps--;
 
 		if(new_gamestate.steps < 0) {
-			console.log(new_gamestate);
+			GENERIC.log(new_gamestate);
 			throw "steps < 0";
 		}
 		
@@ -351,7 +351,7 @@ var ARIMAA = ARIMAA || function() {
 	function pass(board, gamestate) {
 		var new_gamestate = GENERIC.shallowCopyObject(gamestate);
 		new_gamestate.turn = gamestate.turn === gold ? silver : gold;
-		console.log(gamestate.turn, new_gamestate.turn);
+		GENERIC.log(gamestate.turn, new_gamestate.turn);
 		new_gamestate.steps = steps_in_move;
 		
 		return {

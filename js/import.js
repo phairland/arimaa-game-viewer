@@ -49,7 +49,7 @@ function create_import_game(moves) {
 		var result = [];
 		
 		if(move.steps.length === 0) {
-			console.log("pass");
+			GENERIC.log("pass");
 			//result.push(pass_step);
 		} else {
 			for(var i = 0; i < move.steps.length; ++i) {

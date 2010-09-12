@@ -649,7 +649,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
       	set_singleton_to_before();
       }
       
-      console.log(code);
+      GENERIC.log(code);
 
       // home key
       if(code === 36) {
@@ -791,9 +791,9 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		$('.board').live('mouseleave', function(event) {
 				var x = event.pageX + $(this).offset().left;
 				var y = event.pageY + $(this).offset().top;
-				console.log(x, y);
-				console.log(event);
-				console.log($(this));
+				GENERIC.log(x, y);
+				GENERIC.log(event);
+				GENERIC.log($(this));
 				
 				// for some reason, the event is triggered when subelement is leaved, so
 				// we need to check current coordinate that it's out of bounds

@@ -105,7 +105,7 @@ function create_gametree() {
 		var prev_node_moves = select_node(prev_node_id).moves_from_node;
 		
 		if(prev_node_moves === undefined) {
-			console.log(prev_node_moves);
+			GENERIC.log(prev_node_moves);
 			throw "prev_node_moves is undefined";
 		}
 		
