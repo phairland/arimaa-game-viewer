@@ -648,6 +648,28 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
       	show_variation(code - 96);
       	set_singleton_to_before();
       }
+      
+      console.log(code);
+
+      // home key
+      if(code === 36) {
+      	var first = gametree.get_initial_nodehandle().id;
+      	viewer.gametree_goto(first);
+      	current_domtree_node = $('#' + first + "_0");
+      	show_board();
+      	update_selected_nodehandle_view();      	
+      }
+
+      //FIXME: there's lots of duplication everywhere similar to this
+      // end key
+      if(code === 35) {
+      	var last = gametree.get_lastid();
+      	viewer.gametree_goto(last);
+      	current_domtree_node = $('#' + last + "_0");
+      	show_board();
+      	update_selected_nodehandle_view();      	
+      }
+      
     });
   }
   

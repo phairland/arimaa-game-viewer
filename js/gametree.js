@@ -205,6 +205,16 @@ function create_gametree() {
 		node.markings = undefined;
 	}
 	
+	function get_lastid() {
+		var node = select_node(first_id);
+		while(node.moves_from_node !== undefined && node.moves_from_node.length > 0) {
+			node = node.moves_from_node[0].nodehandle_after_move;
+		}
+
+		//last one is the position before final move		
+		return node.previous_nodehandle.id;
+	}
+	
   return {
   	'get_initial_nodehandle': get_initial_nodehandle,
     'make_move': make_move,
@@ -215,6 +225,7 @@ function create_gametree() {
     'comment_node': comment_node,
     'toggle_marking': toggle_marking,
  		'get_markings': get_markings,
- 		'clear_markings': clear_markings
+ 		'clear_markings': clear_markings,
+ 		'get_lastid': get_lastid
   }
 }
