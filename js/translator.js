@@ -3,7 +3,7 @@ var TRANSLATOR = TRANSLATOR || function() {
 	function convert_to_gametree(notated_game) {
 		var tokens = notated_game.split(" ");
 		var moves = divide_into_moves(tokens);
-		GENERIC.for_each(moves, function(move) { console.log(move.steps); });
+		//GENERIC.for_each(moves, function(move) { console.log(move.steps); });
 		//console.log(GENERIC.map(moves, function(move) { return move.steps}));
 		return moves;
 	}
