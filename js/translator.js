@@ -3,13 +3,13 @@ var TRANSLATOR = TRANSLATOR || function() {
 	function convert_to_gametree(notated_game) {
 		var tokens = notated_game.split(" ");
 		var moves = divide_into_moves(tokens);
-		//GENERIC.for_each(moves, function(move) { console.log(move); });
-		//console.log(GENERIC.map(moves, function(move) { return move.id}));
+		GENERIC.for_each(moves, function(move) { console.log(move.steps); });
+		//console.log(GENERIC.map(moves, function(move) { return move.steps}));
 		return moves;
 	}
 	
 	function get_moveid(token) {
-		if(token.length === 0) return false;
+		if(token === undefined || token.length === 0) return false;
 		var value = parseInt(token.slice(0, 1));
 		if(!isNaN(value)) {
 			return token;
@@ -17,25 +17,32 @@ var TRANSLATOR = TRANSLATOR || function() {
 	}
 	
 	var pass_step = "pass";
+
+	function create_move(steps, moveid) {
+		return {
+			'steps': steps,
+			'id': moveid
+		}
+	}
+				
 	
 	function divide_into_moves(tokens) {
 		var result = [];
 		
 		for(var i = 0; i < tokens.length; ++i) {
+			
 			var moveid = get_moveid(tokens[i]);
 			
 			if(!!moveid) {
 				var steps = get_steps(tokens.slice(i+1));
+				
 				if(steps.length < ARIMAA.steps_in_move) {
 					steps.push(pass_step);
+					var move = create_move(steps, moveid);
+					result.push(move);
+				} else {
+					result.push(create_move(steps, moveid));
 				}
-				
-				var move = {
-					'steps': steps,
-					'id': moveid
-				}
-				
-				result.push(move);
 			}
 		}
 		
@@ -43,7 +50,7 @@ var TRANSLATOR = TRANSLATOR || function() {
 	}
 	
 	function get_step_from_token(token) {
-		return token !== "" ? token : false; 
+		return token !== undefined && token !== "" ? token : false; 
 	}
 	
 	function get_steps(tokens) {

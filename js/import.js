@@ -4,41 +4,33 @@ function generate_moves(moves) {
 	var imported = create_import_game(moves);
 	
 	var result = [];
-	do {
+
+	//console.log("generate");
+	while(true) {
 		var move = imported.get_steps_in_next_move();
-		result.push(move);
-	} while(move.steps.length !== 0);
+		
+		if(!!move) {
+			//GENERIC.for_each(result, function(move) { GENERIC.log("yo", move.steps); });
+			//console.log(move.steps);			
+			result.push(move); 
+		} else {				
+			 
+			return result;
+		}
+	}// while(move.steps.length !== 0);
 	
 	//result.pop(); shall we leave the empty move?
 	
-	return result;
+	//return result;
 }
 
 function create_import_game(moves) {
-	var currentmove = 0;
-	var currentstep = 0;
-	
-	function get_next_step() {
-		if(currentmove >= moves.length || currentstep >= moves[currentmove].steps.length) {
-			return false;
-		} else {
-			var nextstep = moves[currentmove].steps[currentstep];
-
-			currentstep++;
-			
-			if(currentstep >= moves[currentmove].steps.length) {
-				currentstep = 0;
-				currentmove++;
-			}
-			
-			var step = TRANSLATOR.convert_notated_step_to_coordinates(nextstep);
-			step.notated = nextstep;
-			
-			return step;
-		}
-	}
+	var current_move = -1;
 	
 	function create_move(move, steps) {
+	//	console.log("id", move);
+	//	console.log("id", move.id);
+		
 		return {
 			'id': move.id,
 			'steps': steps
@@ -46,26 +38,35 @@ function create_import_game(moves) {
 	}
 	
 	function get_steps_in_next_move() {
-		var result = [];
+		current_move++;
 
-		var current = currentmove;
-
-		do {
-			var step = get_next_step();
-
-			if(!step) return create_move(moves[current], result);
-
-			// if step is only indicating a removal, let's skip it since it is done by the game logic
-			if(step.type !== 'removal' && step.type !== 'pass') {
-				result.push(step);
-			}
-		} while(current === currentmove) // get_next_step updates currentmove
+		if(current_move >= moves.length) {
+			return false;
+		}
 		
-		return create_move(moves[current], result);;
+		var move = moves[current_move];
+		
+		var result = [];
+		
+		if(move.steps.length === 0) {
+			console.log("pass");
+			//result.push(pass_step);
+		} else {
+			for(var i = 0; i < move.steps.length; ++i) {
+				var nextstep = move.steps[i];
+				var step = TRANSLATOR.convert_notated_step_to_coordinates(nextstep);
+				step.notated = nextstep;
+				// if step is only indicating a removal, let's skip it since it is done by the game logic, same goes for pass
+				if(step.type !== 'removal' && step.type !== 'pass') {
+					result.push(step);
+				}
+			}
+		}
+		
+		return create_move(moves[current_move], result);
 	}
 	
 	return {
-		'get_next_step': get_next_step,
 		'get_steps_in_next_move': get_steps_in_next_move,
 	}
 }

@@ -6,6 +6,7 @@ function create_gametree() {
 	function get_unique_id() { ids++; return ids; }
 	
 	function make_steps(gamestate_prev, board_prev, steps) {
+		
 		var state = gamestate_prev;
 		var board = board_prev;
 
@@ -17,17 +18,28 @@ function create_gametree() {
 				state = result.gamestate;
 				board = result.board;
 			} else {
-				var result = ARIMAA.move_piece(state, board, step.from, step.to);
-				state = result.gamestate;
-				board = result.board;
+				
+				try {
+				  var result = ARIMAA.move_piece(state, board, step.from, step.to);
+					state = result.gamestate;
+					board = result.board;
+				} catch(e) {
+					console.log(steps);
+					console.log(step);
+					show_dom_board(board, state);
+					//return result;					
+				}
+				
+				//show_dom_board(board, state);
 			}
 		}
-
+		
 		// since in one move there can be strictly either setting or normal moves,
 		// we can infer that if the ARIMAA.steps_in_move amount of steps isn't made, the last one is a pass
 	  if(steps.length === 0 || steps[0].type !== 'setting') {
 	  	if(steps.length < ARIMAA.steps_in_move) {
-	  		result = ARIMAA.pass(state, board);
+	  		console.log("pass");
+	  		result = ARIMAA.pass(board, state);
 	  		state = result.gamestate;
 	  		board = result.board;
 	  	}
@@ -165,8 +177,6 @@ function create_gametree() {
 	  var index =	old.indexOf(marker);
 	  if(index === -1) {
 	  	old.push(marker);
-	  	console.log(old);
-	  	
 	  } else {
 	  	old.splice(index, index+1);
 	  }

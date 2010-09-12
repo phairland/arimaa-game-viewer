@@ -886,8 +886,6 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		});
 
 		$('.square').live('click', function() {
-			GENERIC.log("foo");
-				
 			if(marker !== "") {
 				toggle_marker($(this));
 			}

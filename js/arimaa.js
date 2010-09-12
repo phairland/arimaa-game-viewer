@@ -82,6 +82,12 @@ var ARIMAA = ARIMAA || function() {
 
   function move_piece(gamestate, board, piece_coordinate, new_coordinate) {
   	 var new_board = copy_board(board);
+
+  	 if(piece_coordinate.row === undefined || new_board[piece_coordinate.row] === undefined){
+  	 	 //console.log("row", piece_coordinate.row);
+  	 	 throw "foo";
+  	 }
+  	 
   	 var piece = new_board[piece_coordinate.row][piece_coordinate.col];
   	 new_board[piece_coordinate.row][piece_coordinate.col] = {}; // takes piece away from old place
   	 new_board[new_coordinate.row][new_coordinate.col] = piece;
@@ -345,6 +351,7 @@ var ARIMAA = ARIMAA || function() {
 	function pass(board, gamestate) {
 		var new_gamestate = GENERIC.shallowCopyObject(gamestate);
 		new_gamestate.turn = gamestate.turn === gold ? silver : gold;
+		console.log(gamestate.turn, new_gamestate.turn);
 		new_gamestate.steps = steps_in_move;
 		
 		return {
