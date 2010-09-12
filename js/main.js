@@ -801,7 +801,6 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		});
 		
 		$('.clear_markers_control').click(function() {
-				marker = "";
 				clear_markers_from_dom_board();
 				clear_markers_from_node();
 		});
