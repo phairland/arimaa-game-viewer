@@ -15,6 +15,3 @@ games by id: http://arimaa.com/arimaa/games/pgn.cgi
 
   * square, circle, X, A, B
 
-
-current: FIX show previous move doesn't update tree selection
- * should update singleton_after to singleton_before

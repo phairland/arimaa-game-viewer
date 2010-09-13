@@ -3,7 +3,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	var all_markers = GENERIC.map(["A", "B", "C"], function(elem) { return "marker_" + elem; })
 	
 	var marker = "";
-	var show_step_delay = 300; // milliseconds between steps
+	var show_step_delay = 400; // milliseconds between steps
 	var domtree;
 	var gametree;
 	var viewer;
@@ -282,8 +282,50 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		board = result.board;
 		gamestate = result.gamestate;
 		*/
-		show_board();		
-		clear_arrows();
+		
+		/****
+		 Animation for step
+		 FIXME: create seperate function
+		 anyways this is a bit dirty way to animate
+		 though eventually the current dom based thing might change to use of absolute positions and maybe canvas
+		***/
+		
+		var pieceElem = $('.row').eq(selected.row).find('.square').eq(selected.col).find('img');
+		var toElem = $('.row').eq(new_coordinate.row).find('.square').eq(new_coordinate.col).find('img');
+
+		var x_change = (new_coordinate.col - selected.col) * pieceElem.width();
+		var y_change = (new_coordinate.row - selected.row) * pieceElem.height();
+
+		if(!pieceElem.offset()) {
+			after_animation();
+			return;
+		}
+
+		var x = pieceElem.offset().left + x_change;
+		var y = pieceElem.offset().top + y_change;
+			
+		var clone = pieceElem.clone().hide();
+
+		clone
+			.css('position', 'absolute')
+			.css('left', pieceElem.offset().left)
+			.css('top', pieceElem.offset().top)
+			.css('width', pieceElem.width())
+
+		pieceElem.hide();
+		clone.show();
+			
+		function after_animation() {
+			clone.remove();
+		  show_board();
+		  clear_arrows();
+		}
+		
+		$('body').append(clone);
+			clone.animate({
+				'left': '+='+x_change,
+				'top': '+='+y_change
+		}, show_step_delay - 50, after_animation);
 	}
 	
 	function clear_arrows() {	$('.arrow').hide();	}
