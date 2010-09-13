@@ -1,0 +1,36 @@
+<html>
+<head>
+	<script>
+	
+	function add_click_listener(tabid) {
+		chrome.pageAction.onClicked.addListener(function(tab) {
+			if(tabid !== tab.id) { return; }
+
+			chrome.tabs.executeScript(tab.id, {file:"get_moves.js"});
+		});		
+	}
+
+	var games = {}
+	
+	chrome.extension.onRequest.addListener(
+		function(request, sender, sendResponse) {
+			if(!!games[sender.tab.id]) return;			
+
+			if(!!request.show_page_action) {
+				add_click_listener(sender.tab.id);
+				chrome.pageAction.show(sender.tab.id);
+			} else if (!!request.arimaa) {
+				var url = chrome.extension.getURL('arimaa.html');
+				
+				// FIXME: if game doesn't already exist, create a new one, otherwise update
+				var tab = chrome.tabs.create({'url': url }, function(tab) {
+					games[tab.id] = true;
+					chrome.extension.sendRequest({'moves': request.arimaa.moves}, function(response) {});
+				});
+			}
+			
+			sendResponse({});
+		});	
+	</script>
+</head>
+</html>

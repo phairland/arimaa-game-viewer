@@ -1,0 +1,89 @@
+<!doctype html>
+
+<html lang='en' xmlns='http://www.w3.org/1999/xhtml'> 
+<head>
+	<meta charset='utf-8' />
+	<link rel="stylesheet" type="text/css" href="css.css" />
+  <title>Arimaa collaborative analysis board</title>
+  <script type="text/Javascript" src="js/jquery.js"></script>
+  <script type="text/javascript" src="js/jquerytree/jquery.hotkeys.js"></script> 
+  <script type="text/javascript" src="js/jquerytree/jquery.cookie.js"></script>
+  <script type="text/javascript" src="js/jquerytree/jquery.jstree.js"></script>
+  <script type="text/javascript" src="js/jquery.scrollTo.js"></script>
+  <script type="text/Javascript" src="js/generic.js"></script>
+  <script type="text/Javascript" src="js/arimaa.js"></script>
+  <script type="text/Javascript" src="js/board.js"></script>
+  <script type="text/Javascript" src="js/gametree.js"></script>
+  <script type="text/Javascript" src="js/viewer.js"></script>
+  <script type="text/Javascript" src="js/translator.js"></script>
+  <script type="text/Javascript" src="js/import.js"></script>
+  <script type="text/Javascript" src="js/example_game.js"></script>
+  <script type="text/Javascript" src="js/domgame.js"></script>
+  <script type="text/Javascript" src="js/domtree.js"></script>
+  <script type="text/Javascript" src="js/main.js"></script>
+  <script type="text/Javascript" src="js/browser_plugins.js"></script>
+</head>
+
+<body>
+  <h1>Arimaa game analysis tool</h1>
+  
+  <div id="arrow_up" class="arrow"><img src="pics/arrow_up.png" class="arrownormal" /><img src="pics/arrow_up_selected.png" class="arrowhover"/></div>
+  <div id="arrow_down" class="arrow"><img src="pics/arrow_down.png" class="arrownormal" /><img src="pics/arrow_down_selected.png" class="arrowhover"/></div>
+  <div id="arrow_left" class="arrow"><img src="pics/arrow_left.png" class="arrownormal" /><img src="pics/arrow_left_selected.png" class="arrowhover"/></div>
+  <div id="arrow_right" class="arrow"><img src="pics/arrow_right.png" class="arrownormal" /><img src="pics/arrow_right_selected.png" class="arrowhover" /></div>
+
+  <div class="wrapper">
+		<div class="wrapper">
+		  <!-- this is needed so that we get mouseleave event for inner board but visually the board has margins (in css: padding) -->
+		  <div class="boardwrapper">
+			  <div class="board"></div>
+			</div>
+			<div class="controls">
+				<div class="importbox">
+					<input type="textarea" id="imported_game" />
+					<input type="button" id="import_game" value="Import" />
+				</div>
+				
+				<button class="prev control"><img src="pics/arrow_left.png"/></button>
+				<button class="next control"><img src="pics/arrow_right.png"/></button>
+				<button class="show control">Show</button>
+			</div>
+			<div class="nodeinfobox">
+				<div class="turn"></div>
+				<p>Comments</p>
+				<textarea class="comments_for_node">saa</textarea>
+			</div>
+			<!--
+			<div class="comment_box">
+				<textarea class="comment"></textarea
+
+				<button class="make_comment control">Send</button>
+			</div>
+			-->
+
+			<div class="markers">
+			  <p>Markers:</p>
+				<div class="marker marker_A">A</div>
+				<div class="marker marker_B">B</div>
+				<div class="marker marker_C">C</div>
+				<div class="control clear_markers_control">clear from board</div>
+			</div>
+			
+			<div class="clear"></div>
+		</div>
+		<div class="clear"></div>
+	</div>
+
+	<div class="scrollabletree">
+	  <div class="gametree"><div>
+  </div>
+  <div class="clear"></div>
+  
+		
+  <div class="feedback">
+   
+  </div>
+</div> 
+</body>
+</html>
+
