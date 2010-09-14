@@ -5,13 +5,13 @@ function generate_moves(moves) {
 	
 	var result = [];
 
-	//console.log("generate");
+	//GENERIC.log("generate");
 	while(true) {
 		var move = imported.get_steps_in_next_move();
 		
 		if(!!move) {
 			//GENERIC.for_each(result, function(move) { GENERIC.log("yo", move.steps); });
-			//console.log(move.steps);			
+			//GENERIC.log(move.steps);			
 			result.push(move); 
 		} else {				
 			 
@@ -28,8 +28,8 @@ function create_import_game(moves) {
 	var current_move = -1;
 	
 	function create_move(move, steps) {
-	//	console.log("id", move);
-	//	console.log("id", move.id);
+	//	GENERIC.log("id", move);
+	//	GENERIC.log("id", move.id);
 		
 		return {
 			'id': move.id,
