@@ -312,9 +312,9 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 
 		var x = pieceElem.offset().left + x_change;
 		var y = pieceElem.offset().top + y_change;
-			
-		var clone = pieceElem.clone().hide();
 
+		var clone = pieceElem.clone().hide();
+		
 		clone
 			.css('position', 'absolute')
 			.css('left', pieceElem.offset().left)
@@ -326,6 +326,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 			
 		function after_animation() {
 			clone.remove();
+			
 		  show_board();
 		  clear_arrows();
 		}
@@ -552,6 +553,9 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	}
 
 	function show_move_slowly(nodeid, move_index) {
+		if(showing_slowly) return;
+		showing_slowly = true;
+		
 		var node = gametree.select_node(nodeid);
 		GENERIC.log(" ");
 		GENERIC.log("------------------------------------------");
@@ -563,7 +567,6 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		if(node.moves_from_node.length > 0) {
 			function show_fun() {
 				var steps = node.moves_from_node[move_index].steps;
-				showing_slowly = true;
 				show_steps_slowly(steps, nodeid, move_index);
 			}
 
@@ -587,6 +590,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	}
 
 	function show_variation(move_index) {
+		if(showing_slowly) return;
 		var cur_node = get_current_node();
 		if(move_index >= cur_node.moves_from_node.length) {
 			return;
@@ -634,6 +638,9 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	}
 
 	function show_previous() {
+		if(showing_slowly) return;
+		showing_slowly = false;
+		
 		undo_all_steps();
 		var previd = gametree.previous_nodeid(viewer.current_id(), current_move_index);
 		GENERIC.log("current_id", viewer.current_id());
@@ -695,18 +702,16 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
     $(window).keydown(function(event) {
       var code = getKeyCode(event);
       if(is_right_arrow_key(code)) {
-      	showing_slowly = false;
       	show_next();
       }
-      if(code === 37) {
-      	showing_slowly = false;
+      if(code === 37 /* left */ || code === 38 /* up */) {
       	show_previous();
       }
 
       //GENERIC.log(code);
       //if(code === 38) import_game(); // for debugging purposes quick importing
       
-      if(code === 40) { // down key
+      if(code === 40 /* down */) {
       	if(showing_slowly) return;
 				show_next_move_slowly();
       }
@@ -720,6 +725,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 
       // home key
       if(code === 36) {
+      	if(showing_slowly) return;
       	var first = gametree.get_initial_nodehandle().id;
       	viewer.gametree_goto(first);
       	current_domtree_node = $('#' + first + "_0");
@@ -730,6 +736,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
       //FIXME: there's lots of duplication everywhere similar to this
       // end key
       if(code === 35) {
+      	if(showing_slowly) return;
       	var last = gametree.get_lastid();
       	viewer.gametree_goto(last);
       	current_domtree_node = $('#' + last + "_0");
@@ -844,6 +851,11 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		stepbuffer = [];
 	}
 	
+	function save_comment() {
+		var comment = $('.comments_for_node').val();
+		gametree.comment_node(comment, viewer.current_id());		
+	}
+	
 	$(function() {
 		domtree = $('.gametree');
 
@@ -882,8 +894,6 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		});
 
 		$('.show').click(function() {
-				if(showing_slowly) return;
-				showing_slowly = true;
 				show_next_move_slowly();
 		});
 
@@ -896,13 +906,12 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 				clear_markers_from_node();
 		});
 		
-		$('.comments_for_node').focusout(function() {
-				var comment = $(this).val();
-
-				gametree.comment_node(comment, viewer.current_id());
+		$('.comments_for_node').keyup(function() {
+				save_comment();
 		});		
 
 		$('.gametree li a').live('click', function() {
+			if(showing_slowly) return false;
 			undo_all_steps();
 			var elem = $(this).closest('li');
 			current_domtree_node = elem;
