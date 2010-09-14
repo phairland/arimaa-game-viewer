@@ -246,6 +246,13 @@ var ARIMAA = ARIMAA || function() {
   	return (gamestate.turn === gold && get_y(direction) <= 0) || (gamestate.turn === silver && get_y(direction) >= 0);
   }
 
+  function is_passing_legal(gamestate, board) {
+  	return !is_gameover(gamestate)
+  					&& gamestate.type !== 'setting'
+  					&& gamestate.steps < steps_in_move // at least one move is obligatory
+  					&& gamestate.expectedmove === undefined; // if opponent's piece was pushed, the pusher must be moved
+  }
+  
   function legal_moves(gamestate, board, coordinate) {
   	if(is_gameover(gamestate)) return [];
   	if(board[coordinate.row][coordinate.col].type === undefined) return [];
@@ -260,7 +267,9 @@ var ARIMAA = ARIMAA || function() {
   	  if(is_from_neighbour) return [gamestate.expectedmove.to];
   	  else return [];
     }
-    			
+    
+    var result = [];
+    
   	var is_piece_current_players = current_player_piece(coordinate, board, gamestate);
   	if(is_piece_current_players && is_frozen(coordinate, board)) return [];
   	
@@ -351,8 +360,8 @@ var ARIMAA = ARIMAA || function() {
 	function pass(board, gamestate) {
 		var new_gamestate = GENERIC.shallowCopyObject(gamestate);
 		new_gamestate.turn = gamestate.turn === gold ? silver : gold;
-		GENERIC.log(gamestate.turn, new_gamestate.turn);
 		new_gamestate.steps = steps_in_move;
+		new_gamestate.laststep = undefined;
 		
 		return {
 			'board': board,
@@ -382,7 +391,8 @@ var ARIMAA = ARIMAA || function() {
   	'add_piece': add_piece,
   	'remove_piece': remove_piece,
   	'get_initial_gamestate': get_initial_gamestate,
-  	'pass': pass
+  	'pass': pass,
+  	'is_passing_legal': is_passing_legal
   }
   
 }();

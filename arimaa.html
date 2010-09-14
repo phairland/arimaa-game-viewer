@@ -4,7 +4,7 @@
 <head>
 	<meta charset='utf-8' />
 	<link rel="stylesheet" type="text/css" href="css.css" />
-  <title>Arimaa collaborative analysis board</title>
+  <title>Arimaa game viewer</title>
   <script type="text/Javascript" src="js/jquery.js"></script>
   <script type="text/javascript" src="js/jquerytree/jquery.hotkeys.js"></script> 
   <script type="text/javascript" src="js/jquerytree/jquery.cookie.js"></script>
@@ -45,12 +45,13 @@
 				
 				<button class="prev control"><img src="pics/arrow_left.png"/></button>
 				<button class="next control"><img src="pics/arrow_right.png"/></button>
+				<button class="pass control">Pass</button>
 				<button class="show control">Show</button>
 			</div>
 			<div class="nodeinfobox">
 				<div class="turn"></div>
 				<p>Comments</p>
-				<textarea class="comments_for_node">saa</textarea>
+				<textarea class="comments_for_node"></textarea>
 			</div>
 			<!--
 			<div class="comment_box">
@@ -61,11 +62,11 @@
 			-->
 
 			<div class="markers">
-			  <p>Markers:</p>
+			  <p>Markers</p>
 				<div class="marker marker_A">A</div>
 				<div class="marker marker_B">B</div>
 				<div class="marker marker_C">C</div>
-				<div class="control clear_markers_control">clear from board</div>
+				<div class="control clear_markers_control">Clear from board</div>
 			</div>
 			
 			<div class="clear"></div>

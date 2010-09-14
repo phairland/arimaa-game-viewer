@@ -203,7 +203,15 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		elem.removeClass(clazz);
 	}
 	
-			
+	function show_pass_if_legal() {
+		if(showing_slowly) return false;
+		if(ARIMAA.is_passing_legal(viewer.gamestate(), viewer.board())) {
+			$('.pass').removeAttr('disabled');
+		} else {
+			$('.pass').attr('disabled', 'disabled');
+		}
+	}
+	
 	function bind_select_piece() {
 		$('.square').live('mouseenter', function() {
 			if(showing_slowly) return;
@@ -269,15 +277,16 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 
 	// this is for showing already made moves
 	function show_make_step_for_piece(selected, new_coordinate) {
-		var piece = viewer.board()[selected.row][selected.col];
-		var move = { 'from': selected, 'to': new_coordinate, 'piece': piece }
-		
 		//FIXME: making move to gametree should be behind common interface with getting new board
 		// í.e. this should be done to a gametree
 		result = ARIMAA.move_piece(viewer.gamestate(), viewer.board(), selected, new_coordinate);
 		
 		viewer.setBoard(result.board);
 		viewer.setGamestate(result.gamestate);
+
+		var piece = viewer.board()[selected.row][selected.col];
+		var move = { 'from': selected, 'to': new_coordinate, 'piece': piece }
+
 		/*
 		board = result.board;
 		gamestate = result.gamestate;
@@ -412,6 +421,12 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 			viewer.setBoard(result.board);
 			viewer.setGamestate(result.gamestate);
 			show_board();
+		} else if (step.type === 'pass') {
+			var result = ARIMAA.pass(viewer.board(), viewer.gamestate());
+			viewer.setBoard(result.board);
+			viewer.setGamestate(result.gamestate);
+		  show_board();
+		  clear_arrows();
 		} else if(step.type === 'removal') {
 			throw "removal step should not be handled here, the game logic should take care of it";			
 			// this can be skipped, since the effect is already done in previous step
@@ -663,9 +678,19 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	function getKeyCode(event) { return event.keycode || event.which;	}
 	function is_right_arrow_key(code) { return code === 39; }
 	
+	function pass_if_legal() {
+		if(showing_slowly) return;
+		
+		if(ARIMAA.is_passing_legal(viewer.gamestate(), viewer.board())) {
+			stepbuffer.push({ 'type': 'pass' });
+			make_move_to_gametree();
+		}
+	}
+	
 	function bind_control_move() {
-		$('.next').click(function() { show_next(); });
-		$('.prev').click(function() { show_previous(); });
+		$('.pass').click(pass_if_legal);	
+		$('.next').click(show_next);
+		$('.prev').click(show_previous);
 		
     $(window).keydown(function(event) {
       var code = getKeyCode(event);
@@ -736,6 +761,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
   }
 
   function update_selected_nodehandle_view(scroll_viewer) {
+  	show_pass_if_legal();
   	show_comments(get_current_node());
   	show_markers();
   	
@@ -807,6 +833,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		show_current_position_info(viewer.gamestate(), get_current_node());
 		show_dom_board(viewer.board(), viewer.gamestate());
 		show_markers();
+		show_pass_if_legal();
 	}
 	
 	function bind_import_game() {

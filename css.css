@@ -46,11 +46,6 @@
 }
 
 .scrollabletree {
-	/*
-	position: absolute;
-	top: 50px;
-	left: 800px;
-	*/
 	float: left;
   overflow:auto;
   height: 587px;
@@ -136,7 +131,7 @@ h1 { color: gray; font-family: Verdana;  margin: 15px; font-size: 1.0em; }
 
 .control { width: 60px;	border: 1px solid blue;	float: left;	margin: 5px;	background-color: #aaa555; cursor: pointer; text-align: center; }
 
-.clear_markers_control, .show { padding: 7px;}
+.clear_markers_control, .show, .pass { padding: 7px;}
 .clear_markers_control { width: 190px; }
 
 .feedback { margin-left: 20px; }

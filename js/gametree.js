@@ -6,6 +6,12 @@ function create_gametree() {
 	function get_unique_id() { ids++; return ids; }
 	
 	function make_steps(gamestate_prev, board_prev, steps) {
+		function create_result(board_, state_) {
+			return {
+				'gamestate': state_,
+				'board': board_
+			}
+		}
 		
 		var state = gamestate_prev;
 		var board = board_prev;
@@ -14,9 +20,12 @@ function create_gametree() {
 			var step = steps[i];
 			
 			if(step.type === 'setting') {
-				result = ARIMAA.add_piece(step.piece, step.to, board, state);
+				var result = ARIMAA.add_piece(step.piece, step.to, board, state);
 				state = result.gamestate;
 				board = result.board;
+			} else if(step.type === 'pass') { // explicit passing
+	  		var result = ARIMAA.pass(board, state);
+	  		return create_result(result.board, result.gamestate);	  		
 			} else {
 				var result = ARIMAA.move_piece(state, board, step.from, step.to);
 				state = result.gamestate;
@@ -25,21 +34,21 @@ function create_gametree() {
 			}
 		}
 		
+		// after given steps check:
+		
+		// implicit passing
 		// since in one move there can be strictly either setting or normal moves,
 		// we can infer that if the ARIMAA.steps_in_move amount of steps isn't made, the last one is a pass
 	  if(steps.length === 0 || steps[0].type !== 'setting') {
 	  	if(steps.length < ARIMAA.steps_in_move) {
 	  		result = ARIMAA.pass(board, state);
-	  		state = result.gamestate;
-	  		board = result.board;
+	  		return create_result(result.board, result.gamestate);
 	  	}
-	  }
-		
-		return {
-			'gamestate': state,
-			'board': board
-		}
+	  }  
+	  
+	  return create_result(board, state);
 	}
+	
 	
 	var initial_nodehandle = (function() {
 		var gamestate = ARIMAA.get_initial_gamestate();
