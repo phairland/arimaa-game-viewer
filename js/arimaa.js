@@ -84,7 +84,7 @@ var ARIMAA = ARIMAA || function() {
   	 var new_board = copy_board(board);
 
   	 if(piece_coordinate.row === undefined || new_board[piece_coordinate.row] === undefined){
-  	 	 //console.log("row", piece_coordinate.row);
+  	 	 //GENERIC.log("row", piece_coordinate.row);
   	 	 throw "foo";
   	 }
   	 
