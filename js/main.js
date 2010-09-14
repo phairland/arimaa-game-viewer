@@ -921,6 +921,8 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		});
 		
 		$('.jstree-icon').live('click', function() {
+				if(showing_slowly) return false;
+				
 				GENERIC.log("icon-click");
 				/*F
 				var elem = $(this).closest('li');
