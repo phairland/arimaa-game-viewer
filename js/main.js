@@ -277,6 +277,9 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 
 	// this is for showing already made moves
 	function show_make_step_for_piece(selected, new_coordinate) {
+		// if this function is called with not showing_slowly, the moving slowly has been interrupted
+		if(!showing_slowly) return;
+
 		//FIXME: making move to gametree should be behind common interface with getting new board
 		// í.e. this should be done to a gametree
 		result = ARIMAA.move_piece(viewer.gamestate(), viewer.board(), selected, new_coordinate);
@@ -325,13 +328,16 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		clone.show();
 			
 		function after_animation() {
+			// if this function is called with not showing_slowly, the moving slowly has been interrupted
+			if(!clone || !showing_slowly) return;
+			
 			clone.remove();
 			
 		  show_board();
 		  clear_arrows();
 		}
 		
-		$('body').append(clone);
+		$('.board').append(clone);
 			clone.animate({
 				'left': '+='+x_change,
 				'top': '+='+y_change
@@ -417,6 +423,9 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	}
 
 	function show_step(step) {
+		// if this function is called with not showing_slowly, the moving slowly has been interrupted
+		if(!showing_slowly) return;
+		
 		if(step.type === 'setting') {
 			var result = ARIMAA.add_piece(step.piece, step.to, viewer.board(), viewer.gamestate());
 			viewer.setBoard(result.board);
@@ -440,11 +449,14 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	}
 
 	function show_steps_slowly(steps, nodeid, move_index) {
+		// if this function is called with not showing_slowly, the moving slowly has been interrupted
+		if(!showing_slowly) return;
+		
 		GENERIC.log("show_steps_slowly");
 		GENERIC.log(nodeid);
 		GENERIC.log(move_index);
 		if(steps.length === 0) {
-// just added
+
 			var cur_node = gametree.next_nodeid(nodeid, move_index);
 			
 			var node = gametree.select_node(cur_node);
@@ -581,6 +593,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 				show_fun();
 			}
 		} else {
+			showing_slowly = false;
 			GENERIC.log("no moves from current node");
 		}		 
 	}
@@ -590,7 +603,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	}
 
 	function show_variation(move_index) {
-		if(showing_slowly) return;
+		showing_slowly = false;
 		var cur_node = get_current_node();
 		if(move_index >= cur_node.moves_from_node.length) {
 			return;
@@ -638,7 +651,6 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	}
 
 	function show_previous() {
-		if(showing_slowly) return;
 		showing_slowly = false;
 		
 		undo_all_steps();
@@ -743,7 +755,6 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
       	show_board();
       	update_selected_nodehandle_view();      	
       }
-      
     });
   }
   
@@ -911,7 +922,8 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		});		
 
 		$('.gametree li a').live('click', function() {
-			if(showing_slowly) return false;
+			//if(showing_slowly) return false;
+			showing_slowly = false;
 			undo_all_steps();
 			var elem = $(this).closest('li');
 			current_domtree_node = elem;
@@ -931,7 +943,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		
 		$('.jstree-icon').live('click', function() {
 				if(showing_slowly) return false;
-				
+
 				GENERIC.log("icon-click");
 				/*F
 				var elem = $(this).closest('li');
