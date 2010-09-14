@@ -29,7 +29,7 @@
 				var dom_nodehandle = create_tree_nodehandle(nodehandle, 0);
 				domtree.append(dom_nodehandle);
 				//lastnode = $('#' + dom_nodehandle.find('li').attr('id'));
-				//console.log(lastnode);
+				//GENERIC.log(lastnode);
 			}
 		});
 
@@ -158,7 +158,7 @@
 					var nodetype = nodehandle.gamestate.turn === ARIMAA.gold ? "gmovebefore" : "smovebefore";
 					var move_index = i;
 					var selector = "#" + nodehandle.id + "_" + move_index;
-					//console.log(selector);
+					//GENERIC.log(selector);
 					domtree.jstree('set_type', nodetype, selector);
 				}
 			});
