@@ -29,6 +29,10 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	function make_step_to_gametree(step) {
 		GENERIC.log("pushing to stepbuffer");
 		// step = { 'from': selected, 'to': new_coordinate, 'piece': piece }
+		//FIXME creating notation for custom variation step
+		//if(step.type === 'normal') {
+		step.notated = step.piece.type.slice(0, 1) + step.from.col + step.from.row;
+		//}
 		stepbuffer.push(step);
 	}	
 
@@ -915,6 +919,12 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		$('.clear_markers_control').click(function() {
 				clear_markers_from_dom_board();
 				clear_markers_from_node();
+		});
+		
+		$('.export').click(function() {
+			var result = TRANSLATOR.convert_from_gametree(gametree);
+			GENERIC.log("export", result);
+			alert("ONLY MOVES | " + result);
 		});
 		
 		$('.comments_for_node').keyup(function() {

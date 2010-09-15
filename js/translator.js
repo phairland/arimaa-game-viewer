@@ -187,7 +187,54 @@ var TRANSLATOR = TRANSLATOR || function() {
 		}
 	}
 	
+	function move_as_notated(move) {
+		 
+		var result = GENERIC.reduce("", move.steps, function(result, step) {
+				return result + (step.notated !== undefined ? " " + step.notated : "");
+		});
+		
+		return result.trim();
+	}
+	
+	/**
+	  Traverses the gametree recursively, outer iteration is over main moves,
+	  the inner one goes over variations, adding variations from whole subtree
+	  before adding variant info at the same level.
+	  
+	  FIXME: if big tree, could blow up the stack since not tail-recursive
+	  (and javascript doesn't support tail call elimination AFAIK)
+	*/
+	function convert_from_gametree(gametree) {
+		function convert_from_node(node) {
+			if(node === undefined) return "";
+
+			var branches = node.moves_from_node.length;
+			if(branches === 0) return "";
+
+			var result = "";
+
+			var main_line_move = node.moves_from_node[0];
+			result += move_as_notated(main_line_move);
+			
+			for(var i = 1; i < node.moves_from_node.length; ++i) {
+				var move = node.moves_from_node[i];
+				
+				result += " [ " + move_as_notated(move);
+				
+			  result += convert_from_node(move.nodehandle_after_move) + " ] ";										
+			}
+			
+		  result += " " + convert_from_node(main_line_move.nodehandle_after_move);	
+				
+			return result;
+		}
+
+		var first = gametree.get_initial_nodehandle();
+		return convert_from_node(first).replace("  ", " ");
+	}
+	
 	return {
+		'convert_from_gametree': convert_from_gametree,
 	  'convert_to_gametree': convert_to_gametree,
 	  'convert_notated_step_to_coordinates': convert_notated_step_to_coordinates
 	};

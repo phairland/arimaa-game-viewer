@@ -124,13 +124,13 @@ h1 { color: gray; font-family: Verdana;  margin: 15px; font-size: 1.0em; }
 
 .importbox { width: 200px; float: left; }
 
-.controls {	width: 200px; height: 200px; background-color: #ccc; margin: 5px;	color: black;	float: right; padding: 5px; }
+.controls {	width: 220px; height: 300px; background-color: #ccc; margin: 5px;	color: black;	float: left; padding: 5px; border: 1px outset black; }
 
 .control img { margin: 0;	padding: 0; height: 50px;	}
 
-.control { width: 60px;	border: 1px solid blue;	float: left;	margin: 5px;	background-color: #aaa555; cursor: pointer; text-align: center; }
+.control { width: 80px;	border: 1px solid blue;	float: left;	margin: 5px;	background-color: yellow; cursor: pointer; text-align: center; }
 
-.clear_markers_control, .show, .pass { padding: 7px;}
+.clear_markers_control, .show, .pass, .export { padding: 7px;}
 .clear_markers_control { width: 190px; }
 
 .feedback { margin-left: 20px; }
