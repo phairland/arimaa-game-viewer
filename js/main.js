@@ -759,6 +759,11 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
       	show_board();
       	update_selected_nodehandle_view();      	
       }
+
+      // prevent moving of window when arrow keys are pressed
+      if(code >= 37 && code <= 40) {
+      	return false;
+      }
     });
   }
   
