@@ -1,29 +1,28 @@
-	function show_comments(move) {
-		if(!move) return;
-  	$('.comments_for_node').val(move.comment || "");
+	function show_comments_for_move(move) {
+		var text = !!move ? move.comment || "" : "";
+  	$('.comments_for_move').val(text);
 	}	
 
-/*
-	function show_comments(current_node) {
+	function show_comments_for_node(current_node) {
 		if(!current_node) return;
-  	$('.comments_for_node').val(current_node.comment);
+  	$('.comments_for_node').val(current_node.comment || "");
 	}	
-	*/
 
 	function show_turn(gamestate) {
 		if(gamestate.turn === ARIMAA.gold) {
 			$('.turn')
-				.text("Gold to move")
+				.text("Gold")
 				.css('color', "yellow");			
 		} else {
 			$('.turn')
-				.text("Silver to move")
-				.css('color', "#ccc");
+				.text("Silver")
+				.css('color', "white");
 		}
 	}
 	
-	function show_current_position_info(gamestate, current_node) {
-		show_comments(current_node);
+	function show_current_position_info(gamestate, current_node, current_move) {
+		show_comments_for_node(current_node);
+		show_comments_for_move(current_move);
 		show_turn(gamestate);
 	}
 	

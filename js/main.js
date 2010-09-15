@@ -789,9 +789,15 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 
   function update_selected_nodehandle_view(scroll_viewer) {
   	show_pass_if_legal();
-  	//show_comments(get_current_node());
-  	var move = get_current_node().moves_from_node[current_move_index];
-  	show_comments(move);
+
+  	var cur_node = get_current_node();
+  	if(cur_node.moves_from_node.length > 0) {
+  	  var move = cur_node.moves_from_node[current_move_index];
+  	  show_comments_for_move(move);
+  	} else show_comments_for_move();
+  	
+  	show_comments_for_node(get_current_node());
+  	
   	show_markers();
   	
   	var nodeid = viewer.current_id() + "_" + current_move_index;
@@ -859,7 +865,8 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	}
 
 	function show_board() {
-		show_current_position_info(viewer.gamestate(), get_current_node());
+		var cur_move = get_current_node().moves_from_node[current_move_index];
+		show_current_position_info(viewer.gamestate(), get_current_node(), cur_move);
 		show_dom_board(viewer.board(), viewer.gamestate());
 		show_markers();
 		show_pass_if_legal();
@@ -873,12 +880,22 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		stepbuffer = [];
 	}
 	
-	function save_comment() {
+	function save_comment_for_position() {
+		if(showing_slowly) return;
+		
 		var comment = $('.comments_for_node').val();
-		gametree.comment_move(comment, get_current_node().moves_from_node[current_move_index]);		
-		//gametree.comment_node(comment, viewer.current_id(), current_move_index);		
+		gametree.comment_node(comment, viewer.current_id());		
 	}
 	
+	function save_comment_for_move() {
+		if(showing_slowly) return;
+		
+		if(get_current_node().moves_from_node.length > 0) {
+			var comment = $('.comments_for_move').val();		
+			gametree.comment_move(comment, get_current_node().moves_from_node[current_move_index]);
+		}
+	}
+
 	$(function() {
 		domtree = $('.gametree');
 
@@ -936,7 +953,11 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		});
 		
 		$('.comments_for_node').keyup(function() {
-				save_comment();
+				save_comment_for_position();
+		});
+
+		$('.comments_for_move').keyup(function() {
+				save_comment_for_move();
 		});		
 
 		$('.gametree li a').live('click', function() {

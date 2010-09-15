@@ -86,17 +86,20 @@ h1 { color: gray; font-family: Verdana;  margin: 15px; font-size: 1.0em; }
 
 .arrow { 	padding: 0px; margin: 0px; border: 0px; 	position: absolute; 	display: none; }
 
-.nodeinfobox { width: 200px; float: right; margin: 5px; margin-right: 25px; }
+.nodeinfobox { width: 210px; float: right; margin: 2px; margin-right: 25px; }
 .nodeinfobox p { font-size: 0.9em; margin: 10px 5px 5px 5px; }
 
-.turn { color: red; margin: 5px 5px; }
-.comments_for_node {
+.turn { color: red; margin: 5px 5px; font-size: 1.5em; }
+.comments_for_node, .comments_for_move {
 	font-family: Verdana;
 	font-size: 1.2em;
-	width: 185px; height: 175px; background-color: #ddd; color: black; padding: 5px; margin: 10px; font-size: 0.8em; float: left; }
+	width: 200px; height: 100px; 
+	background-color: #ddd; color: black; padding: 5px; 
+	margin: 5px; font-size: 0.8em; float: left; 
+}
 
 .comment { height: 50px; width: 420px; float: left; }
-.comment_box { float: left; margin: 5px;}
+.comment_box { float: left; margin: 2px;}
 .make_comment { }
 
 .arrowhover { display: none; }
@@ -142,7 +145,7 @@ h1 { color: gray; font-family: Verdana;  margin: 15px; font-size: 1.0em; }
 
 .importbox { width: 200px; float: left; }
 
-.controls {	width: 220px; height: 300px; background-color: #ccc; margin: 5px;	color: black;	float: left; padding: 5px; border: 1px outset black; }
+.controls {	width: 220px; height: 220px; background-color: #ccc; margin: 5px;	color: black;	float: left; padding: 5px; border: 1px outset black; }
 
 .control img { margin: 0;	padding: 0; }
 

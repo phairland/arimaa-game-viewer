@@ -8,11 +8,23 @@ var TRANSLATOR = TRANSLATOR || function() {
 		return moves;
 	}
 	
+	function throw_unsupported(info) {
+		throw "Unsupported notation: " + info;
+	}
+	
 	function get_moveid(token) {
+		function get_side_shorthand(side) {
+			if(side === 'w' || side === 'g') return 'g';
+			if(side === 'b' || side === 's') return 's';
+			throw_unsupported("side: " + side);
+		}
+		
 		if(token === undefined || token.length === 0) return false;
 		var value = parseInt(token.slice(0, 1));
 		if(!isNaN(value)) {
-			return token;
+			var move_number = token.slice(0, token.length - 1); // all but last is part of move number
+			var side = token.slice(token.length - 1); // last is side (g or s)
+			return move_number + get_side_shorthand(side);
 		} else return false;
 	}
 	
@@ -188,8 +200,7 @@ var TRANSLATOR = TRANSLATOR || function() {
 	}
 	
 	function move_as_notated(move) {
-		 
-		var result = GENERIC.reduce("", move.steps, function(result, step) {
+		var result = GENERIC.reduce(move.id, move.steps, function(result, step) {
 				return result + (step.notated !== undefined ? " " + step.notated : "");
 		});
 		
