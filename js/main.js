@@ -792,9 +792,17 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 
   	var cur_node = get_current_node();
   	if(cur_node.moves_from_node.length > 0) {
+  		$('.comments_for_move')
+  			.removeAttr('disabled')
+  			.show();
   	  var move = cur_node.moves_from_node[current_move_index];
   	  show_comments_for_move(move);
-  	} else show_comments_for_move();
+  	} else {
+  		$('.comments_for_move')
+  			.attr('disabled', 'disabled')
+  			.hide();
+  		show_comments_for_move();
+  	}
   	
   	show_comments_for_node(get_current_node());
   	
