@@ -951,6 +951,34 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 			update_selected_nodehandle_view(false /* don't move scrollbar*/); // should this be done here?
 		});
 		
+		$('.gametree a').live('mouseover', function() {
+			$(this).addClass('treemove_hover');		
+		});
+		
+		$('.gametree a').live('mouseleave', function() {
+			$(this).removeClass('treemove_hover');		
+		});
+
+		$('.jstree-icon').live('mouseenter', function() {
+			//FIXME: UGLY hack to differentiate move icons from others (such as collapse tree icon) 
+			var imagesrc = $(this).css('background-image');
+			if(imagesrc.indexOf("/pics/") === -1) return;
+			$(this).closest('li a')
+				.addClass('treeicon_hover');
+			
+			$(this).closest('li a')
+				.removeClass('treemove_hover');
+			return false;
+		});
+		
+		$('.jstree-icon').live('mouseleave', function() {
+			//FIXME: UGLY hack to differentiate move icons from others (such as collapse tree icon) 
+			var imagesrc = $(this).css('background-image');
+			if(imagesrc.indexOf("/pics/") === -1) return;
+			
+			$(this).closest('li a').removeClass('treeicon_hover');
+		});
+		
 		$('.jstree-icon').live('click', function() {
 				if(showing_slowly) return false;
 
