@@ -789,7 +789,9 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 
   function update_selected_nodehandle_view(scroll_viewer) {
   	show_pass_if_legal();
-  	show_comments(get_current_node());
+  	//show_comments(get_current_node());
+  	var move = get_current_node().moves_from_node[current_move_index];
+  	show_comments(move);
   	show_markers();
   	
   	var nodeid = viewer.current_id() + "_" + current_move_index;
@@ -873,7 +875,8 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	
 	function save_comment() {
 		var comment = $('.comments_for_node').val();
-		gametree.comment_node(comment, viewer.current_id());		
+		gametree.comment_move(comment, get_current_node().moves_from_node[current_move_index]);		
+		//gametree.comment_node(comment, viewer.current_id(), current_move_index);		
 	}
 	
 	$(function() {

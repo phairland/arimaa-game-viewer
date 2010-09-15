@@ -155,6 +155,10 @@ function create_gametree() {
 	function comment_node(text, id) {
 		select_node(id).comment = text;
 	}
+
+	function comment_move(text, move) {
+		move.comment = text;
+	}
 	
 	function toggle_marking(nodeid, coordinate, marker){
 		
@@ -231,6 +235,7 @@ function create_gametree() {
     'previous_nodeid': previous_nodeid,
     'select_node': select_node,
     'get_nodehandles': get_nodehandles,
+    'comment_move': comment_move,
     'comment_node': comment_node,
     'toggle_marking': toggle_marking,
  		'get_markings': get_markings,

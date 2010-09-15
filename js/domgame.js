@@ -1,7 +1,14 @@
+	function show_comments(move) {
+		if(!move) return;
+  	$('.comments_for_node').val(move.comment || "");
+	}	
+
+/*
 	function show_comments(current_node) {
 		if(!current_node) return;
   	$('.comments_for_node').val(current_node.comment);
 	}	
+	*/
 
 	function show_turn(gamestate) {
 		if(gamestate.turn === ARIMAA.gold) {
