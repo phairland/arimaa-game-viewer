@@ -199,12 +199,51 @@ var TRANSLATOR = TRANSLATOR || function() {
 		}
 	}
 	
-	function move_as_notated(move) {
-		var result = GENERIC.reduce(move.id, move.steps, function(result, step) {
+	
+	/** Position markings to FAN */
+	function get_markings(node, gametree) {
+		var marking_symbol = "@";
+		
+		function coordinate_encoded(marking) {
+			var coordinate_symbol = "x";
+			return 	coordinate_symbol + 
+							String.fromCharCode(parseInt(marking.col)+97) + // column 0 = 'a' 
+							marking.row + "=" + marking.marking;			
+		}
+		
+		var markings = gametree.get_markings(node.id);
+		var result = GENERIC.reduce("", markings, function(acc, marking) {
+				return acc + " " + marking_symbol + coordinate_encoded(marking); 
+		});
+		
+		return $.trim(result);
+	}
+	
+	/**
+	  Move (and position if node !== undefined) to FAN.
+	*/
+	function move_as_notated(move, gametree, node) {
+		function get_comment(object) {
+			if(!!object && !!object.comment) {
+				function withoutHyphen(value) { return value.replace("\"", ""); }
+				return "\"" + withoutHyphen(object.comment) + "\"";
+			} else return "";
+		}
+		var markings = [];
+		var comment = [];
+		
+		var prefix = move.id + " " + get_comment(node);
+		if(!!node) {
+			prefix += get_markings(node, gametree);
+		}
+		
+		var steps_content = GENERIC.reduce("", move.steps, function(result, step) {
 				return result + (step.notated !== undefined ? " " + step.notated : "");
 		});
 		
-		return result.trim();
+		var postfix = get_comment(move); 
+		
+		return $.trim(prefix + " " + steps_content + " " + postfix);
 	}
 	
 	/**
@@ -225,7 +264,7 @@ var TRANSLATOR = TRANSLATOR || function() {
 			var result = "";
 
 			var main_line_move = node.moves_from_node[0];
-			result += move_as_notated(main_line_move);
+			result += move_as_notated(main_line_move, gametree, node);
 			
 			for(var i = 1; i < node.moves_from_node.length; ++i) {
 				var move = node.moves_from_node[i];
