@@ -7,6 +7,12 @@
 	-webkit-box-shadow: 1px 1px 5px black;
 }
 
+.control:hover {
+	box-shadow: none;
+	-webkit-box-shadow: none;
+	background-color: #bbb;
+}
+
 .shadowable, .boardwrapper {
 	box-shadow: 1px 1px 5px black;
 	-webkit-box-shadow: 1px 1px 5px black;
