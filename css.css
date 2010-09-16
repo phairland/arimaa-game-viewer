@@ -1,3 +1,28 @@
+	
+.boardwrapper, .trap, .control, .control, .marker {
+	border-radius: 8px;
+	-webkit-border-radius: 8px;
+	-moz-border-radius: 8px;
+	box-shadow: 1px 1px 5px black;
+	-webkit-box-shadow: 1px 1px 5px black;
+}
+
+.shadowable, .boardwrapper {
+	box-shadow: 1px 1px 5px black;
+	-webkit-box-shadow: 1px 1px 5px black;
+	
+	/*
+	mozilla seems to slow down with shadows
+		-moz-box-shadow: 1px 1px 5px black; 
+	*/
+}
+	
+
+.square {
+	border-radius: 2px;
+	-moz-border-radius: 2px; border-radius: 2px;
+}
+
 
 .treemove_hover {
 	background-color: #FF6633 !important;
