@@ -107,7 +107,7 @@
 	font-size: 1em;
 }
 
-body { font-family: Verdana; font-size: 0.8em; width: 1100px; background-color: #333; margin: 0; }
+body { padding: 0; margin: 0; font-family: Verdana; font-size: 0.8em; width: 1100px; background-color: #333; margin: 0; }
 
 p { color: white; }
 
@@ -180,7 +180,7 @@ h1 { color: gray; font-family: Verdana;  margin: 15px; font-size: 1.0em; }
 
 .control img { margin: 0;	padding: 0; }
 
-.control { width: 80px;	border: 1px solid blue;	float: left;	margin: 5px;	background-color: #ddd; cursor: pointer; text-align: center; }
+.control { width: 80px;	border: 1px solid #aaa;	float: left;	margin: 5px;	background-color: #ddd; cursor: pointer; text-align: center; }
 
 .clear_markers_control, .show, .pass, .export { padding: 7px;}
 .clear_markers_control { width: 190px; }

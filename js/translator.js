@@ -283,6 +283,30 @@ var TRANSLATOR = TRANSLATOR || function() {
 		return convert_from_node(first).replace("  ", " ");
 	}
 	
+	function read_position(tokens) {
+		//var turn_id = read_turn_id(
+	}
+	
+	function read_body(tokens) {
+		var rest = tokens;
+		
+		while(true) {
+			var result = read_position(rest);
+			var position = result.position;
+			rest = result.result;
+		}
+	}
+	
+	/**
+	  Converts textual FAN to objects that have gametree-like structure
+	*/
+	function convert_from_FAN_to_gametree(text) {
+		var tokens = notated_game.split(" ");
+ 
+		//FIXME: header
+		var body = read_body(tokens);
+	}
+	
 	return {
 		'convert_from_gametree': convert_from_gametree,
 	  'convert_to_gametree': convert_to_gametree,
