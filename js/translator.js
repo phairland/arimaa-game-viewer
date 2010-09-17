@@ -291,11 +291,6 @@ var TRANSLATOR = TRANSLATOR || function() {
 	 FAN importing
 	**************/
 
-	var REQUIRED = { from: 1, to: 1 }
-	var REQUIRED_UNLIMITED = { from: 1, to: undefined }
-	var OPTIONAL = { from: 0, to: 1 }
-	var OPTIONAL_UNLIMITED = { from: 0, to: undefined }
-	 
 	function convert_FAN_to_AST(fan_game) {
 		var tokens = fan_game.split(" ");
 		tokens = GENERIC.reduce([], tokens, function(result, elem) {

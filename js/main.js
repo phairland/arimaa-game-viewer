@@ -253,6 +253,9 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	function make_step_for_piece(selected, new_coordinate) {
 		GENERIC.log("making step");
 		if(selected === undefined) return;
+
+		play_step_sound();
+		
 		GENERIC.log(selected, new_coordinate);
 
 		var piece = viewer.board()[selected.row][selected.col];
@@ -429,6 +432,8 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	function show_step(step) {
 		// if this function is called with not showing_slowly, the moving slowly has been interrupted
 		if(!showing_slowly) return;
+		
+		play_step_sound();
 		
 		if(step.type === 'setting') {
 			var result = ARIMAA.add_piece(step.piece, step.to, viewer.board(), viewer.gamestate());
@@ -612,7 +617,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		if(move_index >= cur_node.moves_from_node.length) {
 			return;
 		}
-		
+
 		//GENERIC.log(gametree.select_node(current_gametree_id).moves_from_node[move_index]);
 		
 		var nextid = gametree.next_nodeid(viewer.current_id(), move_index);

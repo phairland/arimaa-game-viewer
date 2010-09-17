@@ -13,6 +13,7 @@
   <script type="text/Javascript" src="js/generic.js"></script>
   <script type="text/Javascript" src="js/arimaa.js"></script>
   <script type="text/Javascript" src="js/board.js"></script>
+  <script type="text/Javascript" src="js/sounds.js"></script>
   <script type="text/Javascript" src="js/gametree.js"></script>
   <script type="text/Javascript" src="js/viewer.js"></script>
   <script type="text/Javascript" src="js/translator.js"></script>
@@ -24,6 +25,12 @@
 </head>
 
 <body>
+  
+  <audio id="sound_step">
+    <source src="sounds/step.ogg">
+    <!-- <source src="sounds/step.ogg" type="audio/ogg"> -->
+  </audio>
+
   <div id="arrow_up" class="arrow"><img src="pics/arrow_up.png" class="arrownormal" /><img src="pics/arrow_up_selected.png" class="arrowhover"/></div>
   <div id="arrow_down" class="arrow"><img src="pics/arrow_down.png" class="arrownormal" /><img src="pics/arrow_down_selected.png" class="arrowhover"/></div>
   <div id="arrow_left" class="arrow"><img src="pics/arrow_left.png" class="arrownormal" /><img src="pics/arrow_left_selected.png" class="arrowhover"/></div>
@@ -46,6 +53,10 @@
 				<button class="next control"><img src="pics/arrow_right.png"/></button>
 				<button class="pass control">Pass</button>
 				<button class="show control">Show</button>
+				<span class="sound_selection">
+				  <label for="sound_on">Sound</label>
+				  <input id="sound_on" type="checkbox" checked="true"/>
+				</span>
 			</div>
 			<div class="nodeinfobox">
 				<div><span class="turn"></span>&nbsp;to move</div>
