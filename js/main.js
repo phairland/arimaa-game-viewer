@@ -957,7 +957,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		$('.export').click(function() {
 			var result = TRANSLATOR.convert_from_gametree(gametree);
 			GENERIC.log("export", result);
-			alert("ONLY MOVES | " + result);
+			alert("NOT COMPLETED, and importing not supported | " + result);
 		});
 		
 		$('.comments_for_node').keyup(function() {
@@ -1093,8 +1093,8 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	  });
 	  */
 	  
-	  import_game();		
+	  import_game();
+
 	});
-		
 	
 }();
