@@ -1,5 +1,5 @@
 	
-.boardwrapper, .trap, .control, .control, .marker {
+.boardwrapper, .trap, .control, .control, .marker, .sound_selection {
 	border-radius: 8px;
 	-webkit-border-radius: 8px;
 	-moz-border-radius: 8px;
@@ -24,7 +24,11 @@
 }
 	
 
-.sound_selection { padding: 5px; margin: 5px; }
+.sound_selection {
+	float: left;
+	padding: 5px; margin: 5px; 
+	background-color: #99ff66; color: black; 
+}
 
 .square {
 	border-radius: 2px;
@@ -178,7 +182,7 @@ h1 { color: gray; font-family: Verdana;  margin: 15px; font-size: 1.0em; }
 
 .importbox { width: 200px; float: left; }
 
-.controls {	width: 220px; height: 220px; background-color: #ccc; margin: 5px;	color: black;	float: left; padding: 5px; border: 1px outset black; }
+.controls {	width: 220px; height: 240px; background-color: #ccc; margin: 5px;	color: black;	float: left; padding: 5px; border: 1px outset black; }
 
 .control img { margin: 0;	padding: 0; }
 
