@@ -9,6 +9,7 @@ var TRANSLATOR = TRANSLATOR || function() {
 	}
 	
 	function throw_unsupported(info) {
+		GENERIC.log("unsupported: " + info);
 		throw "Unsupported notation: " + info;
 	}
 	
@@ -199,6 +200,9 @@ var TRANSLATOR = TRANSLATOR || function() {
 		}
 	}
 	
+	/****
+	  FAN specific functionality; FIX: should be moved to own component
+	****/
 	
 	/** Position markings to FAN */
 	function get_markings(node, gametree) {
@@ -283,17 +287,498 @@ var TRANSLATOR = TRANSLATOR || function() {
 		return convert_from_node(first).replace("  ", " ");
 	}
 	
-	function read_position(tokens) {
-		//var turn_id = read_turn_id(
+	/**************
+	 FAN importing
+	**************/
+
+	var REQUIRED = { from: 1, to: 1 }
+	var REQUIRED_UNLIMITED = { from: 1, to: undefined }
+	var OPTIONAL = { from: 0, to: 1 }
+	var OPTIONAL_UNLIMITED = { from: 0, to: undefined }
+	 
+	function convert_FAN_to_AST(fan_game) {
+		var tokens = fan_game.split(" ");
+		tokens = GENERIC.reduce([], tokens, function(result, elem) {
+				return !elem ? result : result.concat([elem]);
+		});
+		
+		return read_body(tokens);
 	}
 	
 	function read_body(tokens) {
+		GENERIC.log("reading body");
 		var rest = tokens;
 		
+		// gold player
+		var result = read_setup_position(rest);
+		var setup_gold = result.value;
+		
+		result = optional_unlimited(read_setup_variation, result.rest);
+		var setup_variations_gold = result.value;
+		
+		// silver
+		var result = read_setup_position(result.rest);
+		var setup_silver = result.value;
+		
+		result = optional_unlimited(read_setup_variation, result.rest);
+		var setup_variations_silver = result.value;
+		
+		result = read_normal_body(result.rest);
+		var normal_body = result.value;
+		
+		return {
+			'value': {
+				'setup_gold': setup_gold,
+				'setup_variations_gold': setup_variations_gold,
+				'setup_silver': setup_silver,
+				'setup_variations_silver': setup_variations_silver,
+				'normal_body': result.value
+			},
+			'rest': result.rest
+		}
+	}
+	
+	function read_normal_body(tokens) {
+		GENERIC.log("reading normal body");
+		return optional_unlimited(read_position, tokens);
+	}
+	
+	function read_setup_position(tokens) {
+		GENERIC.log("reading setup position");
+		var result = read_turn_id(tokens);
+		var turn_id = result.value;
+		result = optional(read_comment, result.rest);
+		var comment = result.value;
+		result = optional_unlimited(read_marking, result.rest);
+		var markings = result.value;
+		result = optional_unlimited(read_setup_step, result.rest);
+		GENERIC.log("setup steps", result);
+		var setup_steps = result.value;
+		
+		expect(16, setup_steps.length);
+		
+		return {
+			'value': {
+				'turn_id': turn_id,
+				'comment': comment,
+				'markings': markings,
+				'setup_steps': setup_steps
+			},
+			'rest': result.rest
+		}
+	}
+	
+	function read_setup_variation(tokens) {
+		GENERIC.log("reading setup variation");
+		var result = read_token(tokens);
+		expect("[", result.value);
+
+		result = read_turn_id(result.rest);
+		var turn_id = result.value;
+
+		result = optional_unlimited(read_setup_step, result.rest);
+		var setup_steps = result.value;
+
+		// move comment
+		result = optional(read_comment, result.rest);
+		var comment = result.value;
+		
+		var end = read_token(result.rest);
+		expect("]");
+		
+		return {
+			'value': {
+				'turn_id': turn_id,
+				'setup_steps': setup_steps,
+				'comment': comment
+			},
+			'rest': result.rest
+		}
+	}
+	
+	function read_setup_step(tokens) {
+		GENERIC.log("reading setup step");
+		var result = read_token(tokens);
+		var rest = result.rest;
+		
+		result = read_char(result.value);
+		var piece_id = result.value; //TODO check that valid piece id
+		
+		// column
+		result = read_char(result.rest);
+		var col = GENERIC.charToInt(result.value) - GENERIC.charToInt('a');
+		if(!(col >= 0 && col < 8)) throw_unsupported("col for step: " + col + ", original: " + result.value);
+		
+		// row
+		result = read_char(result.rest);
+		var row = parseInt(result.value) - 1;
+		if(!(row >= 0 && row < 8)) { throw_unsupported("row: " + row); }
+		
+		return {
+			'value': {
+				'piece_id': piece_id,
+				'col': col,
+				'row': row
+			},
+			'rest': rest
+		}
+		
+	}
+		
+	function optional(read_fun, tokens) {
+		//GENERIC.log("tokens", tokens);
+		
+		try {
+		  var result = read_fun(tokens);
+		  result.success = true;
+		  return result;
+		} catch(e) {
+			return {
+				'success': false,
+				'value': undefined,
+				'rest': tokens // original tokens
+			}
+		}		
+	}
+
+	function optional_unlimited(read_fun, tokens) {
+		var all = [];
+		var rest = tokens;
+
+		// read as long optionally as is success		
 		while(true) {
-			var result = read_position(rest);
-			var position = result.position;
-			rest = result.result;
+			var result = optional(read_fun, rest);
+
+			GENERIC.log("optional result", result);
+						
+			if(result.success) {
+				all.push(result);
+				rest = result.rest;
+			} else {
+				return {
+					// lift true elements from wrapper
+					// FIXME: GENERIC.map(all.concat[result], function(elem) { return elem.value; }),
+					'value': all,
+					'rest': rest
+				}
+			}
+		}
+	}
+	
+	function read_position(tokens) {
+		GENERIC.log("reading position");
+		// i really wish javascript had destructing, e.g. var x, y = fun();
+		var result = read_turn_id(tokens, REQUIRED);
+		var turn_id = result.value;
+		
+		result = optional(read_comment, result.rest);
+		var position_comment = result.value;
+		
+		result = optional_unlimited(read_marking, result.rest);
+		var markings = result.value;
+		
+		result = read_move_content(result.rest, REQUIRED);
+		var move_content = result.value;
+		
+		result = optional_unlimited(read_variation, result.rest);
+		var variations = result.value;
+		var rest = result.rest;
+		
+		return {
+			'value': {
+				'turn_id': turn_id,
+				'position_comment': position_comment,
+				'markings': markings,
+				'move_content': move_content
+			},
+			'rest': rest
+		}
+	}
+	
+	function read_move(tokens) {
+		GENERIC.log("reading move");
+		var result = read_turn_id(tokens, REQUIRED);
+		var turn_id = result.value;
+		
+		result = read_move_content(result.rest, REQUIRED);
+		var move_content = result.value;
+		var rest = result.rest;
+		
+		return {
+			'value': {
+				'turn_id': turn_id,
+				'move_content': move_content
+			},
+			'rest': rest
+		}
+	}
+	
+	function read_token(tokens) {
+		expect_one(tokens);
+
+		GENERIC.log("reading token: ", tokens.slice(0, 1));
+		
+		return {
+			'value': tokens.slice(0, 1)[0],
+			'rest': tokens.slice(1)
+		}
+	}
+	
+	function read_char(token) {
+		GENERIC.log("reading character");
+		
+		expect_one(token);
+
+		return {
+			'value': token.slice(0, 1),
+			'rest': token.slice(1)
+		}
+	}
+	
+	function read_last_char(token) {
+		GENERIC.log("reading last character");
+
+		expect_one(token);
+		
+		return {
+			'value': token.slice(token.length - 1, token.length),
+			'rest': []
+		}		
+	}
+	
+	function expect_one(value) {
+		if(!value || value.length === 0) throw_unsupported("expected 1 but empty: " + value);
+	}
+	
+	function throw_expected(message, expected, was) {
+		GENERIC.log(message + ", expected: " + expected + ", was: " + was);
+		throw message + ", expected: " + expected + ", was: " + was;
+	}
+
+	function expect(expected, value) {
+		if(expected !== value) {
+		  throw_expected("value", expected, value);
+		}
+	}
+	
+	function expect_in(value, list) {
+		var is_in = GENERIC.exists(list, function(elem) {
+			if(elem === value) return true;
+		});
+		
+		if(!is_in) {
+			throw_expected("in list", list, value);
+		}
+	}
+	
+	function read_number(value) {
+		GENERIC.log("reading number from", value);
+
+		expect_one(value);
+		
+		return parseInt(value);
+	}
+	
+	function read_turn_id(tokens) {
+		GENERIC.log("reading turn_id");
+		var result = read_token(tokens);
+		var rest = result.rest;
+		var token = result.value;
+
+		var number = read_number(token.slice(0, token.length - 1)); // skip turn
+		
+		var turn = token.slice(token.length - 1);
+		expect_in(turn, ['g', 's']);
+		
+		var turn_id = turn + number; 
+		
+		return {
+			'turn_id': turn_id,
+			'rest': rest
+		}
+	}
+	
+	function read_move_content(tokens) {
+		GENERIC.log("reading move_content");
+		
+		var result = optional_unlimited(read_step_with_info, tokens);
+		var steps_with_info = result.value;
+		result = optional(read_comment, result.rest);
+		var move_comment = result.value;
+		var rest = result.rest;
+		
+		return {
+			'value': {
+				'steps_with_info': steps_with_info,
+				'move_comment': move_comment
+			},
+			'rest': rest
+		}
+	}
+	
+	function read_variation(tokens) {
+		GENERIC.log("reading variation");
+		
+		var result = read_token(tokens);
+		expect("[", result.value);
+		
+		result = read_move(result.rest, REQUIRED);		
+		var move = result.value;
+		
+		result = read_normal_body(result.rest, REQUIRED);
+		var body = result.value;
+		
+		result = read_token(result.rest);
+		expect("]", result.value);
+		
+		var rest = result.rest;
+		
+		return {
+			'value': {
+				'move': move,
+				'body': body
+			},
+			'rest': rest
+		}
+	}
+	
+	function read_marking(tokens) {
+		GENERIC.log("reading marking");
+		
+		var result = read_token(tokens);
+		var rest = result.rest;
+		
+		result = read_char(result.value); 
+		expect("@", result.value);
+		var marking = result.rest;
+		
+		return {
+			'marking': marking,
+			'rest': rest
+		}
+	}
+	
+	function read_comment(tokens) {
+		GENERIC.log("reading comment");
+		
+		var result = read_token(tokens);
+		var rest = result.rest;
+		
+		result = read_char(result.value); 
+		expect("\"", result.value);
+		
+		var comment = undefined;
+		
+		var index = result.rest.indexOf("\"");
+		GENERIC.log("index", index);
+		
+		if(index < 0) {
+			// comment end mark is in some of the following tokens
+			var rest_of_comment = read_comment_postfix(rest);
+			comment = result.value + rest_of_comment.value.comment;
+			rest = rest_of_comment.rest;
+		} else if(index < result.rest.length - 1) {
+			throw_unsupported("comment symbol \" must not be in middle of a token (word)");
+		} else if(index === result.rest.length - 1) {
+			// whole token is a comment
+			var comment = result.rest.slice(1, result.rest.length - 1);
+		} else throw "index error in read_comment";
+		
+		return {
+			'comment': comment,
+			'rest': rest
+		}
+	}
+	
+	function read_comment_postfix(tokens) {
+		GENERIC.log("reading comment postfix");
+		var rest = tokens;
+		var comment = "";
+		
+		while(true) {
+			var result = read_token(rest);
+			var index = result.value.indexOf("\"");
+			if(index < 0) {
+				comment += " " + result.value;
+				rest = result.rest;
+			} else if(index < result.value.length - 1) {
+				throw_unsupported("comment symbol \" must not be in middle of a token (word)");
+			} else {
+				comment += " " + result.value.slice(0, result.value.length - 1);
+				rest = result.rest;
+				
+				return {
+					'value': {
+						'comment': comment 
+					},
+					'rest': rest
+				}
+			}
+		}
+	}
+	
+	function read_step_with_info(tokens) {
+		GENERIC.log("reading step with info");
+		
+		var result = read_step(tokens);
+		var step = result.value;
+		
+		result = optional(read_comment, result.rest);
+		var comment = result.value;
+		
+		// TODO 
+		// IMPORTANT SPECIAL CASE
+		// test whether the following token is another comment
+		// if it is, then _this_ comment is for step
+		// if it is not, then _this_ comment is for move, and should be ignored here
+		
+		result = optional_unlimited(read_marking, result.rest);
+		var markings = result.value;
+		var	rest = result.rest;
+		
+		return {
+			'value': {
+				'comment': comment,
+				'markings': markings
+			},
+			'rest': rest
+		}
+	}
+	
+	function read_step(tokens) {
+		GENERIC.log("reading step");
+		
+		var result = read_token(tokens);
+		var rest = result.rest;
+
+		// piece_id
+		result = read_char(result.value);
+		var piece_id = result.value;
+		
+		// column
+		result = read_char(result.rest);
+		var col = GENERIC.charToInt(result.value) - GENERIC.charToInt('a');
+		if(!(col >= 0 && col < 8)) throw_unsupported("col for step: " + col + ", original: " + result.value);
+		
+		// row
+		result = read_char(result.rest);
+		var row = parseInt(result.value) - 1;
+		if(!(row >= 0 && row < 8)) { throw_unsupported("row: " + row); }
+			
+		// direction
+		result = read_char(result.rest);
+		var direction = result.value;
+		expect_in(direction, ["e", "w", "n", "s"]);
+		
+		var step = piece_id + col + row + direction;
+		
+		GENERIC.log("step", step);
+		
+		return {
+			'value': {
+				'step': step
+			},
+			'rest': rest
 		}
 	}
 	
@@ -308,8 +793,15 @@ var TRANSLATOR = TRANSLATOR || function() {
 	}
 	
 	return {
+		'convert_FAN_to_AST': convert_FAN_to_AST,
 		'convert_from_gametree': convert_from_gametree,
 	  'convert_to_gametree': convert_to_gametree,
 	  'convert_notated_step_to_coordinates': convert_notated_step_to_coordinates
 	};
 }();
+
+//FIMXE for testing only
+$(function() {
+	var FAN_game = '1g  Ra1 Db1 Rc1 Rd1 De1 Rf1 Rg1 Rh1 Ra2 Hb2 Cc2 Md2 Ee2 Cf2 Hg2 Rh2 1s   ra7 hb7 cc7 ed7 me7 df7 hg7 rh7 ra8 rb8 rc8 dd8 ce8 rf8 rg8 rh8 2g   Ee2n Ee3n Ee4n Hg2n 2s   ed7s ed6s ed5s hg7s 3g   De1n Ee5w Ed5n Hb2n [ 3g ea3s db4w ch4e hg4n ]  3s   ed4s hb7s ra7e rh7w 4g "this is good position"  Db1n Hb3n Hb4n Db2n 4s   ed3n Md2n ed4w Md3n "very good move" 5g   Hb5w De2w Rc1w Rd1w [ 5g ha5n hb4s hd4w hf4e ]  5s   ec4n Md4w ec5w Mc4n 6g   Ed6s Mc5s Ed5w Mc4e 6s   eb5s eb4e Db3n me7w 7g   Ec5e Md4s Ha5s Db4s';
+	//console.log("FAN -> AST", TRANSLATOR.convert_FAN_to_AST(FAN_game));	
+});
