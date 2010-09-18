@@ -134,9 +134,10 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		
 		// FIXME: something smarter for the name 
 		var variation_name =
-			current_nodehandle.moves_from_node[0].id + " " +
+			current_nodehandle.moves_from_node[0].id + 
+			"[" + current_nodehandle.moves_from_node.length + "] " +
 				get_stepbuffer_as_notated();
-				//+ current_nodehandle.moves_from_node.length;
+				
 
 		var move = {
 			'id': variation_name, 
