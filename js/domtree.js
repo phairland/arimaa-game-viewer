@@ -47,17 +47,18 @@
 		}
 		*/
 		
+	/*
 	var drag_and_drop_move = {
 			"check_move" : function (m) {
-				console.log("move", m);
+				GENERIC.log("move", m);
 				var id = m.o.attr('id');
 				var move_index = parseInt(id.split("_")[1]);
-				console.log("drag and drop move index", move_index);
+				GENERIC.log("drag and drop move index", move_index);
 				if(move_index === 0) return false;
 				
 				var p = this._get_parent(m.o);
 				
-				console.log("parent", p);
+				GENERIC.log("parent", p);
 				
 				if(!p) return false;
 				p = p == -1 ? this.get_container() : p;
@@ -66,6 +67,7 @@
 				return false;
 			}
 	}
+	*/
 	
 	var custom_contextmenu = {
 //		"rename": false,
@@ -217,6 +219,13 @@
 									},				
 							"plugins" : [ "themes", "html_data", "ui", "crrm", "dnd", "types", "contextmenu" ] //, "sort" ]
 			});
+
+			// missing feature in jstree: hide contextmenu when mouseleave
+			$(document).bind("context_show.vakata", function () {
+					$.vakata.context.cnt.mouseleave(function (){
+						$.vakata.context.hide(); 
+					});
+			})
 		
 			GENERIC.for_each(gametree.get_nodehandles(), function(nodehandle) {
 				for(var i = 0; i < nodehandle.moves_from_node.length; ++i) {
@@ -228,3 +237,6 @@
 				}
 			});
 	}
+	
+	
+
