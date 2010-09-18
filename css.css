@@ -103,7 +103,7 @@
 	float: left;
   overflow:auto;
   height: 587px;
-	width: 350px;
+	width: 450px;
 	margin-left: 2px;
 	border: 5px solid white;
 }
@@ -113,7 +113,7 @@
 	font-size: 1em;
 }
 
-body { padding: 0; margin: 0; font-family: Verdana; font-size: 0.8em; width: 1100px; background-color: #333; margin: 0; }
+body { padding: 0; margin: 0; font-family: Verdana; font-size: 0.8em; width: 1200px; background-color: #333; margin: 0; }
 
 p { color: white; }
 
@@ -176,11 +176,7 @@ h1 { color: gray; font-family: Verdana;  margin: 15px; font-size: 1.0em; }
 
 .row {}
 
-#imported_game { width: 100px; height: 50px; float: left;	margin: 0;	padding: 0; }
-
-#import_game { width: 80px;	height: 50px;	margin: 5px; }
-
-.importbox { width: 200px; float: left; }
+#imported_game { width: 20px; height: 30px; float: left;	margin: 0;	padding: 0; }
 
 .controls {	width: 220px; height: 240px; background-color: #ccc; margin: 5px;	color: black;	float: left; padding: 5px; border: 1px outset black; }
 
@@ -188,7 +184,7 @@ h1 { color: gray; font-family: Verdana;  margin: 15px; font-size: 1.0em; }
 
 .control { width: 80px;	border: 1px solid #aaa;	float: left;	margin: 5px;	background-color: #ddd; cursor: pointer; text-align: center; }
 
-.clear_markers_control, .show, .pass, .export { padding: 7px;}
+.clear_markers_control, .show, .pass, .export, #import_game { padding: 7px;}
 .clear_markers_control { width: 190px; }
 
 .feedback { margin-left: 20px; }

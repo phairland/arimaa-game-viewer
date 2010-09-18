@@ -1,3 +1,19 @@
+/**
+ gametree consists of a) nodehandles (which is isomorphically position)
+                      b) and moves of nodes
+ 
+ gametree:
+   node1 (start position)
+     |- move0 -> node2 |- move0 -> node3 |- ... # first "row" is considered main line
+     |                 |- move1 -> node4  # a variation
+     |
+     |- move1 -> node5 |- move0 -> node6
+     
+ * move index is local to node (starts from 0)
+ * node id is global
+     
+*/
+
 function create_gametree() {
 	var ids = 0;
 	var first_id = 1;
@@ -228,6 +244,24 @@ function create_gametree() {
 		return node.previous_nodehandle.id;
 	}
 	
+	function delete_position(node_id, move_index) {
+		var node = select_node(node_id);
+		if(!!node.main_line && move_index === 0) return false;
+		var deleted = [];
+		
+		if(!node.moves_from_node || node.moves_from_node.length === 0) {
+			return "singleton";
+		}
+		
+		for(var i = move_index; i < node.moves_from_node.length; ++i) {
+			// moves after deleted one will be indexed earlier after the splice that follows later
+			node.moves_from_node[i].move_index_from_previous--;
+		}
+		
+		node.moves_from_node.splice(move_index, move_index + 1);
+		return node
+	}
+	
   return {
   	'get_initial_nodehandle': get_initial_nodehandle,
     'make_move': make_move,
@@ -240,6 +274,7 @@ function create_gametree() {
     'toggle_marking': toggle_marking,
  		'get_markings': get_markings,
  		'clear_markings': clear_markings,
- 		'get_lastid': get_lastid
+ 		'get_lastid': get_lastid,
+ 		'delete_position': delete_position
   }
 }

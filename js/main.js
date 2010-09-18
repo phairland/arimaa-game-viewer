@@ -25,23 +25,50 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	function singleton_before_opposite(turn) {
 		return opposite_turn(turn).side.slice(0, 1) + "singletonbefore";
 	}
+
+	//FIMXE: move to better place the a
+	function get_step_as_notated(step) {
+
+		if(step.type === "pass") return "";
+		if(step.type === "setting") {
+			step.piece.type.slice(0, 1) + 
+			GENERIC.intToChar(GENERIC.charToInt('a')+step.from.col) + step.from.row;			
+		} else {
+			// normal move
+			var x_d = step.to.col - step.from.col;
+			var y_d = step.to.row - step.from.row;
+			var direction = x_d > 0 ? "e" : x_d < 0 ? "w" : y_d < 0 ? "n" : "s"; 
+			
+			return 	step.piece.type.slice(0, 1) + 
+							GENERIC.intToChar(GENERIC.charToInt('a')+step.from.col) +
+							step.from.row +	direction;
+		}									
+	}
 	
 	function make_step_to_gametree(step) {
 		GENERIC.log("pushing to stepbuffer");
 		// step = { 'from': selected, 'to': new_coordinate, 'piece': piece }
-		//FIXME creating notation for custom variation step
-		//if(step.type === 'normal') {
-		step.notated = step.piece.type.slice(0, 1) + step.from.col + step.from.row;
-		//}
+		step.notated = get_step_as_notated(step);
 		stepbuffer.push(step);
 	}	
+
+	function get_stepbuffer_as_notated() {
+		var notated = GENERIC.reduce("", stepbuffer, function(result, step) {
+			return result + " " + get_step_as_notated(step);
+		});
+		
+		return $.trim(notated);
+	}
 
 	// where there's no move for current nodehandle, it's a "direct continuation" 
 	function make_continuation_to_variation(current_nodehandle) {
 		GENERIC.log("continuation");
-		
-		var variation_name = current_nodehandle.gamestate.turn.side.slice(0, 1) + "...";
-		
+
+		// FIXME: add move number		
+		var variation_name = 
+			current_nodehandle.gamestate.turn.side.slice(0, 1) + " " +
+			get_stepbuffer_as_notated();
+			
 		var move = {
 			'id': variation_name, 
 			'steps': stepbuffer
@@ -107,8 +134,9 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		
 		// FIXME: something smarter for the name 
 		var variation_name =
-			current_nodehandle.moves_from_node[0].id +
-				"&nbsp;<strong>[" + current_nodehandle.moves_from_node.length + "]</strong>";
+			current_nodehandle.moves_from_node[0].id + " " +
+				get_stepbuffer_as_notated();
+				//+ current_nodehandle.moves_from_node.length;
 
 		var move = {
 			'id': variation_name, 
@@ -869,7 +897,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
   	GENERIC.for_each(moves, function(move) {
 			var result = gametree.make_move(move, nodehandle);
 			var new_nodehandle = result.nodehandle;
-  			
+			new_nodehandle.main_line = true;
 			nodehandle = new_nodehandle;
 			//GENERIC.log(nodehandle.gamestate.steps);
 		});
@@ -909,6 +937,41 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		}
 	}
 
+	/**
+	  Deletes move from gametree and from domtree
+	  Also continuations and variations are deleted
+	  Cannot be applied to main line
+	*/
+	function delete_move() {
+		if(showing_slowly) return;
+		var prev = gametree.previous_nodeid(viewer.current_id());
+		var deleted = gametree.delete_position(viewer.current_id(), current_move_index);
+		if(!deleted) return;
+		if(deleted === "singleton") {
+			var del_dom = $('.gametree li[after="' + viewer.current_id() + '"]');
+			//FIXME: now the previous might be singleton, so should be visually updated
+		} else {
+			//FIXME: delete moves after that node also (continuations)
+			var del_dom = $('#' + viewer.current_id() + "_" + current_move_index);
+			var to_be_removed = del_dom.attr('after');
+			
+			// remove all continuation moves
+			while(!!to_be_removed) {
+				var elem = $('#' + to_be_removed + "_0");
+				to_be_removed = elem.attr('after');
+				domtree.jstree('delete_node', elem);
+			}
+		}
+		
+		// remove the selected move
+		domtree.jstree('delete_node', del_dom);
+		
+		current_domtree_node = $('#' + prev + "_0"); 
+		current_move_index = 0;
+		show_board();
+		update_selected_nodehandle_view();
+	}
+	
 	$(function() {
 		domtree = $('.gametree');
 
@@ -1097,6 +1160,8 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	  	}
 	  });
 	  */
+	  
+	  $('.delete').click(delete_move);
 	  
 	  import_game();
 
