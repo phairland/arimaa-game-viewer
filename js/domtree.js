@@ -4,10 +4,7 @@
 									: nodehandle.moves_from_node[0].id /* show main variant */;
 
 		if(nodehandle.moves_from_node.length > 0) {
-			movename = "<strong>" + movename + "</strong>&nbsp;" + GENERIC.reduce("", nodehandle.moves_from_node[0].steps, function(result, step) { return $.trim(result + " " + step.notated); });
-			if(movename.length > 50) {
-			  movename = movename.slice(0, 50) + "...";
-			}
+			movename = movename+ " " + GENERIC.reduce("", nodehandle.moves_from_node[0].steps, function(result, step) { return $.trim(result + " " + step.notated); });
 		}
 									
 		var side = nodehandle.gamestate.turn.side;									 
