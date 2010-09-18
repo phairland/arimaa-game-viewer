@@ -246,6 +246,7 @@ function create_gametree() {
 	
 	function delete_position(node_id, move_index) {
 		var node = select_node(node_id);
+		GENERIC.log("delete?", node, move_index);
 		if(!!node.main_line && move_index === 0) return false;
 		var deleted = [];
 		
@@ -262,6 +263,48 @@ function create_gametree() {
 		return node
 	}
 	
+	function move_variation_up(node_id, move_index) {
+		if(move_index === 0) return false; // not a variation
+		if(move_index === 1) return false; // it's already top variation
+		
+		var node = select_node(node_id);
+		
+		var move_to = node.moves_from_node[move_index-1];
+		var move_from = node.moves_from_node[move_index];
+		
+		// swap the moves in "position" node, where variations are in
+		node.moves_from_node[move_index-1] = move_from;
+		node.moves_from_node[move_index] = move_to;
+		
+		// swap indexes info for nodes (info)
+		move_to.nodehandle_after_move.index_from_previous = move_index - 1;
+		move_from.nodehandle_after_move.index_from_previous = move_index;
+		
+		return true;
+	}
+
+	function move_variation_down(node_id, move_index) {
+		if(move_index === 0) return false; // not a variation
+		
+		var node = select_node(node_id);
+
+		// if it's already bottom variation, return
+		if(move_index === node.moves_from_node.length - 1) return false; 
+		
+		var move_to = node.moves_from_node[move_index+1];
+		var move_from = node.moves_from_node[move_index];
+		
+		// swap the moves in "position" node, where variations are in
+		node.moves_from_node[move_index+1] = move_from;
+		node.moves_from_node[move_index] = move_to;
+		
+		// swap indexes info for nodes (info)
+		move_to.nodehandle_after_move.index_from_previous = move_index + 1;
+		move_from.nodehandle_after_move.index_from_previous = move_index;
+		
+		return true;
+	}
+	
   return {
   	'get_initial_nodehandle': get_initial_nodehandle,
     'make_move': make_move,
@@ -275,6 +318,8 @@ function create_gametree() {
  		'get_markings': get_markings,
  		'clear_markings': clear_markings,
  		'get_lastid': get_lastid,
- 		'delete_position': delete_position
+ 		'delete_position': delete_position,
+ 		'move_variation_up': move_variation_up,
+ 		'move_variation_down': move_variation_down
   }
 }

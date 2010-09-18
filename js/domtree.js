@@ -21,7 +21,9 @@
   	return $(result);
   }
 
-	function build_dom_tree(gametree, domtree, moves) {
+	function build_dom_tree(gametree, domtree,
+													/* callbacks */
+													remove_position, move_variation_up, move_variation_down ) {
 		domtree.children().remove();
 
 		GENERIC.for_each(gametree.get_nodehandles(), function(nodehandle) {
@@ -45,10 +47,73 @@
 		}
 		*/
 		
+	var drag_and_drop_move = {
+			"check_move" : function (m) {
+				console.log("move", m);
+				var id = m.o.attr('id');
+				var move_index = parseInt(id.split("_")[1]);
+				console.log("drag and drop move index", move_index);
+				if(move_index === 0) return false;
+				
+				var p = this._get_parent(m.o);
+				
+				console.log("parent", p);
+				
+				if(!p) return false;
+				p = p == -1 ? this.get_container() : p;
+				if(p === m.np) return true;
+				if(p[0] && m.np[0] && p[0] === m.np[0]) return true;
+				return false;
+			}
+	}
+	
+	var custom_contextmenu = {
+//		"rename": false,
+		"create": false,
+		"ccp": false, // copy, cut & paste in edit-key
+		// delete key
+		"remove" : {
+			"label"				: "Delete position",
+			"action"			: remove_position,
+			
+			// the following are optional 
+			"_disabled"			: false,		// clicking the item won't do a thing
+			"_class"			: "class",	// class is applied to the item LI node
+			"separator_before"	: false,	// Insert a separator before the item
+			"separator_after"	: true,		// Insert a separator after the item
+			// false or string - if does not contain `/` - used as classname
+			"icon"				: "pics/delete_small.png"
+		},
+		"moveup": {
+			"label"  : "Move variation up",
+			"action" : move_variation_up,
+			"_disabled" : false,
+			"icon"	: "pics/arrow_up_small.png"
+		},
+		"movedown": {
+			"label"  : "Move variation down",
+			"action" : move_variation_down,
+			"_disabled" : false,
+			"icon"	: "pics/arrow_down_small.png"
+		},
+	}
+		
+		
 		domtree.jstree({
 				"core": { "animation": 0, "html_titles": true },
 				"ui": { "initially_select" : [ initially_selected_node ], "select_limit": 1 },
 			//n 	"sort": sort_tree,
+				"contextmenu": {
+					'items': custom_contextmenu,
+					'show_at_node': true,
+					'select_node': true
+				},
+				/*
+				"crrm": { "move": drag_and_drop_move },
+				"dnd": {
+					"drop_target": false,
+					"drag_target": false
+				},*/
 				"types" : {
 											"valid_children" : [ "all" ],
 											"types" : {
@@ -150,7 +215,7 @@
 													}
 											}
 									},				
-							"plugins" : [ "themes", "html_data", "ui", "crrm", "types" ] //, "sort" ]
+							"plugins" : [ "themes", "html_data", "ui", "crrm", "dnd", "types", "contextmenu" ] //, "sort" ]
 			});
 		
 			GENERIC.for_each(gametree.get_nodehandles(), function(nodehandle) {

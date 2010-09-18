@@ -45,7 +45,7 @@
 	padding: 3px !important;
 }
 
-.jstree-clicked, .treemove_hover, .treeicon_hover {
+.jstree-clicked /*, .treemove_hover, .treeicon_hover   slows down a bit*/ {
 	font-size: 1.5em;
 }
 

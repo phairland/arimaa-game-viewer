@@ -159,7 +159,10 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		}
 
 		// if first move in this line of play, put it as a sibling, otherwise it's a variation (of maybe a variation)
-		var node_position_in_tree = current_nodehandle.moves_from_node.length === 1 ? "last" : "inside";
+		var node_position_in_tree = 
+			//current_nodehandle.moves_from_node.length === 1 ? "last" : "inside";
+			"last";
+			//current_nodehandle.moves_from_node.length === 1 ? "last" : "inside";
 		GENERIC.log(node_position_in_tree);
 		
 		//var where_to = "#" + current_gametree_id;
@@ -895,16 +898,68 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 
 		//FIXME: can be recursive with variations
   	GENERIC.for_each(moves, function(move) {
-			var result = gametree.make_move(move, nodehandle);
+			nodehandle.main_line = true; // main line positions have special attribute
+ 			var result = gametree.make_move(move, nodehandle);
 			var new_nodehandle = result.nodehandle;
-			new_nodehandle.main_line = true;
 			nodehandle = new_nodehandle;
 			//GENERIC.log(nodehandle.gamestate.steps);
 		});
 
-		build_dom_tree(gametree, domtree);
+		build_dom_tree(gametree, domtree,
+									/* callbacks */
+									delete_position, move_variation_up, move_variation_down);
 	}
 
+	function move_variation_up(node) {
+		GENERIC.log("move var up", node);
+		var id = get_nodehandle_id_from_tree_elem(node);
+		var move_index = get_move_index_from_tree_elem(node);
+
+		GENERIC.log("move var up", id, move_index);
+
+		// move_index 0 means that it's not variation but continuation
+		// and index 1 means it's already the first variation
+		if(move_index === 0 || move_index === 1) { return; } 
+		var moved = gametree.move_variation_up(id, move_index);
+		if(!moved) return;
+		
+		// TODO: we need to change move_index in the domnode id
+		
+		var to_node = $('#' + id + "_" + (move_index - 1));
+		GENERIC.log("from and to", node, to_node);
+		
+		domtree.jstree('move_node', node, to_node, "after");
+		current_domtree_node = node;
+		
+		show_board();
+		update_selected_nodehandle_view();
+	}
+	
+	function move_variation_down(node) {
+		GENERIC.log("move var down", node);
+		var id = get_nodehandle_id_from_tree_elem(node);
+		var move_index = get_move_index_from_tree_elem(node);
+
+		GENERIC.log("move var down", id, move_index);
+
+		// move_index 0 means that it's not variation but continuation
+		// do we need to check whether it's last or is it enough in gametree?
+		if(move_index === 0) { return; } 
+		var moved = gametree.move_variation_down(id, move_index);
+		if(!moved) return;
+		
+		// TODO: we need to change move_index in the domnode id
+		
+		var to_node = $('#' + id + "_" + (move_index + 1));
+		GENERIC.log("from and to", node, to_node);
+		
+		domtree.jstree('move_node', node, to_node, "after");
+		
+		current_domtree_node = node;
+		show_board();
+		update_selected_nodehandle_view();
+	}
+	
 	function show_board() {
 		var cur_move = get_current_node().moves_from_node[current_move_index];
 		show_current_position_info(viewer.gamestate(), get_current_node(), cur_move);
@@ -942,11 +997,28 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	  Also continuations and variations are deleted
 	  Cannot be applied to main line
 	*/
-	function delete_move() {
+	function delete_position(contextmenu_node) {
 		if(showing_slowly) return;
+
+		var move_index = get_move_index_from_tree_elem(contextmenu_node);
+		var id = get_nodehandle_id_from_tree_elem(contextmenu_node);
+
+		GENERIC.log("clicked_node", id, move_index);
+
+		if(viewer.current_id() !== id || current_move_index !== move_index) {
+			contextmenu_node.click(); // this is only precaution in case the configuration
+			// for right clicking contextmenu wouldn't select the node
+			// then global id/move_index pointers wouldn't be at this node
+		}
+		
 		var prev = gametree.previous_nodeid(viewer.current_id());
 		var deleted = gametree.delete_position(viewer.current_id(), current_move_index);
-		if(!deleted) return;
+		GENERIC.log(deleted);
+		
+		if(!deleted) {
+			alert('Deleting main line position is not possible.');
+			return;
+		}
 		if(deleted === "singleton") {
 			var del_dom = $('.gametree li[after="' + viewer.current_id() + '"]');
 			//FIXME: now the previous might be singleton, so should be visually updated
@@ -1161,7 +1233,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	  });
 	  */
 	  
-	  $('.delete').click(delete_move);
+	  //$('.delete').click(delete_position);
 	  
 	  import_game();
 
