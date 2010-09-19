@@ -80,8 +80,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 
  		current_move_index = move_index;
 		current_domtree_node = $('#' + id);
-		viewer.gametree_goto(nodehandle.id);
-		update_selected_nodehandle_view();
+		goto_node_and_update_treeview(nodehandle.id);
 	}
 	
 	function make_move_to_gametree() {
@@ -137,8 +136,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		current_domtree_node = $('#' + id);
 		current_move_index = 0; // there is no move to be made
 
-  	viewer.gametree_goto(nodehandle.id);
-		update_selected_nodehandle_view();
+		goto_node_and_update_treeview(nodehandle.id);		
 	}
 
 	function show_pass_if_legal() {
@@ -327,8 +325,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 				}
 				
 				showing_slowly = false;
-				viewer.gametree_goto(cur_node);
-				update_selected_nodehandle_view();
+				goto_node_and_update_treeview(cur_node);				
 				return;
 			}	else if(moves_from_current.length === 1) { // this is singleton 'before' position
 
@@ -350,21 +347,19 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 					}
 					
 					showing_slowly = false;
-					viewer.gametree_goto(cur_node);
-					update_selected_nodehandle_view();
+					goto_node_and_update_treeview(cur_node);					
 					return;
 				}
 			}
 			
 			GENERIC.log("defaultiiiiiii");
 			
-			viewer.gametree_goto(cur_node);
 			current_move_index = 0; // FIXME: how about variation of variation?
 			current_domtree_node = $('#' + cur_node + "_0");
 			
 			showing_slowly = false;
 
-      update_selected_nodehandle_view();
+			goto_node_and_update_treeview(cur_node);
 			return;
 		}
 
@@ -393,7 +388,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 			if(viewer.current_id() !== nodeid || stepbuffer.length > 0) {
 				undo_all_steps();
 				// set correct starting position first and have a delay
-				viewer.gametree_goto(nodeid);
+				goto_node_and_update_treeview(nodeid);
 				show_board();
 				setTimeout(show_fun, show_step_delay);
 			} else {
@@ -425,7 +420,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 
 		undo_all_steps();
 		
-		viewer.gametree_goto(nextid);
+		goto_node_and_update_treeview(nextid);
 		show_board();
 		
 		// NOTE! current_gametree_id has been updated by gametree_goto
@@ -488,9 +483,8 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 			current_move_index = move_index;
 
 			GENERIC.log(previd);
-			viewer.gametree_goto(previd);
+			goto_node_and_update_treeview(previd);			
 			show_board();
-			update_selected_nodehandle_view();
 		}		
 	}
 
@@ -507,7 +501,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	}
 	
 	function bind_control_move() {
-		$('.pass').click(pass_if_legal);	
+		$('.pass').click(function() { pass_if_legal(); $(this).blur(); });	
 		$('.next').click(show_next);
 		$('.prev').click(show_previous);
 		
@@ -553,10 +547,9 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
       if(code === 36) {
       	if(showing_slowly) return;
       	var first = gametree.get_initial_nodehandle().id;
-      	viewer.gametree_goto(first);
       	current_domtree_node = $('#' + first + "_0");
+      	goto_node_and_update_treeview(first);      	
       	show_board();
-      	update_selected_nodehandle_view();      	
       }
 
       //FIXME: there's lots of duplication everywhere similar to this
@@ -564,10 +557,9 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
       if(code === 35) {
       	if(showing_slowly) return;
       	var last = gametree.get_lastid();
-      	viewer.gametree_goto(last);
       	current_domtree_node = $('#' + last + "_0");
+      	goto_node_and_update_treeview(last);      	
       	show_board();
-      	update_selected_nodehandle_view();      	
       }
 
       // prevent moving of window when arrow keys are pressed
@@ -807,15 +799,16 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		}
 		
 		//console.log("current_move_index", current_move_index);
-		viewer.gametree_goto(prev);
-		
 		// remove the selected move
 		domtree.jstree('delete_node', del_dom);
-		
 		current_domtree_node = $('#' + prev + "_0"); 
 
-		
+    goto_node_and_update_treeview(prev);
 		show_board();
+	}
+
+	function goto_node_and_update_treeview(id) {	
+		viewer.gametree_goto(id);
 		update_selected_nodehandle_view();
 	}
 	
@@ -831,9 +824,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		bind_select_piece();
 		bind_move_piece();
 
-		$('.show').click(function() {
-				show_next_move_slowly();
-		});
+		$('.show').click(show_next_move_slowly);
 
 		$('.square').live('mouseleave', function() {
 			if(marking_handler.is_marker_selected()) {
