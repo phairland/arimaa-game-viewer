@@ -369,6 +369,8 @@ var ARIMAA = ARIMAA || function() {
 		}
 	}
   
+	function opposite_turn(turn) { return turn === ARIMAA.gold ? ARIMAA.silver : ARIMAA.gold }
+
   return {
   	'board_width': board_width,
   	'board_height': board_height,
@@ -392,7 +394,8 @@ var ARIMAA = ARIMAA || function() {
   	'remove_piece': remove_piece,
   	'get_initial_gamestate': get_initial_gamestate,
   	'pass': pass,
-  	'is_passing_legal': is_passing_legal
+  	'is_passing_legal': is_passing_legal,
+  	'opposite_turn': opposite_turn
   }
   
 }();

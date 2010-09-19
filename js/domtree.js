@@ -1,17 +1,21 @@
-  function create_tree_nodehandle(nodehandle, move_index) {
+	function nodeId(elem) { return parseInt(elem.attr('nodeid')); }
+	function moveIndex(elem) { return parseInt(elem.attr('move_index')); }
+	
+	function create_tree_nodehandle(nodehandle, move_index) {
 		var movename = nodehandle.moves_from_node.length === 0 ? 
 										nodehandle.gamestate.turn.side.slice(0, 1) + "#"
 									: nodehandle.moves_from_node[0].id /* show main variant */;
 
 		if(nodehandle.moves_from_node.length > 0) {
-			movename = movename+ " " + GENERIC.reduce("", nodehandle.moves_from_node[0].steps, function(result, step) { return $.trim(result + " " + step.notated); });
+			movename = movename + " " + GENERIC.reduce("", nodehandle.moves_from_node[0].steps, function(result, step) { return $.trim(result + " " + step.notated); });
 		}
 									
 		var side = nodehandle.gamestate.turn.side;									 
 
   	var result = '';
   	result += '<ul>';
-			result += '<li id="' + nodehandle.id + "_" + move_index + '">';
+			//result += '<li id="' + nodehandle.id + "_" + move_index + '">';
+			result += '<li id="' + nodehandle.id + "_" + move_index + '" nodeid="' + nodehandle.id + '" move_index="' + move_index + '">';
 			result += '<a href="#">' + movename + '</a>';
 			result += '</li>';
   	result += '</ul>';
@@ -27,8 +31,6 @@
 			if(nodehandle.moves_from_node.length > 0) {
 				var dom_nodehandle = create_tree_nodehandle(nodehandle, 0);
 				domtree.append(dom_nodehandle);
-				//lastnode = $('#' + dom_nodehandle.find('li').attr('id'));
-				//GENERIC.log(lastnode);
 			}
 		});
 
