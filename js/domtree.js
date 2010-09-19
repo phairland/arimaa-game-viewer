@@ -1,8 +1,6 @@
 	function getNode(nodeid, move_index) {
-		console.log("nodeid", "move_index", nodeid, move_index);
-		var node = $('.gametree').find('li [nodeid="'+nodeid+'"][move_index="' + move_index + '"]');
-		console.log("getNode", node);
-		return node;
+		var selector = getSelectorForNode(nodeid, move_index);
+		return $('.gametree').find(selector);
 	}
 	
 	function nodeId(elem) { return parseInt(elem.attr('nodeid')); }
@@ -23,6 +21,7 @@
   	result += '<ul>';
 			//result += '<li id="' + nodehandle.id + "_" + move_index + '">';
 			result += '<li id="' + nodehandle.id + "_" + move_index + '" nodeid="' + nodehandle.id + '" move_index="' + move_index + '">';
+			//result += '<li nodeid="' + nodehandle.id + '" move_index="' + move_index + '">';			
 			result += '<a href="#">' + movename + '</a>';
 			result += '</li>';
   	result += '</ul>';
@@ -42,23 +41,15 @@
 		});
 
   	var initial_handle = gametree.get_initial_nodehandle();
-		var initially_selected_node = initial_handle.id + "_" + 0;
+		//var initially_selected_node = getSelectorForNode(initial_handle.id, 0);
+		var initially_selected_node = '#' + initial_handle.id + "_" + 0;
 
-/*		
-		function sort_tree(a, b) {
-			var ai = $(a).attr('id').split("_")[1]; // move index
-			var bi = $(b).attr('id').split("_")[1];
-			return $(a).parent() === $(b).parent() && ai > bi ? 1 : -1;
-			//return $(a).parent() === $(b).parent() && this.get_text(a) > this.get_text(b) ? 1 : -1; 
-		}
-		*/
-		
 	/*
 	var drag_and_drop_move = {
 			"check_move" : function (m) {
 				GENERIC.log("move", m);
-				var id = m.o.attr('id');
-				var move_index = parseInt(id.split("_")[1]);
+				var id = nodeId(m.o);
+				var move_index = moveIndex(m.o);
 				GENERIC.log("drag and drop move index", move_index);
 				if(move_index === 0) return false;
 				
@@ -223,7 +214,7 @@
 													}
 											}
 									},				
-							"plugins" : [ "themes", "html_data", "ui", "crrm", "dnd", "types", "contextmenu" ] //, "sort" ]
+							"plugins" : [ "themes", "html_data", "ui", "crrm", "types", "contextmenu" ] //, "dnd", "sort" ]
 			});
 
 			// missing feature in jstree: hide contextmenu when mouseleave
@@ -236,12 +227,13 @@
 			GENERIC.for_each(gametree.get_nodehandles(), function(nodehandle) {
 				for(var i = 0; i < nodehandle.moves_from_node.length; ++i) {
 					var nodetype = nodehandle.gamestate.turn === ARIMAA.gold ? "gmovebefore" : "smovebefore";
-					var move_index = i;
-					var selector = "#" + nodehandle.id + "_" + move_index;
+					var selector = getSelectorForNode(nodehandle.id, 0);
 					//GENERIC.log(selector);
 					domtree.jstree('set_type', nodetype, selector);
 				}
 			});
+			
+			domtree.jstree('refresh_all');
 	}
 	
 	

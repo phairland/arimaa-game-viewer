@@ -1,12 +1,11 @@
 function get_nodehandle_id_from_tree_elem(elem) {
-	var id = elem.attr('id').split("_")[0];
-	return parseInt(id);
+	return nodeId(elem);
 }
 
 function get_move_index_from_tree_elem(elem) {
-	var id = elem.attr('id');
-	if(id === undefined) throw "get_move_index: id is undefined";
-	var move_index = id.split("_")[1];
+	//var move_index = id.split("_")[1];
+	var move_index = moveIndex(elem);
+	return move_index; //FIXME can move_index be undefined or ""
 	//GENERIC.log(move_index);
 	if(move_index === undefined || move_index === '') return false;
 	return parseInt(move_index); 

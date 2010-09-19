@@ -1,16 +1,25 @@
-  function turn_prefix_from_node(node) { 
+/**
+  Utility functions for DOM handling
+*/
+
+	function getSelectorForNode(nodeid, move_index) {
+	  return 'li[nodeid="'+nodeid.toString()+'"][move_index="' + move_index.toString() + '"]';
+	}
+	
+	function getNode(nodeid, move_index) {
+		//var selector = 'li[nodeid="'+nodeid.toString()+'"][move_index="' + move_index.toString() + '"]';
+		var selector = getSelectorForNode(nodeid, move_index);
+		return $('.gametree').find(selector);
+	}
+	
+	function nodeId(elem) { return parseInt(elem.attr('nodeid')); }
+	function moveIndex(elem) { return parseInt(elem.attr('move_index')); }
+	
+
+	function turn_prefix_from_node(node) { 
   	return turn_prefix(node.gamestate.turn); 
   }
   
   function turn_prefix(turn) { 
   	return turn.side.slice(0, 1); 
-  }  
-	
-	function singleton_after_opposite(turn) {
-		return turn_prefix(ARIMAA.opposite_turn(turn)) + "singletonafter";
-	}
-	
-	function singleton_before_opposite(turn) {
-		return turn_prefix(ARIMAA.opposite_turn(turn)) + "singletonbefore";
-	}
-
+  } 

@@ -35,8 +35,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 
 		// FIXME: add move number		
 		var variation_name = 
-			turn_prefix(current_nodehandle.gamestate.turn) + " " +
-			get_stepbuffer_as_notated();
+			turn_prefix(current_nodehandle.gamestate.turn) + " " + get_stepbuffer_as_notated();
 			
 		var move = {
 			'id': variation_name, 
@@ -49,24 +48,22 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		var nodehandle = result.nodehandle;
 		var move_index = result.move_index;
 
-		console.log("move_index", move_index);
-		var id = current_nodehandle.id + "_" + move_index;
-		
 		// id and name for treenode
 		var js = {
-			'attr': {'id': id, 'after': nodehandle.id, 'nodeid': current_nodehandle.id, 'move_index': move_index },
+			'attr': {'after': nodehandle.id, 'nodeid': current_nodehandle.id, 'move_index': move_index },
 			'data': variation_name.toString()
 		}
 
-//		var where_to = $('#' + current_nodehandle.previous_nodehandle.id + "_" + current_nodehandle.move_index_from_previous); //FIXME ugly
 		var where_to = getNode(current_nodehandle.previous_nodehandle.id, current_nodehandle.move_index_from_previous);
 		GENERIC.log("where_to", where_to);		
 		
 		var nodetype = turn_prefix_from_node(current_nodehandle) + 'singletonafter';
+
+		var selector = getSelectorForNode(current_nodehandle.id, move_index);
 		
 		// create variation
 		domtree.jstree("create", where_to, "after", js, false, true);
-		domtree.jstree('set_type', nodetype, '#' + id);
+		domtree.jstree('set_type', nodetype, selector);
 			
 		// if node that precedes was a singleton, it must be changed to normal
 		var nodetype_preceding = 
@@ -79,7 +76,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		  } else GENERIC.log("preceding not singleton");
 
  		current_move_index = move_index;
-		current_domtree_node = $('#' + id);
+		current_domtree_node = $(selector);
 		goto_node_and_update_treeview(nodehandle.id);
 	}
 	
@@ -97,7 +94,8 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		
 		var variation_name =
 			current_nodehandle.moves_from_node[0].id + 
-			"[" + current_nodehandle.moves_from_node.length + "] " +
+			"[*] " +			
+			//"[" + current_nodehandle.moves_from_node.length + "] " +
 				get_stepbuffer_as_notated();
 				
 
@@ -112,28 +110,28 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		var nodehandle = result.nodehandle;
 		var move_index = result.move_index;
 
-		var id = current_nodehandle.id + "_" + move_index;
-		GENERIC.log("id", id);
+		var selector = getSelectorForNode(current_nodehandle.id, move_index);
+		//GENERIC.log("id", id);
 		
 		// singleton node (means that when move is made, stays at the same node since its the last)
 		// id and name for treenode
 		var js = {
-			'attr': {'id': id, 'nodeid': current_nodehandle.id, 'move_index': move_index.toString(), 'after': nodehandle.id },
+			'attr': {'nodeid': current_nodehandle.id, 'move_index': move_index.toString(), 'after': nodehandle.id },
 			'data': variation_name.toString()
 		}
 
 		var node_position_in_tree = "last";
 		GENERIC.log(node_position_in_tree);
 		
-		var where_to = '#' + current_nodehandle.id + "_0"; // the "parent" node
+		var where_to = getSelectorForNode(current_nodehandle.id, 0);
 		GENERIC.log("whereto", where_to);
 		
 		// create variation
 		domtree.jstree("create", where_to, node_position_in_tree, js, false, true);
 		var nodetype = turn_prefix_from_node(nodehandle) + 'singletonafter';
-		domtree.jstree('set_type', nodetype, '#' + id);
+		domtree.jstree('set_type', nodetype, selector);
 		
-		current_domtree_node = $('#' + id);
+		current_domtree_node = $(selector);
 		current_move_index = 0; // there is no move to be made
 
 		goto_node_and_update_treeview(nodehandle.id);		
@@ -308,15 +306,13 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 			GENERIC.log(moves_from_current);
 			GENERIC.log(moves_from_current.length);
 
-			//current_move_index = move_index; //FIXME is this ok?
 			current_move_index = 0;
 			
 			if(moves_from_current.length === 0) {
 				GENERIC.log("zeroooooooo");
 
 				//var node_this = 
-				var elem = $('#' + nodeid + "_" + move_index);
-				GENERIC.log(elem);
+				var elem = getNode(nodeid, move_index);
 				current_domtree_node = elem;
 
 				if(elem.attr('rel').indexOf("singletonbefore") >= 0) {
@@ -336,7 +332,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 				if(followups_moves.length === 0) {
 					GENERIC.log("yoyoyoy");
 
-					var elem = $('#' + gametree.next_nodeid(nodeid, move_index) + "_0");
+					var elem = getNode(gametree.next_nodeid(nodeid, move_index), 0);
 					GENERIC.log(elem);
 					current_domtree_node = elem;
 					current_move_index = 0;
@@ -355,7 +351,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 			GENERIC.log("defaultiiiiiii");
 			
 			current_move_index = 0; // FIXME: how about variation of variation?
-			current_domtree_node = $('#' + cur_node + "_0");
+			current_domtree_node = getNode(cur_node, 0);
 			
 			showing_slowly = false;
 
@@ -426,20 +422,18 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		// NOTE! current_gametree_id has been updated by gametree_goto
 		var node_now = get_current_node();
 		if(node_now.moves_from_node.length === 0) {
-			var treenode_id = "#" + cur_node.id + "_" + move_index;
+			var treenode = getNode(cur_node.id, move_index);
 			
 		  GENERIC.log(node_now);
 			var prefix = turn_prefix_from_node(node_now);
 			var new_type = prefix + 'singletonafter';
-			GENERIC.log("new_type", new_type);
-			GENERIC.log("for", $(treenode_id));			
-			domtree.jstree('set_type', new_type, treenode_id);
+			domtree.jstree('set_type', new_type, treenode);
 
-			current_domtree_node = $(treenode_id);
+			current_domtree_node = treenode;
 
 			update_selected_nodehandle_view();
 		} else {
-			current_domtree_node = $('#' + nextid + '_' + current_move_index);
+			current_domtree_node = getNode(nextid, current_move_index);
 			GENERIC.log("new cur domtree node", current_domtree_node);
 			update_selected_nodehandle_view();
 		}
@@ -472,7 +466,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 			
 			GENERIC.log("new id", previd);
 			GENERIC.log("move_index", move_index);
-			var elem = $('#' + previd + '_' + move_index);
+			var elem = getNode(previd, move_index);
 			current_domtree_node = elem;
 			
 			if(elem.attr('rel').indexOf("singletonafter") >= 0) {
@@ -547,7 +541,8 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
       if(code === 36) {
       	if(showing_slowly) return;
       	var first = gametree.get_initial_nodehandle().id;
-      	current_domtree_node = $('#' + first + "_0");
+      	//current_domtree_node = $('#' + first + "_0");
+      	current_domtree_node = getNode(first, 0);
       	goto_node_and_update_treeview(first);      	
       	show_board();
       }
@@ -557,7 +552,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
       if(code === 35) {
       	if(showing_slowly) return;
       	var last = gametree.get_lastid();
-      	current_domtree_node = $('#' + last + "_0");
+      	current_domtree_node = getNode(last, 0);
       	goto_node_and_update_treeview(last);      	
       	show_board();
       }
@@ -594,16 +589,12 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
   	
   	marking_handler.show_markers();
   	
-  	var nodeid = viewer.current_id() + "_" + current_move_index;
-//  	var jqueryNode = $('#' + nodeid);
 		var jqueryNode = current_domtree_node;
 
   	if(jqueryNode.length > 0) {
-  	  //GENERIC.log("updating");
   		var last_selected = domtree.jstree('get_selected');
   		domtree.jstree('deselect_node', last_selected);
-			//domtree.jstree('deselect_all');
-			domtree.jstree('select_node', jqueryNode); //FIXME: should work on variations too, 0 = main game line
+			domtree.jstree('select_node', jqueryNode);
 			
 			if(scroll_viewer === undefined || scroll_viewer) {
 			  $('.scrollabletree').scrollTo(jqueryNode, {offset: -100});
@@ -663,11 +654,8 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	}
 
 	function move_variation_up(node) {
-		GENERIC.log("move var up", node);
-		var id = get_nodehandle_id_from_tree_elem(node);
-		var move_index = get_move_index_from_tree_elem(node);
-
-		GENERIC.log("move var up", id, move_index);
+		var id = nodeId(node);
+		var move_index = moveIndex(node);
 
 		// move_index 0 means that it's not variation but continuation
 		// and index 1 means it's already the first variation
@@ -676,21 +664,43 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		if(!moved) return;
 		
 		// TODO: we need to change move_index in the domnode id
+
+		var to_node = getNode(id, move_index - 1);
 		
-		var to_node = $('#' + id + "_" + (move_index - 1));
-		GENERIC.log("from and to", node, to_node);
+		// change the move_indexes (their nodeid attribute is already same)
+		node.attr('move_index', move_index + 1);
+		to_node.attr('move_index', move_index);
 		
-		domtree.jstree('move_node', node, to_node, "after");
-		current_domtree_node = node;
+		domtree.jstree('move_node', node, to_node, "before", 
+									  false /* is copy */, false /* is prepared */, true /*skip check */);
+
+		current_domtree_node = getNode(id, move_index);
 		
 		show_board();
 		update_selected_nodehandle_view();
 	}
 	
+	$(function() {
+			$('.gametree').bind('move_node.jstree', function(data) {
+					//console.log("move_node event", data);
+			});
+
+				/*
+			$('.gametree li').live('click', function() {
+					var id = nodeId($(this));
+					console.log(id);
+					var previd = gametree.previous_nodeid(id);
+					console.log("previd", previd);
+					var to = getNode(previd, 0);
+					console.log("to", to);
+			});
+					*/
+	});
+	
 	function move_variation_down(node) {
 		GENERIC.log("move var down", node);
-		var id = get_nodehandle_id_from_tree_elem(node);
-		var move_index = get_move_index_from_tree_elem(node);
+		var id = nodeId(node);
+		var move_index = moveIndex(node);
 
 		GENERIC.log("move var down", id, move_index);
 
@@ -702,11 +712,30 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		
 		// TODO: we need to change move_index in the domnode id
 		
-		var to_node = $('#' + id + "_" + (move_index + 1));
+		// ACTUALLY this should be changed to to_node's last direct continuation
+		var to_node = getNode(id, move_index + 1);
 		GENERIC.log("from and to", node, to_node);
+
+		// change the move_indexes (their nodeid attribute is already same)
+		node.attr('move_index', move_index + 1);
+		to_node.attr('move_index', move_index);
 		
-		domtree.jstree('move_node', node, to_node, "after");
+		var id_counter = id;
+		var obj = node;
 		
+		do {
+			domtree.jstree('move_node', obj, to_node, "after", 
+									  false /* is copy */, false /* is prepared */, true /*skip check */);
+			var id_counter = gametree.next_nodeid(id_counter, move_index + 1);
+			var cur_node = gametree.select_node(id_counter);
+			
+			if(cur_node.moves_from_node.length === 0) break;
+			to_node = obj;
+			cur_node = gametree.select_node(id_counter);
+			obj = getNode(id_counter, 0 /* direct continuatin */);
+		} while(true)
+		
+		current_move_index = move_index + 1;
 		current_domtree_node = node;
 		show_board();
 		update_selected_nodehandle_view();
@@ -752,8 +781,8 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	function delete_position(contextmenu_node) {
 		if(showing_slowly) return;
 
-		var move_index = get_move_index_from_tree_elem(contextmenu_node);
-		var id = get_nodehandle_id_from_tree_elem(contextmenu_node);
+		var move_index = moveIndex(contextmenu_node);
+		var id = nodeId(contextmenu_node);
 
 		GENERIC.log("clicked_node", id, move_index);
 
@@ -785,12 +814,12 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 			current_move_index = gametree.select_node(prev).move_index_from_previous;
 		} else {
 			//FIXME: delete moves after that node also (continuations)
-			var del_dom = $('#' + viewer.current_id() + "_" + current_move_index);
+			var del_dom = getNode(viewer.current_id(), current_move_index);
 			var to_be_removed = del_dom.attr('after');
 			
 			// remove all continuation moves
 			while(!!to_be_removed) {
-				var elem = $('#' + to_be_removed + "_0");
+				var elem = getNode(to_be_removed, 0);
 				to_be_removed = elem.attr('after');
 				domtree.jstree('delete_node', elem);
 			}
@@ -798,10 +827,9 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 			current_move_index = 0;		
 		}
 		
-		//console.log("current_move_index", current_move_index);
 		// remove the selected move
 		domtree.jstree('delete_node', del_dom);
-		current_domtree_node = $('#' + prev + "_0"); 
+		current_domtree_node = getNode(prev, 0);
 
     goto_node_and_update_treeview(prev);
 		show_board();
@@ -818,9 +846,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		create_tree_and_viewer(domtree);
 				
 		bind_import_game();
-
 		bind_control_move();
-
 		bind_select_piece();
 		bind_move_piece();
 
@@ -857,8 +883,8 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 			undo_all_steps();
 			var elem = $(this).closest('li');
 			current_domtree_node = elem;
-			var id = get_nodehandle_id_from_tree_elem(elem);
-			current_move_index = get_move_index_from_tree_elem(elem); 
+			var id = nodeId(elem);
+			current_move_index = moveIndex(elem); 
 			showing_slowly = false;
 
 			if(elem.attr('rel').indexOf("singletonafter") >= 0) {
@@ -910,8 +936,8 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 				
 				var elem = $(this).closest('li');
 				
-				var move_index = get_move_index_from_tree_elem(elem);
-				var id = get_nodehandle_id_from_tree_elem(elem);
+				var move_index = moveIndex(elem);
+				var id = nodeId(elem);
 				
 				if(elem.attr('rel').indexOf("singletonbefore") >= 0) {
 				  var prefix = turn_prefix(ARIMAA.opposite_turn(gametree.select_node(id).gamestate.turn)); 
