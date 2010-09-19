@@ -509,7 +509,8 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 			GENERIC.log(moves_from_current);
 			GENERIC.log(moves_from_current.length);
 
-			current_move_index = move_index;
+			//current_move_index = move_index; //FIXME is this ok?
+			current_move_index = 0;
 			
 			if(moves_from_current.length === 0) {
 				/*
@@ -752,7 +753,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		$('.next').click(show_next);
 		$('.prev').click(show_previous);
 		
-    $(window).keydown(function(event) {
+    $(document).keydown(function(event) {
       var code = getKeyCode(event);
       if(is_right_arrow_key(code)) {
       	show_next();
@@ -775,13 +776,22 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
       }
       
       if(code === 80) { // p
-      	var foo = prettyPrint(gametree.get_initial_nodehandle());
-      	debugInfo();
       	$('.debug').toggleClass('shown');
+      	if($('.debug').hasClass('shown')) {
+      		$('body').css('margin-top', $('.debug').height());
+      	} else {
+      		$('body').css('margin-top', 0);
+      	}
       }
+      if(code === 79) { // o
+      	$('.debug').html('');
+				debug({
+						"current_id: ": viewer.current_id(),
+						"current_move_index": current_move_index
+				});
+				$('.debug').addClass('shown');
+      }      
       
-      //console.log(code);
-
       // home key
       if(code === 36) {
       	if(showing_slowly) return;
@@ -809,15 +819,10 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
       }
     });
   }
-  
-  function debugInfo() {
-  	var debug = $('.debug').html('');
-  	function add(value) {
-  		debug.append(prettyPrint(value));
-  	}
-  	add("current_move_index: " + current_move_index);
-  	add("current_id: " + viewer.current_id());
-  }
+
+	function debug(value) {
+		$('.debug').append(prettyPrint(value));
+	}
   
   function set_singleton_to_before() {
   	return;
@@ -1226,6 +1231,8 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 				  var prefix = opposite_turn(gametree.select_node(id).gamestate.turn).side.slice(0, 1); 
 				  domtree.jstree('set_type', prefix + 'singletonafter', elem);
 				}
+				
+				debug({"showing slowly": true, "id": id, "move_index": move_index});
 				
 				show_move_slowly(id, move_index);				
 			
