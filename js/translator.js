@@ -7,6 +7,27 @@ var TRANSLATOR = TRANSLATOR || function() {
 		//GENERIC.log(GENERIC.map(moves, function(move) { return move.steps}));
 		return moves;
 	}
+
+	/**
+	 get step-object as notated text
+	*/
+	function get_step_as_notated(step) {
+		if(step.type === "pass") return "";
+		if(step.type === "setting") {
+			step.piece.type.slice(0, 1) + 
+			GENERIC.intToChar(GENERIC.charToInt('a')+step.from.col) + step.from.row;			
+		} else {
+			// normal move
+			var x_d = step.to.col - step.from.col;
+			var y_d = step.to.row - step.from.row;
+			var direction = x_d > 0 ? "e" : x_d < 0 ? "w" : y_d < 0 ? "n" : "s"; 
+			
+			return 	step.piece.type.slice(0, 1) + 
+							GENERIC.intToChar(GENERIC.charToInt('a')+step.from.col) +
+							step.from.row +	direction;
+		}									
+	}
+	
 	
 	function throw_unsupported(info) {
 		GENERIC.log("unsupported: " + info);
@@ -791,9 +812,11 @@ var TRANSLATOR = TRANSLATOR || function() {
 		'convert_FAN_to_AST': convert_FAN_to_AST,
 		'convert_from_gametree': convert_from_gametree,
 	  'convert_to_gametree': convert_to_gametree,
-	  'convert_notated_step_to_coordinates': convert_notated_step_to_coordinates
+	  'convert_notated_step_to_coordinates': convert_notated_step_to_coordinates,
+	  'get_step_as_notated': get_step_as_notated
 	};
 }();
+
 
 //FIMXE for testing only
 $(function() {
