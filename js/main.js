@@ -1047,11 +1047,15 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 			current_move_index = 0;		
 		}
 		
+		//console.log("current_move_index", current_move_index);
+		viewer.gametree_goto(prev);
+		
 		// remove the selected move
 		domtree.jstree('delete_node', del_dom);
 		
 		current_domtree_node = $('#' + prev + "_0"); 
 
+		
 		show_board();
 		update_selected_nodehandle_view();
 	}
