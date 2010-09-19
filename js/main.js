@@ -116,6 +116,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		var id = current_nodehandle.id + "_" + move_index;
 		GENERIC.log("id", id);
 		
+		// singleton node (means that when move is made, stays at the same node since its the last)
 		// id and name for treenode
 		var js = {
 			'attr': {'id': id, 'nodeid': current_nodehandle.id, 'move_index': move_index.toString(), 'after': nodehandle.id },
@@ -134,6 +135,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		domtree.jstree('set_type', nodetype, '#' + id);
 		
 		current_domtree_node = $('#' + id);
+		current_move_index = 0; // there is no move to be made
 
   	viewer.gametree_goto(nodehandle.id);
 		update_selected_nodehandle_view();
@@ -829,21 +831,6 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		bind_select_piece();
 		bind_move_piece();
 
-		// clears the arrows when mouse leaves the board		
-		$('.boardwrapper').live('mouseleave', function(event) {
-				var x = event.pageX + $(this).offset().left;
-				var y = event.pageY + $(this).offset().top;
-				GENERIC.log(x, y);
-				GENERIC.log(event);
-				GENERIC.log($(this));
-				
-				// for some reason, the event is triggered when subelement is leaved, so
-				// we need to check current coordinate that it's out of bounds
-				if(x < 0 || y < 0 || x >= $(this).width() || y >= $(this).height()) {
-				  $('.arrow').hide();
-				}
-		});
-		
 		$('.show').click(function() {
 				show_next_move_slowly();
 		});

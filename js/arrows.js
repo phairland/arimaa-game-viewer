@@ -67,5 +67,21 @@ $(function() {
 	$('.arrowhover').mouseleave(function() {
 		$(this).hide();
 		$(this).closest('.arrow').find('.arrownormal').show();		
-	});		
+	});
+
+	// clears the arrows when mouse leaves the board		
+	$('.boardwrapper').live('mouseleave', function(event) {
+			var x = event.pageX + $(this).offset().left;
+			var y = event.pageY + $(this).offset().top;
+			GENERIC.log(x, y);
+			GENERIC.log(event);
+			GENERIC.log($(this));
+			
+			// for some reason, the event is triggered when subelement is leaved, so
+			// we need to check current coordinate that it's out of bounds
+			if(x < 0 || y < 0 || x >= $(this).width() || y >= $(this).height()) {
+				$('.arrow').hide();
+			}
+	});
+	
 });
