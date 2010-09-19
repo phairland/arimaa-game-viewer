@@ -840,6 +840,28 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		update_selected_nodehandle_view();
 	}
 	
+	function if_singletonafter_set_before(elem, id) {
+		if(elem.attr('rel').indexOf("singletonafter") >= 0) {
+			var prefix = turn_prefix_from_node(gametree.select_node(id)); 
+			domtree.jstree('set_type', prefix + 'singletonbefore', elem);
+		}
+	}
+	
+	function select_dom_node(elem) {
+		showing_slowly = false;
+		undo_all_steps();
+		
+		var id = nodeId(elem);
+
+		if_singletonafter_set_before(elem, id);
+		
+		current_move_index = moveIndex(elem); 
+		current_domtree_node = elem;
+		viewer.gametree_goto(id);
+		show_board();
+		update_selected_nodehandle_view(false /* don't move scrollbar*/); // should this be done here?
+	}
+	
 	$(function() {
 		domtree = $('.gametree');
 
@@ -879,22 +901,8 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 
 		$('.gametree li a').live('click', function() {
 			//if(showing_slowly) return false;
-			showing_slowly = false;
-			undo_all_steps();
 			var elem = $(this).closest('li');
-			current_domtree_node = elem;
-			var id = nodeId(elem);
-			current_move_index = moveIndex(elem); 
-			showing_slowly = false;
-
-			if(elem.attr('rel').indexOf("singletonafter") >= 0) {
-				var prefix = turn_prefix_from_node(gametree.select_node(id)); 
-				domtree.jstree('set_type', prefix + 'singletonbefore', elem);
-			}
-			
-			viewer.gametree_goto(id);
-			show_board();
-			update_selected_nodehandle_view(false /* don't move scrollbar*/); // should this be done here?
+			select_dom_node(elem);
 		});
 		
 		$('.gametree a').live('mouseover', function() {
