@@ -520,22 +520,8 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
       	show_variation(code - 96);
       }
       
-      if(code === 80) { // p
-      	$('.debug').toggleClass('shown');
-      	if($('.debug').hasClass('shown')) {
-      		$('body').css('margin-top', $('.debug').height());
-      	} else {
-      		$('body').css('margin-top', 0);
-      	}
-      }
-      if(code === 79) { // o
-      	$('.debug').html('');
-				debug({
-						"current_id: ": viewer.current_id(),
-						"current_move_index": current_move_index
-				});
-				$('.debug').addClass('shown');
-      }      
+      if(code === 80 /* p */) { toggleDebugInfo(); }
+      if(code === 79 /* o */) { showCurrentDebugInfo(); }
       
       // home key
       if(code === 36) {
@@ -558,16 +544,36 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
       }
 
       // prevent moving of window when arrow keys are pressed
-      if(code >= 37 && code <= 40) {
-      	return false;
-      }
+      if(code >= 37 && code <= 40) { return false; }
     });
   }
 
 	function debug(value) {
 		$('.debug').append(prettyPrint(value));
 	}
-  
+
+	function toggleDebugInfo() {
+		if(!ARIMAA_DEBUG_ON) return;
+
+		$('.debug').toggleClass('shown');
+		if($('.debug').hasClass('shown')) {
+			$('body').css('margin-top', $('.debug').height());
+		} else {
+			$('body').css('margin-top', 0);
+		}
+	}
+      
+	function showCurrentDebugInfo() {
+		if(!ARIMAA_DEBUG_ON) return;
+		
+		$('.debug').html('');
+		debug({
+				"current_id: ": viewer.current_id(),
+				"current_move_index": current_move_index
+		});
+		$('.debug').addClass('shown');
+	}
+      
   function update_selected_nodehandle_view(scroll_viewer) {
   	show_pass_if_legal();
 
@@ -610,14 +616,9 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
   	viewer = create_viewer(gametree, domtree);
   	marking_handler = create_marking_handler(gametree, viewer);
   	arrow_handler = create_arrow_handler(gametree, viewer);
+  	current_domtree_node = domtree.jstree('get_selected');
 	}
 	
-  function refresh_domtree() {
-  	//return;
-  	GENERIC.log("refreshing");
-		domtree.jstree('refresh');
-  }  
-  
 	function import_game() {
 		var notated_game = $('#imported_game').val();
 		
@@ -668,13 +669,13 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		var to_node = getNode(id, move_index - 1);
 		
 		// change the move_indexes (their nodeid attribute is already same)
-		node.attr('move_index', move_index + 1);
+		node.attr('move_index', move_index - 1);
 		to_node.attr('move_index', move_index);
 		
 		domtree.jstree('move_node', node, to_node, "before", 
 									  false /* is copy */, false /* is prepared */, true /*skip check */);
 
-		current_domtree_node = getNode(id, move_index);
+		current_domtree_node = getNode(id, move_index - 1);
 		
 		show_board();
 		update_selected_nodehandle_view();
@@ -857,6 +858,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		
 		current_move_index = moveIndex(elem); 
 		current_domtree_node = elem;
+		console.log("current = elem");
 		viewer.gametree_goto(id);
 		show_board();
 		update_selected_nodehandle_view(false /* don't move scrollbar*/); // should this be done here?
@@ -900,7 +902,6 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		});		
 
 		$('.gametree li a').live('click', function() {
-			//if(showing_slowly) return false;
 			var elem = $(this).closest('li');
 			select_dom_node(elem);
 		});
@@ -913,45 +914,43 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 			$(this).removeClass('treemove_hover');		
 		});
 
-		$('.jstree-icon').live('mouseenter', function() {
+		function is_play_icon(elem) {
 			//FIXME: UGLY hack to differentiate move icons from others (such as collapse tree icon) 
-			var imagesrc = $(this).css('background-image');
-			if(imagesrc.indexOf("/pics/") === -1) return;
+			var imagesrc = elem.css('background-image');
+			return imagesrc.indexOf("/pics/") >= 0;
+		}
+		
+		$('.jstree-icon').live('mouseenter', function() {
+			if(!is_play_icon($(this))) return;
+				
 			$(this).closest('li a')
-				.addClass('treeicon_hover');
-			
-			$(this).closest('li a')
+				.addClass('treeicon_hover')
 				.removeClass('treemove_hover');
 			return false;
 		});
 		
 		$('.jstree-icon').live('mouseleave', function() {
-			//FIXME: UGLY hack to differentiate move icons from others (such as collapse tree icon) 
-			var imagesrc = $(this).css('background-image');
-			if(imagesrc.indexOf("/pics/") === -1) return;
+			if(!is_play_icon($(this))) return;
 			
 			$(this).closest('li a').removeClass('treeicon_hover');
 		});
+
+		function if_singletonbefore_set_after(elem, id) {
+			if(elem.attr('rel').indexOf("singletonbefore") >= 0) {
+				var prefix = turn_prefix(ARIMAA.opposite_turn(gametree.select_node(id).gamestate.turn)); 
+				domtree.jstree('set_type', prefix + 'singletonafter', elem);
+			}
+		}
 		
 		$('.jstree-icon').live('click', function() {
 				if(showing_slowly) return false;
-
-				GENERIC.log("icon-click");
-
-				//FIXME: UGLY hack to differentiate move icons from others (such as collapse tree icon) 
-				var imagesrc = $(this).css('background-image');
-				if(imagesrc.indexOf("/pics/") === -1) return;
+				if(!is_play_icon($(this))) return false;
 				
-				var elem = $(this).closest('li');
-				
+				var elem = $(this).closest('li');				
 				var move_index = moveIndex(elem);
 				var id = nodeId(elem);
-				
-				if(elem.attr('rel').indexOf("singletonbefore") >= 0) {
-				  var prefix = turn_prefix(ARIMAA.opposite_turn(gametree.select_node(id).gamestate.turn)); 
-				  domtree.jstree('set_type', prefix + 'singletonafter', elem);
-				}
-				
+
+				if_singletonbefore_set_after(elem, id);				
 				debug({"showing slowly": true, "id": id, "move_index": move_index});
 				
 				show_move_slowly(id, move_index);				
@@ -969,7 +968,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 			}
 		});
 
-	  import_game();
+	  import_game(); // example game
 
 	});
 	

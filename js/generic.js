@@ -1,6 +1,3 @@
-var ARIMAA_DEBUG_ON = false;
-	
-
 var GENERIC = GENERIC || function() {
   return {
   	'log': log,
