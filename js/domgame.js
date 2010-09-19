@@ -63,4 +63,21 @@
 		return result;
 	}
 	
+	function coordinate_for_element(elem) {
+		return {
+			'row': row_index(elem),
+			'col': col_index(elem)
+		}		
+	}
+	
+	function row_index(elem) {
+		return parseInt($('.row').index(elem.closest('.row')));
+	}
+	
+	function col_index(elem) {
+		var row = elem.closest('.row');
+		var elems_in_row = row.find('.square');
+		return parseInt(elems_in_row.index(elem));
+	}
 
+	

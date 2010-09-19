@@ -1,12 +1,10 @@
 
 var ARIMAA_MAIN = ARIMAA_MAIN || function() {
-	var all_markers = GENERIC.map(["A", "B", "C"], function(elem) { return "marker_" + elem; })
-	
-	var marker = "";
 	var show_step_delay = 400; // milliseconds between steps
 	var domtree;
 	var gametree;
 	var viewer;
+	var marking_handler;
 	var current_move_index = 0;
 	var current_domtree_node = undefined;
 	
@@ -188,57 +186,6 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		update_selected_nodehandle_view();
 	}
 
-	function clear_markers_from_node() {
-		gametree.clear_markings(viewer.current_id());
-	}
-	
-	function clear_markers_from_dom_board() {
-		var squares = $('.square');
-		GENERIC.for_each(all_markers, function(marker) {
-			squares.removeClass(marker);
-		});
-	}
-
-	function show_markers() {
-		// it's possible that new board hasn't been constructed (for a reason)
-		// so old markers must be wiped out
-		clear_markers_from_dom_board();
-		
-		var markings = gametree.get_markings(viewer.current_id());
-		GENERIC.log(markings);
-		GENERIC.for_each(markings, function(marking) {
-			GENERIC.log("markings");
-			GENERIC.log(marking.row, marking.col, marking.marking);
-			$('.row').eq(marking.row).find('.square').eq(marking.col).addClass("marker_" + marking.marking);
-		});
-	}
-	
-	function toggle_marker(elem) {
-		GENERIC.log("toggle");
-		if(marker === "") return;
-		
-		var clazz = 'marker_' + marker;
-		var coordinate = coordinate_for_element(elem);
-		gametree.toggle_marking(viewer.current_id(), coordinate, marker);
-		GENERIC.log("toggle");
-		elem.toggleClass(clazz);
-	}
-
-
-	function hover_marker(elem) {
-		if(marker === undefined) return;
-
-		var clazz = 'hovermarker_' + marker;
-		elem.addClass(clazz);
-	}
-
-	function unhover_marker(elem) {
-		if(marker === undefined) return;
-
-		var clazz = 'hovermarker_' + marker;
-		elem.removeClass(clazz);
-	}
-	
 	function show_pass_if_legal() {
 		if(showing_slowly) return false;
 		if(ARIMAA.is_passing_legal(viewer.gamestate(), viewer.board())) {
@@ -251,8 +198,8 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	function bind_select_piece() {
 		$('.square').live('mouseenter', function() {
 			if(showing_slowly) return;
-			if(marker !== "") {
-				hover_marker($(this));
+			if(marking_handler.is_marker_selected()) {
+				marking_handler.hover_marker($(this));
 				return;
 			}
 			selected = coordinate_for_element($(this));
@@ -260,12 +207,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		});
 	}
 
-	function coordinate_for_element(elem) {
-		return {
-			'row': row_index(elem),
-			'col': col_index(elem)
-		}		
-	}
+	
 	
 	function coordinates_from_arrow(arrow) {
 		return {
@@ -451,16 +393,6 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
       .show();
 	}
 		
-	function row_index(elem) {
-		return parseInt($('.row').index(elem.closest('.row')));
-	}
-	
-	function col_index(elem) {
-		var row = elem.closest('.row');
-		var elems_in_row = row.find('.square');
-		return parseInt(elems_in_row.index(elem));
-	}
-
 	function show_step(step) {
 		// if this function is called with not showing_slowly, the moving slowly has been interrupted
 		if(!showing_slowly) return;
@@ -863,7 +795,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
   	
   	show_comments_for_node(get_current_node());
   	
-  	show_markers();
+  	marking_handler.show_markers();
   	
   	var nodeid = viewer.current_id() + "_" + current_move_index;
 //  	var jqueryNode = $('#' + nodeid);
@@ -888,6 +820,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	function create_tree_and_viewer(domtree) {
   	gametree = create_gametree();
   	viewer = create_viewer(gametree, domtree);
+  	marking_handler = create_marking_handler(gametree, viewer);
 	}
 	
   function refresh_domtree() {
@@ -985,7 +918,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		var cur_move = get_current_node().moves_from_node[current_move_index];
 		show_current_position_info(viewer.gamestate(), get_current_node(), cur_move);
 		show_dom_board(viewer.board(), viewer.gamestate());
-		show_markers();
+		marking_handler.show_markers();
 		show_pass_if_legal();
 	}
 	
@@ -1122,12 +1055,14 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		});
 
 		$('.square').live('mouseleave', function() {
-			if(marker !== "") unhover_marker($(this));
+			if(marking_handler.is_marker_selected()) {
+				marking_handler.unhover_marker($(this));
+			}
 		});
 		
 		$('.clear_markers_control').click(function() {
-				clear_markers_from_dom_board();
-				clear_markers_from_node();
+				marking_handler.clear_markers_from_dom_board();
+				marking_handler.clear_markers_from_node(viewer.current_id());
 		});
 		
 		$('.export').click(function() {
@@ -1240,20 +1175,12 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		});
 		
 		$('.marker').click(function() {
-				var marker_down = 'marker_pressed';
-				if($(this).hasClass(marker_down)) {
-					$(this).removeClass(marker_down);
-					marker = "";					
-				} else {
-					marker = $(this).text();
-					$('.marker').removeClass(marker_down);
-					$(this).addClass(marker_down);
-				}
+			marking_handler.marker_on_click($(this));
 		});
 
 		$('.square').live('click', function() {
-			if(marker !== "") {
-				toggle_marker($(this));
+			if(marking_handler.is_marker_selected()) {
+				marking_handler.toggle_marker($(this));
 			}
 		});
 
