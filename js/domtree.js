@@ -65,6 +65,21 @@
 			}
 	}
 	*/
+
+	function can_delete(node) {
+		//return gametree.select_node(nodeId(node)
+		return !gametree.select_node(nodeId(node)).main_line 
+					 || moveIndex(node) !== 0;
+	}
+	
+	function can_move_variation_up(node) {
+		var move_index = moveIndex(node);
+		return move_index >= 2; // 0 is main_line and 1 is already at top
+	}
+	function can_move_variation_down(node) {
+		var move_index = moveIndex(node);
+		return move_index !== 0 && move_index < gametree.select_node(nodeId(node)).moves_from_node.length - 1;
+	}
 	
 	var custom_contextmenu = {
 //		"rename": false,
@@ -94,16 +109,36 @@
 			"action" : move_variation_down,
 			"_disabled" : false,
 			"icon"	: "pics/arrow_down_small.png"
-		},
+		}
 	}
+	
+	// construct contextmenu dynamically depending on the node
+	function custom_contextmenu_fun(node) {
+		var menu = {
+			"create": false,
+			"ccp": false, // copy, cut & paste in edit-key,
+			"remove": custom_contextmenu.remove
+		}
+
+		menu.remove._disabled = !can_delete(node);
 		
+		if(can_move_variation_up(node)) {
+			menu.moveup = custom_contextmenu.moveup;
+		}
+		
+		if(can_move_variation_down(node)) {
+			menu.movedown = custom_contextmenu.movedown;
+		}
+		
+		return menu;		
+	}
 		
 		domtree.jstree({
 				"core": { "animation": 0, "html_titles": true },
 				"ui": { "initially_select" : [ initially_selected_node ], "select_limit": 1 },
 			//n 	"sort": sort_tree,
 				"contextmenu": {
-					'items': custom_contextmenu,
+					'items': custom_contextmenu_fun,
 					'show_at_node': true,
 					'select_node': true
 				},
