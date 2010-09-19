@@ -1,3 +1,10 @@
+	function getNode(nodeid, move_index) {
+		console.log("nodeid", "move_index", nodeid, move_index);
+		var node = $('.gametree').find('li [nodeid="'+nodeid+'"][move_index="' + move_index + '"]');
+		console.log("getNode", node);
+		return node;
+	}
+	
 	function nodeId(elem) { return parseInt(elem.attr('nodeid')); }
 	function moveIndex(elem) { return parseInt(elem.attr('move_index')); }
 	

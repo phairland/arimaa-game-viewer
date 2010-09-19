@@ -49,18 +49,20 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		var nodehandle = result.nodehandle;
 		var move_index = result.move_index;
 
-		var id = current_nodehandle.id + "_0";
+		console.log("move_index", move_index);
+		var id = current_nodehandle.id + "_" + move_index;
 		
 		// id and name for treenode
 		var js = {
-			'attr': {'id': id, 'after': nodehandle.id, 'nodeid': current_nodehandle.id, 'move_index': 0 },
+			'attr': {'id': id, 'after': nodehandle.id, 'nodeid': current_nodehandle.id, 'move_index': move_index },
 			'data': variation_name.toString()
 		}
 
-		var where_to = $('#' + current_nodehandle.previous_nodehandle.id + "_" + current_nodehandle.move_index_from_previous); //FIXME ugly
+//		var where_to = $('#' + current_nodehandle.previous_nodehandle.id + "_" + current_nodehandle.move_index_from_previous); //FIXME ugly
+		var where_to = getNode(current_nodehandle.previous_nodehandle.id, current_nodehandle.move_index_from_previous);
 		GENERIC.log("where_to", where_to);		
 		
-		var nodetype = current_nodehandle.gamestate.turn.side.slice(0, 1) + 'singletonafter';
+		var nodetype = turn_prefix_from_node(current_nodehandle) + 'singletonafter';
 		
 		// create variation
 		domtree.jstree("create", where_to, "after", js, false, true);
@@ -68,7 +70,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 			
 		// if node that precedes was a singleton, it must be changed to normal
 		var nodetype_preceding = 
-			current_nodehandle.previous_nodehandle.gamestate.turn.side.slice(0, 1) + 'movebefore';
+			turn_prefix_from_node(current_nodehandle.previous_nodehandle) + 'movebefore';
 
 			var preceding_type = where_to.attr('rel');			
 			if(preceding_type.indexOf("singleton") >= 0) {
@@ -128,7 +130,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		
 		// create variation
 		domtree.jstree("create", where_to, node_position_in_tree, js, false, true);
-		var nodetype = nodehandle.gamestate.turn.side.slice(0, 1) + 'singletonafter';
+		var nodetype = turn_prefix_from_node(nodehandle) + 'singletonafter';
 		domtree.jstree('set_type', nodetype, '#' + id);
 		
 		current_domtree_node = $('#' + id);
@@ -318,7 +320,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 				current_domtree_node = elem;
 
 				if(elem.attr('rel').indexOf("singletonbefore") >= 0) {
-					var prefix = node.gamestate.turn.side.slice(0, 1); 
+					var prefix = turn_prefix_from_node(node); 
 					domtree.jstree('set_type', prefix + 'singletonafter', elem);
 				}
 				
@@ -341,7 +343,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 					current_move_index = 0;
 
 					if(elem.attr('rel').indexOf("singletonafter") >= 0) {
-						var prefix = node.gamestate.turn.side.slice(0, 1); 
+						var prefix = turn_prefix_from_node(node); 
 						domtree.jstree('set_type', prefix + 'singletonbefore', elem);
 					}
 					
@@ -430,7 +432,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 			var treenode_id = "#" + cur_node.id + "_" + move_index;
 			
 		  GENERIC.log(node_now);
-			var prefix = node_now.gamestate.turn.side.slice(0, 1);
+			var prefix = turn_prefix_from_node(node_now);
 			var new_type = prefix + 'singletonafter';
 			GENERIC.log("new_type", new_type);
 			GENERIC.log("for", $(treenode_id));			
@@ -526,7 +528,6 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
       
       if(code >= 96 && code <= 105) {
       	show_variation(code - 96);
-      	set_singleton_to_before();
       }
       
       if(code === 80) { // p
@@ -785,7 +786,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 			//console.log("singleton");
 			var prev_dom_node = $('.gametree li[after="' + prev + '"]');
 			//var prev_dom_node = $('#' + prev + "_0");
-			var prefix = gametree.select_node(prev).gamestate.turn.side.slice(0, 1);
+			var prefix = turn_prefix_from_node(gametree.select_node(prev));
 			domtree.jstree('set_type', prefix + 'singletonbefore', prev_dom_node);
 			current_move_index = gametree.select_node(prev).move_index_from_previous;
 		} else {
@@ -883,7 +884,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 			showing_slowly = false;
 
 			if(elem.attr('rel').indexOf("singletonafter") >= 0) {
-				var prefix = gametree.select_node(id).gamestate.turn.side.slice(0, 1); 
+				var prefix = turn_prefix_from_node(gametree.select_node(id)); 
 				domtree.jstree('set_type', prefix + 'singletonbefore', elem);
 			}
 			
