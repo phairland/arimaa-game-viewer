@@ -1,4 +1,19 @@
-	
+
+.debug {
+	position: absolute;
+	left: 0px;
+	top: 0px;
+	width: 1000px;
+	height: 800px;
+	z-index: 500;
+	display: none;
+	background-color: white;
+}
+
+.shown {
+	display: block;
+}
+
 .boardwrapper, .trap, .control, .control, .marker, .sound_selection {
 	border-radius: 8px;
 	-webkit-border-radius: 8px;

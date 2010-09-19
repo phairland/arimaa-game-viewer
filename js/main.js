@@ -760,7 +760,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
       if(code === 37 /* left */ || code === 38 /* up */) {
       	show_previous();
       }
-
+      
       //GENERIC.log(code);
       //if(code === 38) import_game(); // for debugging purposes quick importing
       
@@ -774,7 +774,13 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
       	set_singleton_to_before();
       }
       
-      GENERIC.log(code);
+      if(code === 80) { // p
+      	var foo = prettyPrint(gametree.get_initial_nodehandle());
+      	debugInfo();
+      	$('.debug').toggleClass('shown');
+      }
+      
+      //console.log(code);
 
       // home key
       if(code === 36) {
@@ -802,6 +808,15 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
       	return false;
       }
     });
+  }
+  
+  function debugInfo() {
+  	var debug = $('.debug').html('');
+  	function add(value) {
+  		debug.append(prettyPrint(value));
+  	}
+  	add("current_move_index: " + current_move_index);
+  	add("current_id: " + viewer.current_id());
   }
   
   function set_singleton_to_before() {
@@ -1235,7 +1250,6 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 			}
 		});
 
-		
 		/*
 	  domtree.bind("deselect_node.jstree", function(event, data) {
 	  	var node = data.rslt.obj;

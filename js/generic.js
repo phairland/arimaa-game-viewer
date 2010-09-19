@@ -25,8 +25,8 @@ var GENERIC = GENERIC || function() {
   
   var show_alert = true;
   
-  function log(message) {
-  	if(ARIMAA_DEBUG_ON && console !== undefined) console.log(message); 
+  function log(message, value1, value2) {
+  	if(ARIMAA_DEBUG_ON && console !== undefined) console.log(message, value1 !== undefined ? value1 : "", value2 !== undefined ? value2 : ""); 
   	else if(show_alert) {
   		alert("got message (after which I say nothing: " + message);
   		show_alert = false;
