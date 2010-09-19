@@ -251,6 +251,14 @@ function create_gametree() {
 		var deleted = [];
 		
 		if(!node.moves_from_node || node.moves_from_node.length === 0) {
+			// remove move from its predessor to this node
+			node.previous_nodehandle.moves_from_node.splice(node.move_index_from_previous, node.move_index_from_previous + 1);
+
+			for(var i = node.move_index_from_previous;
+							i < node.previous_nodehandle.moves_from_node.length; ++i) {
+				node.previous_nodehandle.moves_from_node[i].nodehandle_after_move.move_index_from_previous--; // decrease the index
+			}
+			
 			return "singleton";
 		}
 		
@@ -277,8 +285,8 @@ function create_gametree() {
 		node.moves_from_node[move_index] = move_to;
 		
 		// swap indexes info for nodes (info)
-		move_to.nodehandle_after_move.index_from_previous = move_index - 1;
-		move_from.nodehandle_after_move.index_from_previous = move_index;
+		move_to.nodehandle_after_move.move_index_from_previous = move_index - 1;
+		move_from.nodehandle_after_move.move_index_from_previous = move_index;
 		
 		return true;
 	}
@@ -299,8 +307,8 @@ function create_gametree() {
 		node.moves_from_node[move_index] = move_to;
 		
 		// swap indexes info for nodes (info)
-		move_to.nodehandle_after_move.index_from_previous = move_index + 1;
-		move_from.nodehandle_after_move.index_from_previous = move_index;
+		move_to.nodehandle_after_move.move_index_from_previous = move_index + 1;
+		move_from.nodehandle_after_move.move_index_from_previous = move_index;
 		
 		return true;
 	}

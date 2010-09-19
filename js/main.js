@@ -1012,7 +1012,6 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 			// then global id/move_index pointers wouldn't be at this node
 		}
 		
-		var prev = gametree.previous_nodeid(viewer.current_id());
 		var deleted = gametree.delete_position(viewer.current_id(), current_move_index);
 		GENERIC.log(deleted);
 		
@@ -1020,9 +1019,19 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 			alert('Deleting main line position is not possible.');
 			return;
 		}
+
+		var prev = gametree.previous_nodeid(viewer.current_id());
+
 		if(deleted === "singleton") {
+			//var prev =  gametree.previous_nodeid(prev);
 			var del_dom = $('.gametree li[after="' + viewer.current_id() + '"]');
 			//FIXME: now the previous might be singleton, so should be visually updated
+			//console.log("singleton");
+			var prev_dom_node = $('.gametree li[after="' + prev + '"]');
+			//var prev_dom_node = $('#' + prev + "_0");
+			var prefix = gametree.select_node(prev).gamestate.turn.side.slice(0, 1);
+			domtree.jstree('set_type', prefix + 'singletonbefore', prev_dom_node);
+			current_move_index = gametree.select_node(prev).move_index_from_previous;
 		} else {
 			//FIXME: delete moves after that node also (continuations)
 			var del_dom = $('#' + viewer.current_id() + "_" + current_move_index);
@@ -1034,13 +1043,15 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 				to_be_removed = elem.attr('after');
 				domtree.jstree('delete_node', elem);
 			}
+
+			current_move_index = 0;		
 		}
 		
 		// remove the selected move
 		domtree.jstree('delete_node', del_dom);
 		
 		current_domtree_node = $('#' + prev + "_0"); 
-		current_move_index = 0;
+
 		show_board();
 		update_selected_nodehandle_view();
 	}
