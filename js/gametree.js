@@ -253,29 +253,36 @@ function create_gametree() {
 	
 	function delete_position(node_id, move_index) {
 		var node = select_node(node_id);
-		GENERIC.log("delete?", node, move_index);
+		console.log("delete?", node_id, move_index);
+		console.log(node);
 		if(!!node.main_line && move_index === 0) return false;
 		var deleted = [];
 		
-		if(!node.moves_from_node || node.moves_from_node.length === 0) {
-			// remove move from its predessor to this node
-			node.previous_nodehandle.moves_from_node.splice(node.move_index_from_previous, node.move_index_from_previous + 1);
+		if(node.moves_from_node.length === 0) {
+			throw "not supported to delete singletonafter)";
+		} else if(node.moves_from_node.length === 1) {
+			console.log("only");
+		}		
 
-			for(var i = node.move_index_from_previous;
-							i < node.previous_nodehandle.moves_from_node.length; ++i) {
-				node.previous_nodehandle.moves_from_node[i].nodehandle_after_move.move_index_from_previous--; // decrease the index
+		if(move_index > 0) {
+			// removing subvariation wholly
+			for(var i = move_index + 1; i < node.moves_from_node.length; ++i) {
+				// moves after deleted one will be indexed earlier after the splice that follows later
+				node.moves_from_node[i].nodehandle_after_move.move_index_from_previous--;
 			}
-			
-			return "singleton";
+	
+			node.moves_from_node.splice(move_index, move_index);
+			return node
+		} else { // move_index === 0
+			//console.log("removing continuation");
+			for(var i = move_index + 1; i < node.moves_from_node.length; ++i) {
+				// moves after deleted one will be indexed earlier after the splice that follows later
+				node.moves_from_node[i].nodehandle_after_move.move_index_from_previous--;
+			}
+	
+			node.moves_from_node.splice(move_index, move_index + 1);
+			return node
 		}
-		
-		for(var i = move_index; i < node.moves_from_node.length; ++i) {
-			// moves after deleted one will be indexed earlier after the splice that follows later
-			node.moves_from_node[i].move_index_from_previous--;
-		}
-		
-		node.moves_from_node.splice(move_index, move_index + 1);
-		return node
 	}
 	
 	function move_variation_up(node_id, move_index) {

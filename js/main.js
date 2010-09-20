@@ -377,6 +377,9 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 
 		if(node.moves_from_node.length > 0) {
 			function show_fun() {
+				console.log("node", node);
+				console.log("move_index", move_index);
+				console.log("node.moves", node.moves_from_node.length);
 				var steps = node.moves_from_node[move_index].steps;
 				show_steps_slowly(steps, nodeid, move_index);
 			}
@@ -832,13 +835,26 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		//console.log("delete", id, move_index);
 
 		if(move_index > 0) {
+			// we're deleting a "root" subvariation (not continuation)
 			var prev = id;
 			var prev_move_index = 0; // same id, different move_index
 			var prev_node = gametree.select_node(prev);
+
+			/**
+				Sibling variations after deleted node must have their move_index changed
+			*/
+			var before_deletion = function() {
+				// start from sibling, ignore one that is deleted
+				for(var i = move_index + 1; i < prev_node.moves_from_node.length; ++i) {
+					console.log("changing index: ", i); 
+					$(getSelectorForNode(id, i)).attr('move_index', i - 1); 				
+				}
+			}
 		} else {
+			var before_deletion = function() { }
 			var prev = gametree.previous_nodeid(id);
 			var prev_node = gametree.select_node(prev);
-			var prev_move_index = cur_node.move_index_from_previous;		
+			var prev_move_index = cur_node.move_index_from_previous;
 		}
 
 		var prev_dom_node = getNode(prev, prev_move_index);
@@ -873,8 +889,11 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		  if(deletable_node.moves_from_node.length === 0) breakNextRound = true;
 		  deletable_move_index = 0; // after first round: 0 index, i.e. continuation
 		}
+		
+		// additional DOM manipulation before changes to model
+		before_deletion();
 
-		// DELETE FROM MODEL ONLY AFTER DOM so we can use the old data from model for deleting in DOM
+		// DELETE FROM MODEL ONLY AFTER DOM so we can use the old data from model for deleting in DOM		
 		var deleted = gametree.delete_position(id, move_index);
 		if(!deleted) throw "problem: model didn't delete data";
 
@@ -889,7 +908,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		
 		current_domtree_node = prev_dom_node;
 		current_move_index = prev_move_index;
-		
+				
     goto_node_and_update_treeview(prev);
 		show_board();
 	}
