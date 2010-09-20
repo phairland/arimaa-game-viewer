@@ -35,7 +35,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 
 		// FIXME: add move number		
 		var variation_name = 
-			" | " + turn_prefix(current_nodehandle.gamestate.turn) + " " + get_stepbuffer_as_notated();
+			" | " + turn_prefix_from_node(current_nodehandle) + " " + get_stepbuffer_as_notated();
 			
 		var move = {
 			'id': variation_name, 
@@ -569,7 +569,8 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		$('.debug').html('');
 		debug({
 				"current_id: ": viewer.current_id(),
-				"current_move_index": current_move_index
+				"current_move_index": current_move_index,
+				"stepbuffer": stepbuffer
 		});
 		$('.debug').addClass('shown');
 	}
@@ -821,54 +822,74 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	function delete_position(contextmenu_node) {
 		if(showing_slowly) return;
 
-		var move_index = moveIndex(contextmenu_node);
 		var id = nodeId(contextmenu_node);
+		var move_index = moveIndex(contextmenu_node);
 
 		GENERIC.log("clicked_node", id, move_index);
 
-		if(viewer.current_id() !== id || current_move_index !== move_index) {
-			contextmenu_node.click(); // this is only precaution in case the configuration
-			// for right clicking contextmenu wouldn't select the node
-			// then global id/move_index pointers wouldn't be at this node
-		}
-		
-		var deleted = gametree.delete_position(viewer.current_id(), current_move_index);
-		GENERIC.log(deleted);
-		
-		if(!deleted) {
-			alert('Deleting main line position is not possible.');
-			return;
-		}
+		var cur_node = gametree.select_node(id);
 
-		var prev = gametree.previous_nodeid(viewer.current_id());
+		//console.log("delete", id, move_index);
 
-		if(deleted === "singleton") {
-			//var prev =  gametree.previous_nodeid(prev);
-			var del_dom = $('.gametree li[after="' + viewer.current_id() + '"]');
-			//FIXME: now the previous might be singleton, so should be visually updated
-			var prev_dom_node = $('.gametree li[after="' + prev + '"]');
-			var prefix = turn_prefix_from_node(gametree.select_node(prev));
-			domtree.jstree('set_type', prefix + 'singletonbefore', prev_dom_node);
-			current_move_index = gametree.select_node(prev).move_index_from_previous;
+		if(move_index > 0) {
+			var prev = id;
+			var prev_move_index = 0; // same id, different move_index
+			var prev_node = gametree.select_node(prev);
 		} else {
-			//FIXME: delete moves after that node also (continuations)
-			var del_dom = getNode(viewer.current_id(), current_move_index);
-			var to_be_removed = del_dom.attr('after');
-			
-			// remove all continuation moves
-			while(!!to_be_removed) {
-				var elem = getNode(to_be_removed, 0);
-				to_be_removed = elem.attr('after');
-				domtree.jstree('delete_node', elem);
-			}
+			var prev = gametree.previous_nodeid(id);
+			var prev_node = gametree.select_node(prev);
+			var prev_move_index = cur_node.move_index_from_previous;		
+		}
 
-			current_move_index = 0;		
+		var prev_dom_node = getNode(prev, prev_move_index);
+		
+		/*
+		console.log("prev", prev, prev_move_index);
+		console.log(prev_node);
+		console.log(prev_dom_node);
+		*/
+
+		var deletable_id = id;
+		var deletable_move_index = move_index;
+
+/*		
+		console.log("deletable", deletable_id, deletable_move_index);
+		console.log(getNode(deletable_id, deletable_move_index));
+*/
+
+		var breakNextRound = false;
+		
+		/**
+		Go through all the continuation moves (starting with the deletable, though)
+		and delete them one by one.
+		*/
+		while(true) {
+		  var deletable_dom_node = getNode(deletable_id, deletable_move_index);
+		  //console.log("deletable_dom_node", deletable_dom_node);
+		  domtree.jstree('delete_node', deletable_dom_node);
+		  if(breakNextRound) break;
+		  deletable_id = gametree.next_nodeid(deletable_id, deletable_move_index);
+		  var deletable_node = gametree.select_node(deletable_id);
+		  if(deletable_node.moves_from_node.length === 0) breakNextRound = true;
+		  deletable_move_index = 0; // after first round: 0 index, i.e. continuation
+		}
+
+		// DELETE FROM MODEL ONLY AFTER DOM so we can use the old data from model for deleting in DOM
+		var deleted = gametree.delete_position(id, move_index);
+		if(!deleted) throw "problem: model didn't delete data";
+
+		// if the new selection becomes singleton node after deletion, set it so		
+		if(is_node_singleton_before(prev, prev_move_index, gametree)) {
+  		var prefix = turn_prefix_from_node(prev_node); 
+	  	domtree.jstree('set_type', prefix + 'singletonbefore', prev_dom_node);
+	  } else {
+			// there's no after position
+			getNode(prev_node, prev_move_index).removeAttr('after');
 		}
 		
-		// remove the selected move
-		domtree.jstree('delete_node', del_dom);
-		current_domtree_node = getNode(prev, 0);
-
+		current_domtree_node = prev_dom_node;
+		current_move_index = prev_move_index;
+		
     goto_node_and_update_treeview(prev);
 		show_board();
 	}

@@ -67,7 +67,9 @@
 	*/
 
 	function can_delete(node) {
-		//return gametree.select_node(nodeId(node)
+		// nodes that are not part of main line can be deleted
+		// notice that checking move index is necessarily, cause they are direct
+		// variations to main line and are ok to be deleted
 		return !gametree.select_node(nodeId(node)).main_line 
 					 || moveIndex(node) !== 0;
 	}
@@ -140,7 +142,7 @@
 				"contextmenu": {
 					'items': custom_contextmenu_fun,
 					'show_at_node': true,
-					'select_node': true
+					'select_node': false
 				},
 				/*
 				"crrm": { "move": drag_and_drop_move },
