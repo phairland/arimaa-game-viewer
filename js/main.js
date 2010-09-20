@@ -662,42 +662,62 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		// move_index 0 means that it's not variation but continuation
 		// and index 1 means it's already the first variation
 		if(move_index === 0 || move_index === 1) { return; } 
+
+		/**
+		  The following algorithm is a bit tricky. Should be refactored. 
+		  Basic functionality is the same as in move_variation_down.
+		  Conceptually we move node with node with move_index + 1 to move_index
+		  but in actuality we move nodes from top to the bottom so that we can use
+		  same kind of code as in move_variation_down. 
+		  Basically, we swap the meaning of from as to when considering DOM nodes, except
+		  that we have to change their indexes.		 
+		*/		
+		var to_node_after_node = gametree.next_nodeid(id, move_index);
+		
+		if(gametree.select_node(to_node_after_node).moves_from_node.length > 0) {
+		  var last_node_id = gametree_utils.get_last_node_with_moves_in_line(to_node_after_node).id;
+		  var last_node = getNode(last_node_id, 0);
+		} else {
+			var last_node_id = id; //to_node_after_node;
+			var last_node = getNode(last_node_id, move_index); 			
+		}
+
 		var moved = gametree.move_variation_up(id, move_index);
 		if(!moved) return;
 		
-		// TODO: we need to change move_index in the domnode id
-
 		var to_node = getNode(id, move_index - 1);
-		
+
 		// change the move_indexes (their nodeid attribute is already same)
 		node.attr('move_index', move_index - 1);
 		to_node.attr('move_index', move_index);
-		
-		domtree.jstree('move_node', node, to_node, "before", 
-									  false /* is copy */, false /* is prepared */, true /*skip check */);
 
+		// id_counter goes through the "from" variation list
+		// but notice that since the actual change in data structure has been done
+		// we would have to reference to it with move_index - 1 BUT since we actually want
+    // to swap the meaning of from and to for the algorithm, the move_index is the same		
+		var id_counter = gametree.next_nodeid(id, move_index);
+		var obj = to_node; // obj is the actual movable variation node
+		
+		var breakNextTime = false;
+		do {
+			// moves obj to the end of the "to" variation list
+			domtree.jstree('move_node', obj, last_node, "after", 
+									  false /* is copy */, false /* is prepared */, true /*skip check */);
+			
+			if(breakNextTime) break;
+			var cur_node = gametree.select_node(id_counter);
+			if(cur_node.moves_from_node.length === 0) { breakNextTime = true; }
+			last_node = obj; //o obj is the new end of the variation
+			obj = getNode(id_counter, 0 /* direct continuation */);
+			var id_counter = gametree.next_nodeid(id_counter, 0); // 0 move_index since main line of variation
+		} while(true)
+		
+		current_move_index = move_index - 1;
 		current_domtree_node = getNode(id, move_index - 1);
 		
 		show_board();
 		update_selected_nodehandle_view();
 	}
-	
-	$(function() {
-			$('.gametree').bind('move_node.jstree', function(data) {
-					//console.log("move_node event", data);
-			});
-
-				/*
-			$('.gametree li').live('click', function() {
-					var id = nodeId($(this));
-					console.log(id);
-					var previd = gametree.previous_nodeid(id);
-					console.log("previd", previd);
-					var to = getNode(previd, 0);
-					console.log("to", to);
-			});
-					*/
-	});
 	
 	function move_variation_down(node) {
 		GENERIC.log("move var down", node);
@@ -711,21 +731,15 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		if(move_index === 0) { return; } 
 
 		var to_node_after_node = gametree.next_nodeid(id, move_index + 1);
-		console.log("to", getNode(to_node_after_node, 0));
 		
 		if(gametree.select_node(to_node_after_node).moves_from_node.length > 0) {
-			console.log("> 0");
 		  var last_node_id = gametree_utils.get_last_node_with_moves_in_line(to_node_after_node).id;
 		  var last_node = getNode(last_node_id, 0);
 		} else {
-			//console.log("== 0", to_node_after_node);
 			var last_node_id = id; //to_node_after_node;
 			var last_node = getNode(last_node_id, move_index + 1);			
 		}
 
-	  console.log("last_node_id", last_node_id);
-		console.log("last_node", last_node);
-		
 		var moved = gametree.move_variation_down(id, move_index);
 		if(!moved) return;
 		
@@ -832,9 +846,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 			//var prev =  gametree.previous_nodeid(prev);
 			var del_dom = $('.gametree li[after="' + viewer.current_id() + '"]');
 			//FIXME: now the previous might be singleton, so should be visually updated
-			//console.log("singleton");
 			var prev_dom_node = $('.gametree li[after="' + prev + '"]');
-			//var prev_dom_node = $('#' + prev + "_0");
 			var prefix = turn_prefix_from_node(gametree.select_node(prev));
 			domtree.jstree('set_type', prefix + 'singletonbefore', prev_dom_node);
 			current_move_index = gametree.select_node(prev).move_index_from_previous;

@@ -5,12 +5,9 @@ function create_gametree_utils(gametree) {
 	function get_last_node_with_moves_in_line(id) {
 		var node = gametree.select_node(id);
 
-		console.log("node", node);
-
 		while(node.moves_from_node.length > 0) {
 			if(node.moves_from_node[0].nodehandle_after_move.moves_from_node.length > 0) {
 				node = node.moves_from_node[0].nodehandle_after_move;
-				console.log("next node", node);
 			} else break;
 		}
 		
