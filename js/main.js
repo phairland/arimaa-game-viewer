@@ -377,9 +377,6 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 
 		if(node.moves_from_node.length > 0) {
 			function show_fun() {
-				console.log("node", node);
-				console.log("move_index", move_index);
-				console.log("node.moves", node.moves_from_node.length);
 				var steps = node.moves_from_node[move_index].steps;
 				show_steps_slowly(steps, nodeid, move_index);
 			}
@@ -846,7 +843,6 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 			var before_deletion = function() {
 				// start from sibling, ignore one that is deleted
 				for(var i = move_index + 1; i < prev_node.moves_from_node.length; ++i) {
-					console.log("changing index: ", i); 
 					$(getSelectorForNode(id, i)).attr('move_index', i - 1); 				
 				}
 			}

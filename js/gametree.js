@@ -253,16 +253,12 @@ function create_gametree() {
 	
 	function delete_position(node_id, move_index) {
 		var node = select_node(node_id);
-		console.log("delete?", node_id, move_index);
-		console.log(node);
 		if(!!node.main_line && move_index === 0) return false;
 		var deleted = [];
 		
 		if(node.moves_from_node.length === 0) {
 			throw "not supported to delete singletonafter)";
-		} else if(node.moves_from_node.length === 1) {
-			console.log("only");
-		}		
+		} 	
 
 		if(move_index > 0) {
 			// removing subvariation wholly
