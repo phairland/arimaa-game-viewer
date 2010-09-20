@@ -1,7 +1,7 @@
 
 var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	var show_step_delay = 400; // milliseconds between steps
-	var domtree, gametree, viewer;
+	var domtree, gametree, viewer, gametree_utils;
 	var marking_handler, arrow_handler;
 	var current_move_index = 0;
 	var current_domtree_node = undefined;
@@ -35,7 +35,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 
 		// FIXME: add move number		
 		var variation_name = 
-			turn_prefix(current_nodehandle.gamestate.turn) + " " + get_stepbuffer_as_notated();
+			" | " + turn_prefix(current_nodehandle.gamestate.turn) + " " + get_stepbuffer_as_notated();
 			
 		var move = {
 			'id': variation_name, 
@@ -614,6 +614,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	function create_tree_and_viewer(domtree) {
   	gametree = create_gametree();
   	viewer = create_viewer(gametree, domtree);
+  	gametree_utils = create_gametree_utils(gametree);
   	marking_handler = create_marking_handler(gametree, viewer);
   	arrow_handler = create_arrow_handler(gametree, viewer);
   	current_domtree_node = domtree.jstree('get_selected');
@@ -708,6 +709,23 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		// move_index 0 means that it's not variation but continuation
 		// do we need to check whether it's last or is it enough in gametree?
 		if(move_index === 0) { return; } 
+
+		var to_node_after_node = gametree.next_nodeid(id, move_index + 1);
+		console.log("to", getNode(to_node_after_node, 0));
+		
+		if(gametree.select_node(to_node_after_node).moves_from_node.length > 0) {
+			console.log("> 0");
+		  var last_node_id = gametree_utils.get_last_node_with_moves_in_line(to_node_after_node).id;
+		  var last_node = getNode(last_node_id, 0);
+		} else {
+			//console.log("== 0", to_node_after_node);
+			var last_node_id = id; //to_node_after_node;
+			var last_node = getNode(last_node_id, move_index + 1);			
+		}
+
+	  console.log("last_node_id", last_node_id);
+		console.log("last_node", last_node);
+		
 		var moved = gametree.move_variation_down(id, move_index);
 		if(!moved) return;
 		
@@ -715,29 +733,36 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		
 		// ACTUALLY this should be changed to to_node's last direct continuation
 		var to_node = getNode(id, move_index + 1);
+		
 		GENERIC.log("from and to", node, to_node);
 
 		// change the move_indexes (their nodeid attribute is already same)
 		node.attr('move_index', move_index + 1);
 		to_node.attr('move_index', move_index);
+
+		// id_counter goes through the "from" variation list
+		// but notice that since the actual change in data structure has been done
+		// we must reference to it with move_index + 1		
+		var id_counter = gametree.next_nodeid(id, move_index + 1);
+		var obj = node; // obj is the actual movable variation node
 		
-		var id_counter = id;
-		var obj = node;
-		
+		var breakNextTime = false;
 		do {
-			domtree.jstree('move_node', obj, to_node, "after", 
+			// moves obj to the end of the "to" variation list
+			domtree.jstree('move_node', obj, last_node, "after", 
 									  false /* is copy */, false /* is prepared */, true /*skip check */);
-			var id_counter = gametree.next_nodeid(id_counter, move_index + 1);
-			var cur_node = gametree.select_node(id_counter);
 			
-			if(cur_node.moves_from_node.length === 0) break;
-			to_node = obj;
-			cur_node = gametree.select_node(id_counter);
-			obj = getNode(id_counter, 0 /* direct continuatin */);
+			if(breakNextTime) break;
+			var cur_node = gametree.select_node(id_counter);
+			if(cur_node.moves_from_node.length === 0) { breakNextTime = true; }
+			last_node = obj; //o obj is the new end of the variation
+			obj = getNode(id_counter, 0 /* direct continuation */);
+			var id_counter = gametree.next_nodeid(id_counter, 0); // 0 move_index since main line of variation
 		} while(true)
 		
 		current_move_index = move_index + 1;
-		current_domtree_node = node;
+		current_domtree_node = getNode(id, move_index + 1);
+		
 		show_board();
 		update_selected_nodehandle_view();
 	}
@@ -858,7 +883,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		
 		current_move_index = moveIndex(elem); 
 		current_domtree_node = elem;
-		console.log("current = elem");
+
 		viewer.gametree_goto(id);
 		show_board();
 		update_selected_nodehandle_view(false /* don't move scrollbar*/); // should this be done here?

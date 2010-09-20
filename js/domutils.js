@@ -3,6 +3,7 @@
 */
 
 	function getSelectorForNode(nodeid, move_index) {
+		if(move_index === undefined || move_index === "") throw "move_index invalid: " + move_index;
 	  return 'li[nodeid="'+nodeid.toString()+'"][move_index="' + move_index.toString() + '"]';
 	}
 	

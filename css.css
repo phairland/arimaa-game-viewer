@@ -61,7 +61,7 @@
 }
 
 .jstree-clicked /*, .treemove_hover, .treeicon_hover   slows down a bit*/ {
-	font-size: 1.5em;
+	/* font-size: 1.5em; */
 }
 
 .treeicon_hover {
