@@ -42,6 +42,14 @@
     <!-- <source src="sounds/step.ogg" type="audio/ogg"> -->
   </audio>
 
+  <!-- Shadows for showing what next step is -->
+  <div id="shadow_elephant" class="shadow_piece"><img src="pics/shadow_elephant.png" /></div>
+  <div id="shadow_camel" class="shadow_piece"><img src="pics/shadow_camel.png" /></div>
+  <div id="shadow_horse" class="shadow_piece"><img src="pics/shadow_horse.png" /></div>
+  <div id="shadow_dog" class="shadow_piece"><img src="pics/shadow_dog.png" /></div>
+  <div id="shadow_cat" class="shadow_piece"><img src="pics/shadow_cat.png" /></div>
+
+	<!-- Arrows for making new move -->  
   <div id="arrow_up" class="arrow"><img src="pics/arrow_up.png" class="arrownormal" /><img src="pics/arrow_up_selected.png" class="arrowhover"/></div>
   <div id="arrow_down" class="arrow"><img src="pics/arrow_down.png" class="arrownormal" /><img src="pics/arrow_down_selected.png" class="arrowhover"/></div>
   <div id="arrow_left" class="arrow"><img src="pics/arrow_left.png" class="arrownormal" /><img src="pics/arrow_left_selected.png" class="arrowhover"/></div>
@@ -61,6 +69,11 @@
 				<span class="sound_selection">
 				  <label for="sound_on">Sounds (experimental)</label>
 				  <input id="sound_on" type="checkbox" />
+				</span>
+
+				<span class="shadow_selection">
+				  <label for="shadow_on">Show shadow for next</label>
+				  <input id="shadow_on" type="checkbox" checked="checked"/>
 				</span>
 				
 				<button class="prev control"><img src="pics/arrow_left.png"/></button>

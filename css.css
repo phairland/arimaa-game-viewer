@@ -14,7 +14,7 @@
 	display: block;
 }
 
-.boardwrapper, .trap, .control, .control, .marker, .sound_selection {
+.boardwrapper, .trap, .control, .control, .marker, .sound_selection, .shadow_selection {
 	border-radius: 8px;
 	-webkit-border-radius: 8px;
 	-moz-border-radius: 8px;
@@ -39,7 +39,7 @@
 }
 	
 
-.sound_selection {
+.sound_selection, .shadow_selection {
 	float: left;
 	padding: 5px; margin: 5px; 
 	background-color: #99ff66; color: black; 
@@ -184,6 +184,9 @@ h1 { color: gray; font-family: Verdana;  margin: 15px; font-size: 1.0em; }
 .board {
 	float: left; width: 450px; margin: 0px: border: 1px white solid; background-color: brown;
 }
+
+.shadow_piece { position: absolute; width: 35px; height: 35px; display: none; }
+.shadow_piece img { width: 100%; }
 
 .square { width: 50px; height: 50px; padding: 2px; border: 1px #ddd solid; background-color: #bbb; float: left; }
 

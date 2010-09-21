@@ -808,12 +808,17 @@ var TRANSLATOR = TRANSLATOR || function() {
 		var body = read_body(tokens);
 	}
 	
+	function get_piece_from_notation(notation) {
+		return get_piece(notation.charAt(0));
+	}
+	
 	return {
 		'convert_FAN_to_AST': convert_FAN_to_AST,
 		'convert_from_gametree': convert_from_gametree,
 	  'convert_to_gametree': convert_to_gametree,
 	  'convert_notated_step_to_coordinates': convert_notated_step_to_coordinates,
-	  'get_step_as_notated': get_step_as_notated
+	  'get_step_as_notated': get_step_as_notated,
+	  'get_piece_from_notation': get_piece_from_notation
 	};
 }();
 

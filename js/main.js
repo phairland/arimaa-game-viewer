@@ -1,5 +1,6 @@
 
 var ARIMAA_MAIN = ARIMAA_MAIN || function() {
+	var shadow_on = true; // whether show next move as shadow
 	var show_step_delay = 400; // milliseconds between steps
 	var domtree, gametree, viewer, gametree_utils;
 	var marking_handler, arrow_handler;
@@ -19,6 +20,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		// step = { 'from': selected, 'to': new_coordinate, 'piece': piece }
 		step.notated = TRANSLATOR.get_step_as_notated(step);
 		stepbuffer.push(step);
+		hide_shadow_pieces();
 	}	
 
 	function get_stepbuffer_as_notated() {
@@ -321,7 +323,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 				}
 				
 				showing_slowly = false;
-				goto_node_and_update_treeview(cur_node);				
+				goto_node_and_update_treeview(cur_node);
 				return;
 			}	else if(moves_from_current.length === 1) { // this is singleton 'before' position
 
@@ -343,7 +345,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 					}
 					
 					showing_slowly = false;
-					goto_node_and_update_treeview(cur_node);					
+					goto_node_and_update_treeview(cur_node);
 					return;
 				}
 			}
@@ -356,9 +358,11 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 			showing_slowly = false;
 
 			goto_node_and_update_treeview(cur_node);
+			show_board();
 			return;
 		}
 
+		//if(steps[1] !== undefined) show_shadow_piece_at(steps[1].notated, steps[1].to.row, steps[1].to.col);
 		show_step(steps[0]);
 		setTimeout(function() {
 				if(showing_slowly) show_steps_slowly(steps.slice(1), nodeid, move_index); 
@@ -371,7 +375,9 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 
 	function show_move_slowly(nodeid, move_index) {
 		if(showing_slowly) return;
-		showing_slowly = true;
+		showing_slowly = true; // only at this point if we want to show_board which contains show_shadow
+
+		hide_shadow_pieces();
 		
 		var node = gametree.select_node(nodeid);
 
@@ -392,7 +398,6 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 				show_fun();
 			}
 		} else {
-			showing_slowly = false;
 			GENERIC.log("no moves from current node");
 		}		 
 	}
@@ -402,6 +407,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	}
 
 	function show_variation(move_index) {
+		hide_shadow_pieces();
 		showing_slowly = false;
 		var cur_node = get_current_node();
 		if(move_index >= cur_node.moves_from_node.length) {
@@ -417,7 +423,6 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		undo_all_steps();
 		
 		goto_node_and_update_treeview(nextid);
-		show_board();
 		
 		// NOTE! current_gametree_id has been updated by gametree_goto
 		var node_now = get_current_node();
@@ -437,6 +442,8 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 			GENERIC.log("new cur domtree node", current_domtree_node);
 			update_selected_nodehandle_view();
 		}
+		
+		show_board();
 	}
 
 	function show_previous() {
@@ -782,8 +789,56 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		update_selected_nodehandle_view();
 	}
 	
+	function show_shadow_piece(move) {
+		hide_shadow_pieces();
+		
+		if(showing_slowly || stepbuffer.length > 0) return;
+
+		if(!move) return;
+		var step = move.steps[0];
+		
+		if(step.from !== undefined) {
+			show_shadow_notatedpiece_at(step.notated, step.from.row, step.from.col, step.to.row, step.to.col);
+		}		
+	}
+
+	function hide_shadow_pieces() {	$('.shadow_piece:visible').hide(); }
+	
+	function show_shadow_notatedpiece_at(piece, from_row, from_col, row, col) {		
+		var piece_name = TRANSLATOR.get_piece_from_notation(piece).type;
+		show_shadow_piece_at(piece_name, from_row, from_col, row, col);
+	}
+	
+	function show_shadow_piece_at(piece_name, from_row, from_col, row, col) {		
+		hide_shadow_pieces();
+		if(!shadow_on) return;
+		
+//		console.log(piece_name, row, col);
+		var square = get_square(row, col);
+		
+		if(square.length === 0) return;
+		
+		var shadowPiece = $('#shadow_' + piece_name);
+
+		var dir_y = row - from_row;
+		var dir_x = col - from_col;
+		var normalized_dir_y = dir_y / (Math.abs(dir_y)+0.1);		
+		var normalized_dir_x = dir_x / (Math.abs(dir_x)+0.1);
+
+		var direction_amount = -20;
+		
+		shadowPiece
+		  .css('left', square.offset().left + square.width()/2 - shadowPiece.width()/2 + normalized_dir_x * direction_amount)
+		  .css('top', square.offset().top + square.height()/2 - shadowPiece.height()/2  + normalized_dir_y * direction_amount)
+		  .show();
+
+		var pieceElem = square;
+		var clone = pieceElem.clone();
+	}	
+	
 	function show_board() {
 		var cur_move = get_current_node().moves_from_node[current_move_index];
+		show_shadow_piece(cur_move);
 		show_current_position_info(viewer.gamestate(), get_current_node(), cur_move);
 		show_dom_board(viewer.board(), viewer.gamestate());
 		marking_handler.show_markers();
@@ -953,6 +1008,12 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 			if(marking_handler.is_marker_selected()) {
 				marking_handler.unhover_marker($(this));
 			}
+		});
+		
+		$('#shadow_on').click(function() {
+			shadow_on = $(this).is(':checked');
+			var cur_move = get_current_node().moves_from_node[current_move_index];
+			show_shadow_piece(cur_move);
 		});
 		
 		$('.clear_markers_control').click(function() {

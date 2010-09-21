@@ -1,3 +1,7 @@
+	function get_square(row, col) {
+		return $('.row').eq(row).find('.square').eq(col);
+	}
+
 	function show_comments_for_move(move) {
 		var text = !!move ? move.comment || "" : "";
   	$('.comments_for_move').val(text);
