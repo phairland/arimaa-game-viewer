@@ -8,13 +8,22 @@ var TRANSLATOR = TRANSLATOR || function() {
 		return moves;
 	}
 
+	function isCamel(piece) {
+		return piece.type === "camel";
+	}
+	
+	function get_piece_shorthand(piece) {
+		var character = isCamel(piece) ? "m" : piece.type.slice(0, 1);
+	  return piece.side === ARIMAA.gold ? character.toUpperCase() : character.toLowerCase();
+	}
+
 	/**
 	 get step-object as notated text
 	*/
 	function get_step_as_notated(step) {
 		if(step.type === "pass") return "";
 		if(step.type === "setting") {
-			step.piece.type.slice(0, 1) + 
+			get_piece_shorthand(step.piece) + 
 			GENERIC.intToChar(GENERIC.charToInt('a')+step.from.col) + step.from.row;			
 		} else {
 			// normal move
@@ -22,7 +31,7 @@ var TRANSLATOR = TRANSLATOR || function() {
 			var y_d = step.to.row - step.from.row;
 			var direction = x_d > 0 ? "e" : x_d < 0 ? "w" : y_d < 0 ? "n" : "s"; 
 			
-			return 	step.piece.type.slice(0, 1) + 
+			return 	get_piece_shorthand(step.piece) + 
 							GENERIC.intToChar(GENERIC.charToInt('a')+step.from.col) +
 							step.from.row +	direction;
 		}									

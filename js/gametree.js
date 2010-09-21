@@ -270,7 +270,7 @@ function create_gametree() {
 			node.moves_from_node.splice(move_index, move_index);
 			return node
 		} else { // move_index === 0
-			//console.log("removing continuation");
+			// removing continuation
 			for(var i = move_index + 1; i < node.moves_from_node.length; ++i) {
 				// moves after deleted one will be indexed earlier after the splice that follows later
 				node.moves_from_node[i].nodehandle_after_move.move_index_from_previous--;
