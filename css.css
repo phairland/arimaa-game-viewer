@@ -136,7 +136,7 @@ h1 { color: gray; font-family: Verdana;  margin: 15px; font-size: 1.0em; }
 
 .selected {	border: 1px red solid !important; }
 
-.arrow { 	padding: 0px; margin: 0px; border: 0px; 	position: absolute; 	display: none; }
+.arrow { 	padding: 0px; margin: 0px; border: 0px; 	position: absolute; z-index: 2000; display: none; }
 
 .nodeinfobox { width: 210px; float: right; margin: 2px; margin-right: 25px; }
 .nodeinfobox p { font-size: 0.9em; margin: 10px 5px 5px 5px; }
