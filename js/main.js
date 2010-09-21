@@ -795,46 +795,53 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		if(showing_slowly || stepbuffer.length > 0) return;
 
 		if(!move) return;
-		var step = move.steps[0];
-		
-		if(step.from !== undefined) {
-			show_shadow_notatedpiece_at(step.notated, step.from.row, step.from.col, step.to.row, step.to.col);
-		}		
+
+		for(var i = 0; i < move.steps.length; ++i) {
+			var step = move.steps[i];
+			
+			if(!!step.from) {
+				show_shadow_notatedpiece_at(step.notated, step.from.row, step.from.col, step.to.row, step.to.col, i);
+			}
+		}
 	}
 
-	function hide_shadow_pieces() {	$('.shadow_piece:visible').hide(); }
-	
-	function show_shadow_notatedpiece_at(piece, from_row, from_col, row, col) {		
-		var piece_name = TRANSLATOR.get_piece_from_notation(piece).type;
-		show_shadow_piece_at(piece_name, from_row, from_col, row, col);
+	function hide_shadow_pieces() {
+		$('.shadow_piece[cloned]').remove();
+		$('.shadow_piece:visible').hide(); 
 	}
 	
-	function show_shadow_piece_at(piece_name, from_row, from_col, row, col) {
+	function show_shadow_notatedpiece_at(piece, from_row, from_col, row, col, i) {		
+		var piece_name = TRANSLATOR.get_piece_from_notation(piece).type;
+		show_shadow_piece_at(piece_name, from_row, from_col, row, col, i);
+	}
+	
+	function show_shadow_piece_at(piece_name, from_row, from_col, row, col, i) {
 		
-		hide_shadow_pieces();
+		//hide_shadow_pieces();
 		if(!shadow_on) return;
 		
-//		console.log(piece_name, row, col);
 		var square = get_square(row, col);
 		
 		if(square.length === 0) return;
 		
-		var shadowPiece = $('#shadow_' + piece_name);
+		var shadowPiece = $('#shadow_' + piece_name).clone(true).attr('cloned', true).removeAttr('id');
 
 		var dir_y = row - from_row;
 		var dir_x = col - from_col;
 		var normalized_dir_y = dir_y / (Math.abs(dir_y)+0.1);		
 		var normalized_dir_x = dir_x / (Math.abs(dir_x)+0.1);
 
-		var direction_amount = -20;
+		var direction_amount = -30;
+		var start_size = 5;
+		var size_increment = 5;
 		
 		shadowPiece
-		  .css('left', square.offset().left + square.width()/2 - shadowPiece.width()/2 + normalized_dir_x * direction_amount)
-		  .css('top', square.offset().top + square.height()/2 - shadowPiece.height()/2  + normalized_dir_y * direction_amount)
+		  .css('left', square.offset().left + square.width()/2 - 15 + normalized_dir_x * direction_amount + i*9)
+		  .css('top', square.offset().top + square.height()/2 - 15  + normalized_dir_y * direction_amount + i*9)
+		  .css('width', start_size+(4-i+1)*size_increment)
 		  .show();
-
-		var pieceElem = square;
-		var clone = pieceElem.clone();
+		  
+		shadowPiece.appendTo('.boardwrapper');		
 	}	
 	
 	function show_board() {
@@ -885,8 +892,6 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 
 		var cur_node = gametree.select_node(id);
 
-		//console.log("delete", id, move_index);
-
 		if(move_index > 0) {
 			// we're deleting a "root" subvariation (not continuation)
 			var prev = id;
@@ -911,19 +916,8 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 
 		var prev_dom_node = getNode(prev, prev_move_index);
 		
-		/*
-		console.log("prev", prev, prev_move_index);
-		console.log(prev_node);
-		console.log(prev_dom_node);
-		*/
-
 		var deletable_id = id;
 		var deletable_move_index = move_index;
-
-/*		
-		console.log("deletable", deletable_id, deletable_move_index);
-		console.log(getNode(deletable_id, deletable_move_index));
-*/
 
 		var breakNextRound = false;
 		
@@ -933,7 +927,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		*/
 		while(true) {
 		  var deletable_dom_node = getNode(deletable_id, deletable_move_index);
-		  //console.log("deletable_dom_node", deletable_dom_node);
+
 		  domtree.jstree('delete_node', deletable_dom_node);
 		  if(breakNextRound) break;
 		  deletable_id = gametree.next_nodeid(deletable_id, deletable_move_index);
