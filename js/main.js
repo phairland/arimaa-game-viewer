@@ -809,7 +809,8 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		show_shadow_piece_at(piece_name, from_row, from_col, row, col);
 	}
 	
-	function show_shadow_piece_at(piece_name, from_row, from_col, row, col) {		
+	function show_shadow_piece_at(piece_name, from_row, from_col, row, col) {
+		
 		hide_shadow_pieces();
 		if(!shadow_on) return;
 		
