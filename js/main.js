@@ -394,16 +394,11 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 				}				
 			}
 
-			if(viewer.current_id() !== nodeid || stepbuffer.length > 0) {
-				undo_all_steps();
-				// set correct starting position first and have a delay
-				goto_node_and_update_treeview(nodeid);
-				show_board();
-				setTimeout(show_fun, show_step_delay);
-			} else {
-				// does not need to undo stepbuffer, is empty
-				show_fun();
-			}
+			undo_all_steps();
+			// set correct starting position first and have a delay
+			goto_node_and_update_treeview(nodeid);
+			show_board();
+			setTimeout(show_fun, show_step_delay);
 		} else {
 			GENERIC.log("no moves from current node");
 		}		 
