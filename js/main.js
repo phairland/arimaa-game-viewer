@@ -422,9 +422,8 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		}
 
 		var nextid = gametree.next_nodeid(viewer.current_id(), move_index);
-		
 		if(!nextid) return;
-
+		
 		current_move_index = 0;
 
 		undo_all_steps();
@@ -1083,7 +1082,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		$('.prev_step').click(function() { show_prev_step(false); })
 
 		// initial value from checkbox since the browser may have taken value from last session
-		shadow_on = $(this).is(':checked');
+		shadow_on = $('#shadow_on').is(':checked');
 
 		$('#shadow_on').click(function() {
 			shadow_on = $(this).is(':checked');
