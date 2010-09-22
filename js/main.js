@@ -1074,8 +1074,8 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 			}
 		});
 		
-		$('.next_step').click(show_next_step());
-		$('.prev_step').click(show_prev_step());
+		$('.next_step').click(function() { show_next_step(false); });
+		$('.prev_step').click(function() { show_prev_step(false); })
 
 		// initial value from checkbox since the browser may have taken value from last session
 		shadow_on = $(this).is(':checked');
