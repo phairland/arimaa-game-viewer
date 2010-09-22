@@ -231,10 +231,14 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 			return;
 		}
 
+		// animation clones that are still being animated must be fast-forwarded
+		$('.clone_animation_piece').stop(true, true);
+		
 		var x = pieceElem.offset().left + x_change;
 		var y = pieceElem.offset().top + y_change;
 
 		var clone = pieceElem.clone().hide();
+		clone.addClass('clone_animation_piece');
 		
 		clone
 			.css('position', 'absolute')
@@ -248,9 +252,12 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 			
 		function after_animation() {
 			// if this function is called with not showing_slowly, the moving slowly has been interrupted
-			if(!clone || !showing_slowly) return;
-			
+			if(!clone || !showing_slowly) {
+				return;
+			}
+
 			clone.remove();
+			
 		  show_board(show_shadows);
 		  arrow_handler.clear_arrows();
 		  if(!!after_callback) { after_callback(); }
@@ -503,15 +510,22 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	}
 	
 	function bind_control_move() {
-		$('.pass').click(function() { pass_if_legal(); $(this).blur(); });	
-		$('.next').click(show_next);
-		$('.prev').click(goto_previous);
+		$('.pass').click(function() { pass_if_legal(); $(this).blur(); });
+		
+		// must have anonymous function that wraps, since the callee has parameter that
+		// can be left out
+		$('.next').click(function() { show_next(); });
+		$('.prev').click(function() { goto_previous(); });
 		
     $(document).keydown(function(event) {
     	var code = getKeyCode(event);
       //console.log(code);
     	
-    	if(code === 39 /* right arrow */) {	show_next_step(); }
+    	if(code === 39 /* right arrow */) {
+ 				if(showing_slowly) return;
+    		show_next_step(); 
+    	}
+    		
       if(code === 37 /* left arrow */) { show_prev_step(); }
       
       if(code === 38 /* up */) { goto_previous(); }
@@ -968,7 +982,6 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	}
 
 	function show_next_step(dont_try_show_next_step_again) {
-		if(showing_slowly) return;
 		var cur_move = get_current_node().moves_from_node[current_move_index];
 		if(!cur_move) return;
 		if(current_step.node_id === viewer.current_id() && current_step.move_index === current_move_index) {
@@ -1074,7 +1087,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		});
 		
 		$('.next_step').click(function() { show_next_step(false); });
-		$('.prev_step').click(function() { show_prev_step(false); })
+		$('.prev_step').click(function() { show_prev_step(); })
 
 		// initial value from checkbox since the browser may have taken value from last session
 		shadow_on = $('#shadow_on').is(':checked');
