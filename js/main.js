@@ -5,6 +5,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	var domtree, gametree, viewer, gametree_utils;
 	var marking_handler, arrow_handler;
 	var current_move_index = 0;
+	var current_step = {}
 	var current_domtree_node = undefined;
 	
 	var stepbuffer = [];
@@ -198,7 +199,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	}
 
 	// this is for showing already made moves
-	function show_make_step_for_piece(selected, new_coordinate) {
+	function show_make_step_for_piece(selected, new_coordinate, show_shadows, after_callback) {
 		// if this function is called with not showing_slowly, the moving slowly has been interrupted
 		if(!showing_slowly) return;
 
@@ -250,8 +251,9 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 			
 			clone.remove();
 			
-		  show_board();
+		  show_board(show_shadows);
 		  arrow_handler.clear_arrows();
+		  if(!!after_callback) { after_callback(); }
 		}
 		
 		$('.board').append(clone);
@@ -384,7 +386,12 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		if(node.moves_from_node.length > 0) {
 			function show_fun() {
 				var steps = node.moves_from_node[move_index].steps;
-				show_steps_slowly(steps, nodeid, move_index);
+				if(current_step.node_id === nodeid && move_index === current_move_index) {
+					show_steps_slowly(steps.slice(current_step.step+1, steps.length), nodeid, move_index);
+					current_step = {}
+				} else {
+					show_steps_slowly(steps, nodeid, move_index);
+				}				
 			}
 
 			if(viewer.current_id() !== nodeid || stepbuffer.length > 0) {
@@ -789,14 +796,16 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		update_selected_nodehandle_view();
 	}
 	
-	function show_shadow_piece(move) {
+	function show_shadow_piece(move, ignore_showing_slowly) {
 		hide_shadow_pieces();
 		
-		if(showing_slowly || stepbuffer.length > 0) return;
+		if((!ignore_showing_slowly && showing_slowly) || stepbuffer.length > 0) return;
 
 		if(!move) return;
 
-		for(var i = 0; i < move.steps.length; ++i) {
+		var start_step = current_step.node_id === viewer.current_id() && current_step.move_index === current_move_index ? current_step.step : -1;
+		
+		for(var i = start_step + 1; i < move.steps.length; ++i) {
 			var step = move.steps[i];
 			
 			if(!!step.from) {
@@ -844,9 +853,9 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		shadowPiece.appendTo('.boardwrapper');		
 	}	
 	
-	function show_board() {
+	function show_board(show_shadows) {
 		var cur_move = get_current_node().moves_from_node[current_move_index];
-		show_shadow_piece(cur_move);
+		show_shadow_piece(cur_move, show_shadows);
 		show_current_position_info(viewer.gamestate(), get_current_node(), cur_move);
 		show_dom_board(viewer.board(), viewer.gamestate());
 		marking_handler.show_markers();
@@ -1003,6 +1012,49 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 			if(marking_handler.is_marker_selected()) {
 				marking_handler.unhover_marker($(this));
 			}
+		});
+		
+		$('.next_step').click(function() {
+			var cur_move = get_current_node().moves_from_node[current_move_index];
+			if(current_step.node_id === viewer.current_id() && current_step.move_index === current_move_index) {
+				if(current_step.step >= cur_move.steps.length - 1) { return; }
+				current_step.step++;
+			} else {
+				current_step = {
+					'node_id': viewer.current_id(),
+					'move_index': current_move_index,
+				  'step': 0
+				}
+			}
+			
+			var step = cur_move.steps[current_step.step];
+			if(step.from !== undefined) {
+				showing_slowly = true;
+			  show_make_step_for_piece(step.from, step.to, true /* show shadows */, function() { showing_slowly = false; });
+			}
+		});
+
+		$('.prev_step').click(function() {
+			var cur_move = get_current_node().moves_from_node[current_move_index];
+
+			if(current_step.step === -1) return;
+			
+			if(current_step.step >= 0 && current_step.node_id === viewer.current_id() && current_step.move_index === current_move_index) {
+				current_step.step--;
+			} else { return; }
+ 			
+			viewer.gametree_goto(viewer.current_id());
+
+			for(var i = 0; i <= current_step.step; ++i) {
+				var step = cur_move.steps[i];
+				var selected = step.from;
+				var new_coordinate = step.to;
+				result = ARIMAA.move_piece(viewer.gamestate(), viewer.board(), selected, new_coordinate);
+				viewer.setBoard(result.board);
+				viewer.setGamestate(result.gamestate);
+			}
+				
+			show_board(true /* show shadow */);
 		});
 		
 		$('#shadow_on').click(function() {
