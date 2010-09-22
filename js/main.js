@@ -522,8 +522,9 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
       //console.log(code);
     	
     	if(code === 39 /* right arrow */) {
- 				if(showing_slowly) return;
-    		show_next_step(); 
+ 				if(!showing_slowly) {
+ 					show_next_step(); 
+    		}
     	}
     		
       if(code === 37 /* left arrow */) { show_prev_step(); }
