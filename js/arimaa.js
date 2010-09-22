@@ -2,8 +2,11 @@ var ARIMAA = ARIMAA || function() {
 
 	var board_width = 8;
 	var board_height = 8;
-  var	silver = { 'side': 'silver' }
-  var gold = { 'side': 'gold' }
+  var	silver = { 'side': 'silver' };
+  var gold = { 'side': 'gold' };
+  
+  var silver_homerow = 0;
+  var gold_homerow = board_height - 1;
   
   var rabbit = create_piece('rabbit', 1);
   var cat = create_piece('cat', 2);
@@ -199,7 +202,22 @@ var ARIMAA = ARIMAA || function() {
     });
   }
 
-  function is_gameover(gamestate) { return !!gamestate.gameover; }
+  function is_gameover(board, gamestate) {
+  	// FIXME: check repetetion rule, maybe also resigning from gamestate?
+  	var silver_rabbit_in_goal = GENERIC.exists(board[gold_homerow], function(elem) {
+  		return is_rabbit(elem) && elem.side === ARIMAA.silver;
+  	});
+  	
+  	var gold_rabbit_in_goal = GENERIC.exists(board[silver_homerow], function(elem) {
+  		return is_rabbit(elem) && elem.side === ARIMAA.gold;
+  	});
+  	
+  	// the realisation of loss is only after turn change
+  	var rabbit_in_goal = gamestate.turn === gold && silver_rabbit_in_goal 
+  											|| gamestate.turn === silver && gold_rabbit_in_goal;
+  	
+  	return rabbit_in_goal;
+  }
   
   function current_player_piece(coordinate, board, gamestate) {
   	return get_piece(coordinate, board).side === gamestate.turn;
@@ -247,14 +265,14 @@ var ARIMAA = ARIMAA || function() {
   }
 
   function is_passing_legal(gamestate, board) {
-  	return !is_gameover(gamestate)
+  	return !is_gameover(board, gamestate)
   					&& gamestate.type !== 'setting'
   					&& gamestate.steps < steps_in_move // at least one move is obligatory
   					&& gamestate.expectedmove === undefined; // if opponent's piece was pushed, the pusher must be moved
   }
   
   function legal_moves(gamestate, board, coordinate) {
-  	if(is_gameover(gamestate)) return [];
+  	if(is_gameover(board, gamestate)) return [];
   	if(board[coordinate.row][coordinate.col].type === undefined) return [];
 
   	// expected move means that one must complete push
