@@ -221,10 +221,10 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		***/
 		
 		var pieceElem = $('.row').eq(selected.row).find('.square').eq(selected.col).find('img');
-		var toElem = $('.row').eq(new_coordinate.row).find('.square').eq(new_coordinate.col).find('img');
+		var toElem = $('.row').eq(new_coordinate.row).find('.square').eq(new_coordinate.col);
 
-		var x_change = (new_coordinate.col - selected.col) * pieceElem.width();
-		var y_change = (new_coordinate.row - selected.row) * pieceElem.height();
+		var x_change = (new_coordinate.col - selected.col) * (toElem.outerWidth());
+		var y_change = (new_coordinate.row - selected.row) * (toElem.outerHeight());
 
 		if(!pieceElem.offset()) {
 			after_animation();
@@ -238,9 +238,10 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		
 		clone
 			.css('position', 'absolute')
-			.css('left', pieceElem.offset().left)
-			.css('top', pieceElem.offset().top)
-			.css('width', pieceElem.width())
+			.css('left', pieceElem.position().left)
+			.css('top', pieceElem.position().top)
+			.css('width', pieceElem.outerWidth())
+			.css('height', pieceElem.outerHeight())
 
 		pieceElem.hide();
 		clone.show();
@@ -250,13 +251,12 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 			if(!clone || !showing_slowly) return;
 			
 			clone.remove();
-			
 		  show_board(show_shadows);
 		  arrow_handler.clear_arrows();
 		  if(!!after_callback) { after_callback(); }
 		}
 		
-		$('.board').append(clone);
+		$('.boardwrapper').append(clone);
 			clone.animate({
 				'left': '+='+x_change,
 				'top': '+='+y_change
