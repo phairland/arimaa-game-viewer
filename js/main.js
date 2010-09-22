@@ -1027,6 +1027,8 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 				}
 			}
 			
+			play_sound("step");
+			
 			var step = cur_move.steps[current_step.step];
 			if(step.from !== undefined) {
 				showing_slowly = true;
