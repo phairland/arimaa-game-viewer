@@ -21,6 +21,7 @@ var TRANSLATOR = TRANSLATOR || function() {
 	 get step-object as notated text
 	*/
 	function get_step_as_notated(step) {
+		if(!!step.notated) return step.notated; // already notated
 		if(step.type === "pass") return "";
 		if(step.type === "setting") {
 			get_piece_shorthand(step.piece) + 

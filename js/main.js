@@ -25,7 +25,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	}	
 
 	function get_stepbuffer_as_notated() {
-		var notated = GENERIC.reduce("", stepbuffer, function(result, step) {
+		var notated = GENERIC.reduce("", stepbuffer, function(result, step) {			
 			return result + " " + TRANSLATOR.get_step_as_notated(step);
 		});
 		
@@ -998,7 +998,10 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		var step = cur_move.steps[current_step.step];
 		if(!!step && step.from !== undefined) {
 			showing_slowly = true;
+			stepbuffer.push(GENERIC.shallowCopyObject(step));
 			show_make_step_for_piece(step.from, step.to, true /* show shadows */, function() { showing_slowly = false; });
+		} else {
+			stepbuffer = [];
 		}
 		
 	}
@@ -1011,7 +1014,9 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		
 		if(current_step.step >= 0 && current_step.node_id === viewer.current_id() && current_step.move_index === current_move_index) {
 			current_step.step--;
+			stepbuffer.pop();
 		} else {
+			stepbuffer = [];
 			if(!!dont_try_show_prev_again) return;
 			goto_previous(true /* don't call show_board */);
 			var move = get_current_node().moves_from_node[current_move_index];
