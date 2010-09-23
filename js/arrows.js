@@ -8,16 +8,18 @@ function create_arrow_handler(gametree, viewer) {
 	
 	function clear_arrows() {	$('.arrow').hide();	}
 	
-	function show_arrows(elem) {
-		$('.arrow').hide();
+	function show_arrows(elem, hide_existing) {
+	  $('.arrow').hide();
 		
 		var coordinate = {
 		 'row': row_index(elem),
 		 'col': col_index(elem)
 		}
-		
+
 		var possible_moves = ARIMAA.legal_moves(viewer.gamestate(), viewer.board(), coordinate);
 
+		$('.arrow').removeClass('legal_arrow');
+		
 		GENERIC.for_each(possible_moves, function(move) {
 				var x_change = move.col - coordinate.col;
 				var y_change = move.row - coordinate.row;
@@ -46,6 +48,7 @@ function create_arrow_handler(gametree, viewer) {
       .attr('col', coordinate.col + x_change)
       .css('left', center_x + (x_change !== 0 ? x_change * arrow_elem.width() * 0.9 : 0))
       .css('top', center_y + (y_change !== 0 ? y_change * arrow_elem.height() * 0.9: 0))
+      .addClass('legal_arrow')
       .show();
 	}
 	
@@ -62,11 +65,13 @@ $(function() {
 	$('.arrownormal').mouseenter(function() {
 		$(this).hide();
 		$(this).closest('.arrow').find('.arrowhover').show();		
+		$('.legal_arrow').show();
 	});
 	
 	$('.arrowhover').mouseleave(function() {
 		$(this).hide();
 		$(this).closest('.arrow').find('.arrownormal').show();		
+		$('.legal_arrow').show();
 	});
 
 	// clears the arrows when mouse leaves the board		

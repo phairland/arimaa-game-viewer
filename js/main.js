@@ -159,6 +159,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 
 			selected = coordinate_for_element($(this));
 			arrow_handler.show_arrows($(this));
+			
 		});
 	}
 
