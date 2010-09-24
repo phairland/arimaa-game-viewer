@@ -64,6 +64,7 @@ function create_arrow_handler(gametree, viewer) {
 $(function() {
 	$('.arrownormal').mouseenter(function() {
 		$(this).hide();
+		$('.arrowhover:visible').hide().closest('.arrow').find('.arrownormal').show();
 		$(this).closest('.arrow').find('.arrowhover').show();		
 		$('.legal_arrow').show();
 	});
