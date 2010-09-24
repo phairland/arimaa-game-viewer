@@ -279,6 +279,7 @@ var ARIMAA = ARIMAA || function() {
   	if(!!gamestate.expectedmove) {
   		if(gamestate.turn !== gamestate.expectedmove.side) return [];
   	  if(get_piece(coordinate, board).strength <= gamestate.expectedmove.strength) return [];
+  	  if(get_piece(coordinate, board).side !== gamestate.turn) return [];
   	  var is_from_neighbour = GENERIC.exists(gamestate.expectedmove.from_array, function(from) {
   	  		return same_coordinates(from, coordinate);
   	  });
@@ -413,7 +414,8 @@ var ARIMAA = ARIMAA || function() {
   	'get_initial_gamestate': get_initial_gamestate,
   	'pass': pass,
   	'is_passing_legal': is_passing_legal,
-  	'opposite_turn': opposite_turn
+  	'opposite_turn': opposite_turn,
+  	'is_gameover': is_gameover
   }
   
 }();

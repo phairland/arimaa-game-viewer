@@ -206,13 +206,10 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 
 		//FIXME: making move to gametree should be behind common interface with getting new board
 		// í.e. this should be done to a gametree
-		result = ARIMAA.move_piece(viewer.gamestate(), viewer.board(), selected, new_coordinate);
+		var result = ARIMAA.move_piece(viewer.gamestate(), viewer.board(), selected, new_coordinate);
 		
 		viewer.setBoard(result.board);
 		viewer.setGamestate(result.gamestate);
-
-		var piece = viewer.board()[selected.row][selected.col];
-		var move = { 'from': selected, 'to': new_coordinate, 'piece': piece }
 
 		/****
 		 Animation for step
