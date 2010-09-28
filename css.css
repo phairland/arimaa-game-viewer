@@ -15,11 +15,13 @@
 }
 
 .boardwrapper, .trap, .controls, .control, .marker, .sound_selection, .shadow_selection {
+/*
 	border-radius: 8px;
 	-webkit-border-radius: 8px;
 	-moz-border-radius: 8px;
 	box-shadow: 1px 1px 5px black;
 	-webkit-box-shadow: 1px 1px 5px black;
+*/
 }
 
 .control:hover {
@@ -29,8 +31,10 @@
 }
 
 .shadowable, .boardwrapper {
+/*
 	box-shadow: 1px 1px 5px black;
 	-webkit-box-shadow: 1px 1px 5px black;
+*/
 	
 	/*
 	mozilla seems to slow down with shadows
@@ -46,8 +50,10 @@
 }
 
 .square {
+/*
 	border-radius: 2px;
 	-moz-border-radius: 2px; border-radius: 2px;
+*/
 }
 
 
@@ -144,10 +150,10 @@ h1 { color: gray; font-family: Verdana;  margin: 15px; font-size: 1.0em; }
 .turn { color: red; margin: 5px 5px; font-size: 1.5em; }
 .comments_for_node, .comments_for_move {
 	font-family: Verdana;
-	font-size: 1.2em;
+	font-size: 1.1em;
 	width: 200px; height: 100px; 
 	background-color: #ddd; color: black; padding: 5px; 
-	margin: 5px; font-size: 0.8em; float: left; 
+	margin: 5px; float: left; 
 }
 
 .comment { height: 50px; width: 420px; float: left; }
