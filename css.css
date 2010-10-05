@@ -41,11 +41,22 @@
 		-moz-box-shadow: 1px 1px 5px black; 
 	*/
 }
-	
+
+.captured {
+	background-color: #888;
+	padding: 3px;
+	min-height: 80px;
+	width: 470px;
+	float: left;
+}
+
+.captured_pieces img {
+	width: 30px;
+}
 
 .sound_selection, .shadow_selection {
 	float: left;
-	padding: 5px; margin: 5px; 
+	padding: 3px; margin: 5px; 
 	background-color: #99ff66; color: black; 
 }
 

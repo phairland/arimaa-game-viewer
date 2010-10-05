@@ -148,6 +148,23 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 			$('.pass').attr('disabled', 'disabled');
 		}
 	}
+
+	function show_captured(gamestate) {
+		if(!gamestate.captured) return;
+		var result = "";
+		
+		var sorted_captured = [].concat(gamestate.captured);
+		function compare_strength(a, b) { return a.strength > b.strength ? -1 : 1; }
+		sorted_captured.sort(function(a, b) { return a.side === b.side ? compare_strength(a, b) : a.side === ARIMAA.silver ? - 1: 1; });
+		
+		GENERIC.for_each(sorted_captured, function(piece) {
+			var name = "pics/" + piece.side.side.slice(0, 1) + piece.type + ".png";
+			var capture = "<img class='captured_piece' src='" + name + "' />"; 
+			result += capture;
+		});
+
+		$('.captured_pieces').html('').append(result);
+	}
 	
 	function bind_select_piece() {
 		$('.square').live('mouseenter', function() {
@@ -855,6 +872,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	
 	function show_board(show_shadows) {
 		var cur_move = get_current_node().moves_from_node[current_move_index];
+		show_captured(viewer.gamestate());
 		show_shadow_piece(cur_move, show_shadows);
 		show_current_position_info(viewer.gamestate(), get_current_node(), cur_move);
 		show_dom_board(viewer.board(), viewer.gamestate());

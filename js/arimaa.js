@@ -70,17 +70,21 @@ var ARIMAA = ARIMAA || function() {
   }
 
 	function do_capturing(board) {
+		var captured = [];
 		GENERIC.for_each(traps, function(trap) {
 			var trap_coord = trap_as_coordinate(trap);
 			var piece = get_piece(trap_coord, board);
 				 
 			if(!!piece) {
 				if(is_coordinate_capturing(trap_coord, board)) {
+					 captured.push(board[trap_coord.row][trap_coord.col]);
 					 board[trap_coord.row][trap_coord.col] = {} // captures piece
 					 return board;
 				}
 			 }
 		 });
+		
+		return captured;
 	}
 
   function move_piece(gamestate, board, piece_coordinate, new_coordinate) {
@@ -95,7 +99,7 @@ var ARIMAA = ARIMAA || function() {
   	 new_board[piece_coordinate.row][piece_coordinate.col] = {}; // takes piece away from old place
   	 new_board[new_coordinate.row][new_coordinate.col] = piece;
   	 
-		 do_capturing(new_board);
+		 var captured = do_capturing(new_board);
   	 
   	 var laststep = {
   	 	 'piece': piece,
@@ -105,7 +109,7 @@ var ARIMAA = ARIMAA || function() {
   	 
   	 return {
   	 	 'board': new_board,
-  	 	 'gamestate': gamestate_after_move(gamestate, laststep)
+  	 	 'gamestate': gamestate_after_move(gamestate, laststep, captured)
   	 }
   }
   
@@ -127,11 +131,17 @@ var ARIMAA = ARIMAA || function() {
   					function(elem) { return !!elem; });
   }
   
-  function gamestate_after_move(gamestate, laststep) {
+  function gamestate_after_move(gamestate, laststep, captured) {
   	var copy = GENERIC.shallowCopyObject(gamestate);
   	
   	if(!!gamestate.expectedmove) copy.expectedmove = undefined; // clear expectations for thise turn
-  		
+
+  	if(!gamestate.captured) {
+  		copy.captured = captured;
+  	} else {
+  		copy.captured = copy.captured.concat(captured);
+  	}
+
   	if(gamestate.steps > 1) {
   		copy.steps = gamestate.steps - 1;
     	copy.laststep = laststep;
