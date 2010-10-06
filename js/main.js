@@ -219,7 +219,10 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	// this is for showing already made moves
 	function show_make_step_for_piece(selected, new_coordinate, show_shadows, after_callback) {
 		// if this function is called with not showing_slowly, the moving slowly has been interrupted
-		if(!showing_slowly) return;
+		if(!showing_slowly) {
+			$('.clone_animation_piece').remove();
+			return;
+		}
 
 		//FIXME: making move to gametree should be behind common interface with getting new board
 		// í.e. this should be done to a gametree
@@ -267,7 +270,10 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 			
 		function after_animation() {
 			// if this function is called with not showing_slowly, the moving slowly has been interrupted
-			if(!clone || !showing_slowly) {
+			if(!showing_slowly) {
+				if(!!clone)	clone.remove();
+				return;
+			} else if(!clone) {
 				return;
 			}
 
