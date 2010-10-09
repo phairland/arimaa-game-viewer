@@ -7,6 +7,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	var current_move_index = 0;
 	var current_step = {}
 	var current_domtree_node = undefined;
+	var comment_handler = create_comment_handler();
 	
 	var stepbuffer = [];
 	
@@ -665,8 +666,9 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
       	show_variation(code - 96);
       }
       
-      if(code === 80 /* p */) { toggleDebugInfo(); }
-      if(code === 79 /* o */) { showCurrentDebugInfo(); }
+      //DEBUG
+      //if(code === 80 /* p */) { toggleDebugInfo(); }
+      //if(code === 79 /* o */) { showCurrentDebugInfo(); }
       
       // home key
       if(code === 36) {
@@ -1011,7 +1013,8 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		if(showing_slowly) return;
 		
 		var comment = $('.comments_for_node').val();
-		gametree.comment_node(comment, viewer.current_id());		
+		gametree.comment_node(comment, viewer.current_id());
+		comment_handler.comment_node(comment, viewer.current_id());		
 	}
 	
 	function save_comment_for_move() {
@@ -1020,6 +1023,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		if(get_current_node().moves_from_node.length > 0) {
 			var comment = $('.comments_for_move').val();		
 			gametree.comment_move(comment, get_current_node().moves_from_node[current_move_index]);
+			comment_handler.comment_move(comment, get_current_node().id, current_move_index);
 		}
 	}
 
@@ -1227,12 +1231,101 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		show_board();
 		update_selected_nodehandle_view(false /* don't move scrollbar*/); // should this be done here?
 	}
+
+	function update_commented_positions() {
+		var collected = [];
+		var commenteds = comment_handler.comments_by_node();
+		commenteds.sort();
+		GENERIC.for_each(commenteds, function(commented) {
+			var node_id = commented.node_id;
+			var node = gametree.select_node(node_id);
+
+			var move_index = commented.move_index;
+			
+			if(node.moves_from_node.length > 0) {
+				var turn = node.moves_from_node[0].id;
+			} else {
+				// if singleton, the id must be previous's
+				node_id = node.previous_nodehandle.id;
+				var turn = node.previous_nodehandle.moves_from_node[0].id;
+				move_index = node.move_index_from_previous;
+				var singleton = true;
+			}
+			
+			collected.push({
+					turn: turn,
+					text: commented.text,
+					node_id: node_id,
+					move_index: move_index,
+					singleton: singleton
+			});
+		});
+		
+		// sorts by turn, notice that it works 7g and 8g but also 7g and 7s since g is before s
+		function turn_num(turn) { return parseInt(turn.slice(0, turn.length - 1)); }
+		function turn_side(turn) { return turn.toString().slice(turn.length - 1); }
+		collected.sort(function(a, b) { 
+			return turn_num(a.turn) === turn_num(b.turn) ? 
+				turn_side(a.turn) === turn_side(b.turn) ?
+					!a.move_index ? -1 : 1 
+					:	turn_side(a.turn) < turn_side(b.turn) ? -1 : 1 
+				: turn_num(a.turn) - turn_num(b.turn); 
+		});
+
+		var html = "";
+		GENERIC.for_each(collected, function(elem) {
+			html += "<div nodeid='" + elem.node_id + "' ";
+			if(!!elem.move_index) {
+				html += " move_index='" + elem.move_index + "'";
+				if(!!elem.singleton) {
+					html += " singleton=true ";
+					html += " class='commented_position' ";
+				} else {
+					html += " class='commented_position commented_move' ";
+				}
+			} else {
+				html += " class='commented_position' "; 
+			}
+			
+			html += "><span class='commented_turn'>" + elem.turn +  "</span>&nbsp;" + elem.text + "</div>";
+		});
+		
+		$('.positions').html(html);
+	}
+	
+	function bind_show_commented_positions() {
+		$('.comment_panel.control').click(function() {
+			if($('.commented_positions').is(':visible')) {
+				$('.commented_positions').hide();
+			} else {
+				update_commented_positions();
+				$('.commented_positions').show();
+			}				
+		});
+		
+		$('.commented_position').live('click', function() {
+			var nodeid = $(this).attr('nodeid');
+			var move_index = $(this).attr('move_index');
+			var singleton = $(this).attr('singleton');
+			if(!!move_index) { 
+				var node = getNode(nodeid, move_index);
+				if(!!singleton) {
+					select_dom_node(node);
+					show_next();
+					return;
+				}
+			} else {
+				var node = getNode(nodeid, 0);
+			}
+			select_dom_node(node);				
+		});
+	}
 	
 	$(function() {
 		domtree = $('.gametree');
 
 		create_tree_and_viewer(domtree);
-				
+		bind_show_commented_positions();
 		bind_import_game();
 		bind_control_move();
 		bind_select_piece();
@@ -1272,10 +1365,16 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		
 		$('.comments_for_node').keyup(function() {
 				save_comment_for_position();
+				if($('.commented_positions').is(':visible')) {
+					update_commented_positions();
+				}
 		});
 
 		$('.comments_for_move').keyup(function() {
 				save_comment_for_move();
+				if($('.commented_positions').is(':visible')) {
+					update_commented_positions();
+				}
 		});		
 
 		$('.gametree li a').live('click', function() {
