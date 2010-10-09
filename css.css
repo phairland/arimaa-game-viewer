@@ -42,6 +42,14 @@
 	*/
 }
 
+.setup {
+	padding: 5px;
+}
+
+.settings_swap_piece {
+	background-color: white !important;
+}
+
 .captured {
 	background-color: #888;
 	padding: 3px;

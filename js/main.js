@@ -10,6 +10,8 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	
 	var stepbuffer = [];
 	
+	var viewer_mode = undefined;
+	
 	var showing_slowly = false; // when moves are showed slowly, controls are locked
 	
 	var selected = undefined; // what square is selected currently
@@ -84,6 +86,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	}
 	
 	function make_move_to_gametree() {
+		current_step = {};
 		var current_nodehandle = get_current_node();
 		GENERIC.log("current_nodehandle", current_nodehandle);
 
@@ -165,6 +168,105 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 
 		$('.captured_pieces').html('').append(result);
 	}
+
+	function make_setup_variation() {
+		// important: get the board for retrieving the pieces
+		// we cannot use viewer.board() since it changes during the algorithm (make_move_to_gametree affects it)
+		var board = viewer.board();
+		
+		function push_to_stepbuffer(row, col) {
+			var step = {
+				'piece': board[row][col],
+				'to': { 'row': row, 'col': col },
+				'type': "setting"
+			}
+			
+			step.notated = TRANSLATOR.get_step_as_notated(step);
+			
+			stepbuffer.push(step);
+		}
+
+		function next_nodeid(node_id) {
+			return gametree.next_nodeid(node_id, 0);
+		}
+		
+		// to make a variation move, we goto to the root
+		viewer.gametree_goto(gametree.get_initial_nodehandle().id);
+		
+		// gold
+		for(var j = 0; j < 2; ++j) {
+			for(var i = 0; i < ARIMAA.board_width; ++i) {
+				push_to_stepbuffer(ARIMAA.board_height - 1 - j, i);
+			}
+		}
+
+		make_move_to_gametree();
+		
+		// silver 
+		for(var j = 0; j < 2; ++j) {
+			for(var i = 0; i < ARIMAA.board_width; ++i) {
+				push_to_stepbuffer(j, i);
+			}
+		}
+
+		make_move_to_gametree();
+	}
+	
+	function bind_settings_swap_piece() {
+		$('.setup').click(function() {
+			function next_nodeid(node_id) {
+				return gametree.next_nodeid(node_id, 0);
+			}
+
+			if(viewer_mode === "setting") {
+				make_setup_variation();
+				viewer_mode = undefined;
+				$('.settings_swap_piece').removeClass('settings_swap_piece');
+				$('.control').removeAttr('disabled');
+				$('.scrollabletree').show();
+				show_board();
+				$(this).text('Setup variation');
+			} else {
+				$('.control').not('.setup').attr('disabled', 'disabled');
+				$(this).text('End setup');
+				viewer_mode = "setting";
+				$('.scrollabletree').hide();
+				// we show the board situation where setup has been made
+				var id = next_nodeid(next_nodeid(gametree.get_initial_nodehandle().id));
+				viewer.gametree_goto(id);
+				show_setting_board();				
+			}
+		});
+		
+		$('.square').live('click', function() {
+			if(viewer_mode !== "setting") { return; }
+
+			var coord = coordinate_for_element($(this));
+			//TODO check that swapping is legal
+			
+			var old = $('.settings_swap_piece');
+			
+			if($(this).hasClass('settings_swap_piece')) {
+				$('.settings_swap_piece').removeClass('settings_swap_piece'); // old and this					
+			} else {
+				if(old.length === 0) {
+					$(this).addClass('settings_swap_piece');
+				} else {
+					// swap the images
+					var coord_a = coordinate_for_element(old);
+					var coord_b = coordinate_for_element($(this));
+					
+					var new_board = ARIMAA.swap_pieces_in_setting(coord_a, coord_b, viewer.board())
+					
+					if(!!new_board) {
+						viewer.setBoard(new_board);
+					}
+					
+					show_setting_board();
+				}						
+			}
+		});
+	}
 	
 	function bind_select_piece() {
 		$('.square').live('mouseenter', function() {
@@ -175,7 +277,10 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 			}
 
 			selected = coordinate_for_element($(this));
-			arrow_handler.show_arrows($(this));
+			
+			if(viewer.gamestate().type !== 'setting' && viewer_mode !== "setting") {
+				arrow_handler.show_arrows($(this));
+			}
 			
 		});
 	}
@@ -400,6 +505,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	}
 	
 	function show_next_move_slowly() {
+		current_step = {}
 		show_move_slowly(viewer.current_id(), current_move_index);
 	}
 
@@ -539,6 +645,8 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		$('.prev').click(function() { goto_previous(); });
 		
     $(document).keydown(function(event) {
+    	if(viewer_mode === "setting") return false;
+    	
     	var code = getKeyCode(event);
       //console.log(code);
     	
@@ -876,6 +984,11 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		shadowPiece.appendTo('.boardwrapper');		
 	}	
 	
+	function show_setting_board() {
+		hide_shadow_pieces();
+		show_dom_board(viewer.board(), viewer.gamestate());
+	}
+	
 	function show_board(show_shadows) {
 		var cur_move = get_current_node().moves_from_node[current_move_index];
 		show_captured(viewer.gamestate());
@@ -1026,10 +1139,24 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		play_sound("step");
 		
 		var step = cur_move.steps[current_step.step];
-		if(!!step && step.from !== undefined) {
-			showing_slowly = true;
-			stepbuffer.push(GENERIC.shallowCopyObject(step));
-			show_make_step_for_piece(step.from, step.to, true /* show shadows */, function() { showing_slowly = false; });
+		if(!!step) {
+			if(step.type === "setting") {
+				stepbuffer.push(GENERIC.shallowCopyObject(step));
+				var result = ARIMAA.add_piece(step.piece, step.to, viewer.board(), viewer.gamestate());
+				viewer.setBoard(result.board);
+				viewer.setGamestate(result.gamestate);
+				show_board();
+			} else if(step.type === "pass") {
+				stepbuffer.push(GENERIC.shallowCopyObject(step));
+				var result = ARIMAA.pass(viewer.board(), viewer.gamestate());
+				viewer.setBoard(result.board);
+				viewer.setGamestate(result.gamestate);
+				show_board();
+			} else {
+				showing_slowly = true;
+				stepbuffer.push(GENERIC.shallowCopyObject(step));
+				show_make_step_for_piece(step.from, step.to, true /* show shadows */, function() { showing_slowly = false; });
+			}
 		} else {
 			stepbuffer = [];
 		}
@@ -1064,18 +1191,28 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 
 		for(var i = 0; i <= current_step.step; ++i) {
 			var step = cur_move.steps[i];
-			if(!step.from) return; // TODO: support setting step (board setup)
-			var selected = step.from;
-			var new_coordinate = step.to;
-			result = ARIMAA.move_piece(viewer.gamestate(), viewer.board(), selected, new_coordinate);
-			viewer.setBoard(result.board);
-			viewer.setGamestate(result.gamestate);
+			if(step.type === 'setting') {
+				var result = ARIMAA.add_piece(step.piece, step.to, viewer.board(), viewer.gamestate());
+				viewer.setBoard(result.board);
+				viewer.setGamestate(result.gamestate);
+			} else if(step.type === "pass") {
+				var result = ARIMAA.pass(viewer.board(), viewer.gamestate());
+				viewer.setBoard(result.board);
+				viewer.setGamestate(result.gamestate);
+			} else {
+				var selected = step.from;
+				var new_coordinate = step.to;
+				var result = ARIMAA.move_piece(viewer.gamestate(), viewer.board(), selected, new_coordinate);
+				viewer.setBoard(result.board);
+				viewer.setGamestate(result.gamestate);
+			}
 		}
 			
 		show_board(true /* show shadow */);
 	}
 	
 	function select_dom_node(elem) {
+		current_step = {};
 		showing_slowly = false;
 		undo_all_steps();
 		
@@ -1100,6 +1237,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		bind_control_move();
 		bind_select_piece();
 		bind_move_piece();
+		bind_settings_swap_piece();
 
 		$('.show').click(show_next_move_slowly);
 

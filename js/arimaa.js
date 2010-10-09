@@ -38,6 +38,7 @@ var ARIMAA = ARIMAA || function() {
 			'row': trap[1]
 		}
 	}
+	
 	function is_rabbit(piece) { return piece.type === 'rabbit'; }
   
   function create_piece(type, strength) {
@@ -377,6 +378,20 @@ var ARIMAA = ARIMAA || function() {
   	new_board[coordinate.row][coordinate.col] = {};
   	return new_board;
   }
+
+  function swap_pieces_in_setting(coordinate1, coordinate2, board) {
+  	var new_board = copy_board(board);
+  	var temp = board[coordinate1.row][coordinate1.col];
+  	var temp2 = board[coordinate2.row][coordinate2.col];
+  	
+  	// check that swapping is legal
+  	if(is_empty_square(temp) || is_empty_square(temp2) || temp.side !== temp2.side) return false;
+  	
+  	new_board[coordinate1.row][coordinate1.col] = temp2;
+  	new_board[coordinate2.row][coordinate2.col] = temp;
+  	
+  	return new_board;
+  }
   
   function get_initial_gamestate() {
   	return {
@@ -425,7 +440,8 @@ var ARIMAA = ARIMAA || function() {
   	'pass': pass,
   	'is_passing_legal': is_passing_legal,
   	'opposite_turn': opposite_turn,
-  	'is_gameover': is_gameover
+  	'is_gameover': is_gameover,
+  	'swap_pieces_in_setting': swap_pieces_in_setting
   }
   
 }();

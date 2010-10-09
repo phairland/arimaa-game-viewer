@@ -24,8 +24,8 @@ var TRANSLATOR = TRANSLATOR || function() {
 		if(!!step.notated) return step.notated; // already notated
 		if(step.type === "pass") return "";
 		if(step.type === "setting") {
-			get_piece_shorthand(step.piece) + 
-			GENERIC.intToChar(GENERIC.charToInt('a')+step.from.col) + step.from.row;			
+			return get_piece_shorthand(step.piece) + 
+			GENERIC.intToChar(GENERIC.charToInt('a')+step.to.col) + (step.to.row + 1).toString();			
 		} else {
 			// normal move
 			var x_d = step.to.col - step.from.col;
