@@ -8,6 +8,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	var current_step = {}
 	var current_domtree_node = undefined;
 	var comment_handler = create_comment_handler();
+	var current_game_storage_id;
 	
 	var stepbuffer = [];
 	
@@ -767,13 +768,29 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
   	arrow_handler = create_arrow_handler(gametree, viewer);
   	current_domtree_node = domtree.jstree('get_selected');
 	}
+
+	function import_game_from_notated(notated_game) {
+		var structured_moves = TRANSLATOR.convert_to_gametree(notated_game);
+		var moves = generate_moves(structured_moves);
+
+  	create_tree_and_viewer(domtree);
+		viewer.setBoard(empty_board());
+		gametree.get_initial_nodehandle().id;
+
+		build_move_tree(moves);
+
+		show_board();		
+	}
 	
-	function import_game() {
+	function import_game(game) {
+		current_game_storage_id = undefined;
 		var notated_game = $('#imported_game').val();
 		
 		// default
 		if(notated_game === "") {	notated_game = example_game; }
 		
+		import_game_from_notated(notated_game);
+		/*
 		var structured_moves = TRANSLATOR.convert_to_gametree(notated_game);
 		var moves = generate_moves(structured_moves);
 
@@ -784,6 +801,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		build_move_tree(moves);
 
 		show_board();
+		*/
 	}
 	
 	function build_move_tree(moves) {
@@ -1321,10 +1339,55 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		});
 	}
 	
+	function show_saved_games() {
+		var html = "";
+		html += "<table>";
+		html += "<thead><tr><td>Title</td><td>Created</td></tr></thead>";
+		html += "<tbody>";
+		
+		GENERIC.for_each(GAME_STORAGE.get_all_games(), function(game) {
+			html += "<tr class='game'>";
+			html += "<td>" + game.title + "</td>";
+			html += "<td>" + game.created.toLocaleString() + "</td>";
+			html += "<td class='action'><button class='load_game' id='" + game.id + "'>Load</button></td>";
+			html += "</tr>";
+		});
+
+		html += "</tbody>";
+		html += "</table>";
+		$('.gamelist').html(html);
+	}
+	
+	function bind_save_locally() {
+		$('.load_game').live('click', function() {
+			var id = $(this).attr('id');
+			var game = GAME_STORAGE.get_game(id).fan;
+			import_game_from_notated(game);
+			current_game_storage_id = id;
+			$('.games').hide();
+		});
+		
+		$('.save_game.control').click(function() {
+		  var game_as_text = TRANSLATOR.convert_from_gametree(gametree);
+		  console.log(game_as_text);
+			current_game_storage_id = GAME_STORAGE.save_game(game_as_text, "" /*title */, current_game_storage_id);
+		});
+		
+		$('.show_saved_games.control').click(function() {
+			if($('.games').is(':visible')) {
+				$('.games').hide();
+			} else {
+				show_saved_games();
+				$('.games').show();
+			}
+		});
+	}
+	
 	$(function() {
 		domtree = $('.gametree');
 
 		create_tree_and_viewer(domtree);
+		bind_save_locally();
 		bind_show_commented_positions();
 		bind_import_game();
 		bind_control_move();

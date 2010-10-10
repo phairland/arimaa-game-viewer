@@ -1,4 +1,35 @@
 
+/* saved games */
+.games {
+	display: none;
+	overflow: auto;
+	width: 450px;
+	height: 500px;
+	position: absolute;
+	left: 10px;
+	top: 10px;
+	background-color: #edd;
+	font-size: 0.9em;
+	z-index: 90;
+	border: 2px solid black;
+}
+
+.games h2 {
+	padding: 5px;
+	margin: 3px;
+}
+
+.game {
+	width: 160px;
+	background-color: #efe;
+}
+
+.games table {	background-color: #fef; }
+.games thead td { background-color: #eaf; }
+.games td { background-color: white; width: 300px; }
+.games td.action { width: 50px; }
+
+
 .debug {
 	position: absolute;
 	left: 0px;
@@ -43,8 +74,8 @@
 }
 
 .comment_panel.control, .setup.control {
-	width: 90px;
-	height: 50px;
+	width: 70px;
+	height: 45px;
 }
 
 .commented_positions h2 {
@@ -185,7 +216,7 @@
 
 .scrollabletree {
 	float: left;
-  overflow:auto;
+  overflow: auto;
   height: 587px;
 	width: 450px;
 	margin-left: 2px;
@@ -269,7 +300,7 @@ h1 { color: gray; font-family: Verdana;  margin: 15px; font-size: 1.0em; }
 
 .control img { margin: 0;	padding: 0; }
 
-.control { width: 60px;	border: 1px solid #aaa;	float: left;	margin: 5px;	background-color: #ddd; cursor: pointer; text-align: center; }
+.control { font-size: 0.9em; width: 50px;	border: 1px solid #aaa;	float: left;	margin: 3px;	background-color: #ddd; cursor: pointer; text-align: center; }
 .prev_step, .next_step { margin-top: 10px; width: 30px !important; height: 30px; padding: 0px;}
 
 .clear_markers_control, .show, .pass, .export, #import_game { padding: 7px;}
