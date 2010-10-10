@@ -27,6 +27,7 @@ var TRANSLATOR = TRANSLATOR || function() {
 			return get_piece_shorthand(step.piece) + 
 			GENERIC.intToChar(GENERIC.charToInt('a')+step.to.col) + (step.to.row + 1).toString();			
 		} else {
+			var row = ARIMAA.board_height - step.from.row;
 			// normal move
 			var x_d = step.to.col - step.from.col;
 			var y_d = step.to.row - step.from.row;
@@ -34,7 +35,7 @@ var TRANSLATOR = TRANSLATOR || function() {
 			
 			return 	get_piece_shorthand(step.piece) + 
 							GENERIC.intToChar(GENERIC.charToInt('a')+step.from.col) +
-							step.from.row +	direction;
+							row +	direction;
 		}									
 	}
 	
@@ -306,7 +307,7 @@ var TRANSLATOR = TRANSLATOR || function() {
 				
 				result += " [ " + move_as_notated(move);
 				
-			  result += convert_from_node(move.nodehandle_after_move) + " ] ";										
+			  result += " " + convert_from_node(move.nodehandle_after_move) + " ] ";										
 			}
 			
 		  result += " " + convert_from_node(main_line_move.nodehandle_after_move);	

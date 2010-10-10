@@ -40,12 +40,20 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	function make_continuation_to_variation(current_nodehandle) {
 		GENERIC.log("continuation");
 
-		// FIXME: add move number		
-		var variation_name = 
-			" | " + turn_prefix_from_node(current_nodehandle) + " " + get_stepbuffer_as_notated();
+		var steps_as_notated = get_stepbuffer_as_notated();
+
+		var prev_move_prefix = current_nodehandle.previous_nodehandle.moves_from_node[current_nodehandle.move_index_from_previous].id.split(" ")[0];		
+		var movenum = prev_move_prefix.slice(0, prev_move_prefix.length - 1);
+		
+		if(current_nodehandle.gamestate.turn === ARIMAA.gold) {
+			movenum = parseInt(movenum) + 1;
+		}
+		
+		var variation_id = 
+			movenum + turn_prefix_from_node(current_nodehandle);
 			
 		var move = {
-			'id': variation_name, 
+			'id': variation_id, 
 			'steps': stepbuffer
 		}
 
@@ -58,7 +66,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		// id and name for treenode
 		var js = {
 			'attr': {'after': nodehandle.id, 'nodeid': current_nodehandle.id, 'move_index': move_index },
-			'data': variation_name.toString()
+			'data': " | " + steps_as_notated
 		}
 
 		var where_to = getNode(current_nodehandle.previous_nodehandle.id, current_nodehandle.move_index_from_previous);
@@ -101,8 +109,8 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		GENERIC.log("variation");
 		
 		var variation_name =
-			current_nodehandle.moves_from_node[0].id + 
-			"[*] " +			
+			current_nodehandle.moves_from_node[0].id +
+			" " +
 			//"[" + current_nodehandle.moves_from_node.length + "] " +
 				get_stepbuffer_as_notated();
 				
@@ -1350,6 +1358,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 			html += "<td>" + game.title + "</td>";
 			html += "<td>" + game.created.toLocaleString() + "</td>";
 			html += "<td class='action'><button class='load_game' id='" + game.id + "'>Load</button></td>";
+			html += "<td class='action'><button class='delete_game' id='" + game.id + "'>Delete</button></td>";
 			html += "</tr>";
 		});
 
@@ -1366,11 +1375,22 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 			current_game_storage_id = id;
 			$('.games').hide();
 		});
+
+		$('.delete_game').live('click', function() {
+			var id = $(this).attr('id');
+			GAME_STORAGE.delete_game(id);
+			if(id === current_game_storage_id) {
+				create_new_game();
+			}
+			else {
+				show_saved_games();
+			}
+		});
 		
 		$('.save_game.control').click(function() {
 		  var game_as_text = TRANSLATOR.convert_from_gametree(gametree);
-		  console.log(game_as_text);
 			current_game_storage_id = GAME_STORAGE.save_game(game_as_text, "" /*title */, current_game_storage_id);
+			show_saved_games();
 		});
 		
 		$('.show_saved_games.control').click(function() {
@@ -1383,10 +1403,16 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		});
 	}
 	
+	function create_new_game() {
+		current_game_storage_id = undefined;
+		import_game_from_notated(default_board_position);
+		$('.games').hide();		
+	}
+	
 	$(function() {
 		domtree = $('.gametree');
 
-		create_tree_and_viewer(domtree);
+		create_tree_and_viewer(domtree);		
 		bind_save_locally();
 		bind_show_commented_positions();
 		bind_import_game();
@@ -1394,6 +1420,8 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		bind_select_piece();
 		bind_move_piece();
 		bind_settings_swap_piece();
+		
+		$('.create_new_game').click(create_new_game);
 
 		$('.show').click(show_next_move_slowly);
 

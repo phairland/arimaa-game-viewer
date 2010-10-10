@@ -63,9 +63,14 @@ var GAME_STORAGE = GAME_STORAGE || function() {
 		return $.jStorage.get(id);
 	}
 	
+	function delete_game(id) {
+		$.jStorage.deleteKey(id);
+	}
+	
 	return {
 		'get_all_games': get_all_games,
 		'save_game': save_game,
-		'get_game': get_game
+		'get_game': get_game,
+		'delete_game': delete_game
 	}
 }();
