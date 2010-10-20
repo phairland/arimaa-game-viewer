@@ -778,16 +778,17 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	}
 
 	function import_game_from_notated(notated_game) {
-		var structured_moves = TRANSLATOR.convert_to_gametree(notated_game);
-		var moves = generate_moves(structured_moves);
+		//var structured_moves = TRANSLATOR.convert_to_gametree(notated_game);
+		//var moves = generate_moves(structured_moves);
 
   	create_tree_and_viewer(domtree);
 		viewer.setBoard(empty_board());
 		gametree.get_initial_nodehandle().id;
 
-		build_move_tree(moves);
+		//build_move_tree(moves);
+		build_tree_from_fan(notated_game);
 
-		show_board();		
+		show_board();
 	}
 	
 	function import_game(game) {
@@ -812,6 +813,13 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		*/
 	}
 	
+	function build_tree_from_fan(notated_game) {
+		//console.log(notated_game);
+		var ast = TRANSLATOR.convert_FAN_to_AST(notated_game);
+		import_fan_ast(ast, gametree, domtree);
+	}
+	
+	// old, for arimaa basic notation	
 	function build_move_tree(moves) {
   	var nodehandle = gametree.get_initial_nodehandle();
 

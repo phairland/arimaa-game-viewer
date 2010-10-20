@@ -351,6 +351,7 @@ var TRANSLATOR = TRANSLATOR || function() {
 		var setup_variations_silver = result.value;
 		
 		result = read_normal_body(result.rest);
+		console.log("normal", result);
 		var normal_body = result.value;
 		
 		return {
@@ -359,7 +360,7 @@ var TRANSLATOR = TRANSLATOR || function() {
 				'setup_variations_gold': setup_variations_gold,
 				'setup_silver': setup_silver,
 				'setup_variations_silver': setup_variations_silver,
-				'normal_body': result.value
+				'normal_body': normal_body
 			},
 			'rest': result.rest
 		}
@@ -472,6 +473,8 @@ var TRANSLATOR = TRANSLATOR || function() {
 		var all = [];
 		var rest = tokens;
 
+		//console.log("optional_unlimited", arguments.callee.caller.toString());
+
 		// read as long optionally as is success		
 		while(true) {
 			var result = optional(read_fun, rest);
@@ -495,16 +498,16 @@ var TRANSLATOR = TRANSLATOR || function() {
 	function read_position(tokens) {
 		GENERIC.log("reading position");
 		// i really wish javascript had destructing, e.g. var x, y = fun();
-		var result = read_turn_id(tokens, REQUIRED);
+		var result = read_turn_id(tokens);
 		var turn_id = result.value;
-		
+
 		result = optional(read_comment, result.rest);
 		var position_comment = result.value;
 		
 		result = optional_unlimited(read_marking, result.rest);
 		var markings = result.value;
 		
-		result = read_move_content(result.rest, REQUIRED);
+		result = read_move_content(result.rest);
 		var move_content = result.value;
 		
 		result = optional_unlimited(read_variation, result.rest);
@@ -527,7 +530,7 @@ var TRANSLATOR = TRANSLATOR || function() {
 		var result = read_turn_id(tokens, REQUIRED);
 		var turn_id = result.value;
 		
-		result = read_move_content(result.rest, REQUIRED);
+		result = read_move_content(result.rest);
 		var move_content = result.value;
 		var rest = result.rest;
 		
@@ -607,7 +610,6 @@ var TRANSLATOR = TRANSLATOR || function() {
 	}
 	
 	function read_turn_id(tokens) {
-		GENERIC.log("reading turn_id");
 		var result = read_token(tokens);
 		var rest = result.rest;
 		var token = result.value;
@@ -615,12 +617,19 @@ var TRANSLATOR = TRANSLATOR || function() {
 		var number = read_number(token.slice(0, token.length - 1)); // skip turn
 		
 		var turn = token.slice(token.length - 1);
-		expect_in(turn, ['g', 's']);
+		
+		expect_in(turn, ['g', 's', 'w', 'b']);
+		
+		//support old notation
+		if(turn === "w") { turn = "g"; }
+		if(turn === "b") { turn = "s"; }
 		
 		var turn_id = turn + number; 
 		
 		return {
-			'turn_id': turn_id,
+			'value': {
+				'turn_id': turn_id
+			},
 			'rest': rest
 		}
 	}
@@ -680,7 +689,9 @@ var TRANSLATOR = TRANSLATOR || function() {
 		var marking = result.rest;
 		
 		return {
-			'marking': marking,
+			'value': {
+				'marking': marking
+			},
 			'rest': rest
 		}
 	}
@@ -712,7 +723,9 @@ var TRANSLATOR = TRANSLATOR || function() {
 		} else throw "index error in read_comment";
 		
 		return {
-			'comment': comment,
+			'value': {
+				'comment': comment
+			},
 			'rest': rest
 		}
 	}
@@ -765,6 +778,7 @@ var TRANSLATOR = TRANSLATOR || function() {
 		
 		return {
 			'value': {
+				'step': step,
 				'comment': comment,
 				'markings': markings
 			},
@@ -829,13 +843,14 @@ var TRANSLATOR = TRANSLATOR || function() {
 	  'convert_to_gametree': convert_to_gametree,
 	  'convert_notated_step_to_coordinates': convert_notated_step_to_coordinates,
 	  'get_step_as_notated': get_step_as_notated,
-	  'get_piece_from_notation': get_piece_from_notation
+	  'get_piece_from_notation': get_piece_from_notation,
+	  'get_piece': get_piece
 	};
 }();
 
 
 //FIMXE for testing only
 $(function() {
-	var FAN_game = '1g  Ra1 Db1 Rc1 Rd1 De1 Rf1 Rg1 Rh1 Ra2 Hb2 Cc2 Md2 Ee2 Cf2 Hg2 Rh2 1s   ra7 hb7 cc7 ed7 me7 df7 hg7 rh7 ra8 rb8 rc8 dd8 ce8 rf8 rg8 rh8 2g   Ee2n Ee3n Ee4n Hg2n 2s   ed7s ed6s ed5s hg7s 3g   De1n Ee5w Ed5n Hb2n [ 3g ea3s db4w ch4e hg4n ]  3s   ed4s hb7s ra7e rh7w 4g "this is good position"  Db1n Hb3n Hb4n Db2n 4s   ed3n Md2n ed4w Md3n "very good move" 5g   Hb5w De2w Rc1w Rd1w [ 5g ha5n hb4s hd4w hf4e ]  5s   ec4n Md4w ec5w Mc4n 6g   Ed6s Mc5s Ed5w Mc4e 6s   eb5s eb4e Db3n me7w 7g   Ec5e Md4s Ha5s Db4s';
+	var FAN_game = '1g  Ra1 Db1 Rc1 Rd1 De1 Rf1 Rg1 Rh1 Ra2 Hb2 Cc2 Md2 Ee2 Cf2 Hg2 Rh2 1s   ra7 hb7 cc7 ed7 me7 df7 hg7 rh7 ra8 rb8 rc8 dd8 ce8 rf8 rg8 rh8 2g   Ee2n Ee3n Ee4n Hg2n 2s   ed7s ed6s ed5s hg7s 3g   De1n Ee5w Ed5n Hb2n [ 3g ea3s db4w ch4e hg4n ]  3s   ed4s hb7s ra7e rh7w 4g "this is good position"  Db1n Hb3n Hb4n Db2n 4s   ed3n Md2n ed4w Md3n "very good move" 5g   Hb5w De2w Rc1w Rd1w [ 5g ha5n hb4s hd4w hf4e ]  5s   ec4n Md4w ec5w Mc4n 6g   Ed6s Mc5s Ed5w Mc4e 6s   eb5s eb4e Db3n me7w 7g   Ec5e Md4s Ha5s Db4s';	
 	//console.log("FAN -> AST", TRANSLATOR.convert_FAN_to_AST(FAN_game));	
 });
