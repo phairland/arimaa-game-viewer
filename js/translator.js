@@ -222,6 +222,7 @@ var TRANSLATOR = TRANSLATOR || function() {
 			'col': column_translator[step.slice(1, 2)],
 			'row': parse_row_from_normal_step(step)
 		}
+		
 		var direction = direction_translator[step.slice(3, 4)];
 		var coordinate_to = ARIMAA.get_new_coordinate(coordinate_from, direction);
 		
@@ -811,7 +812,15 @@ var TRANSLATOR = TRANSLATOR || function() {
 		var direction = result.value;
 		expect_in(direction, ["e", "w", "n", "s"]);
 		
-		var step = piece_id + col + row + direction;
+		var dir = direction_translator[direction];
+		var from = { row: row, col: col }
+		var to = ARIMAA.get_new_coordinate(from, dir);
+
+		var step = {
+			'piece_id': piece_id,
+			'from': from,
+			'to': to
+		}
 		
 		GENERIC.log("step", step);
 		
