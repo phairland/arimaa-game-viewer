@@ -440,7 +440,7 @@ var TRANSLATOR = TRANSLATOR || function() {
 		
 		// row
 		result = read_char(result.rest);
-		var row = parseInt(result.value) - 1;
+		var row = ARIMAA.board_height - parseInt(result.value);
 		if(!(row >= 0 && row < 8)) { throw_unsupported("row: " + row); }
 		
 		return {
@@ -808,7 +808,7 @@ var TRANSLATOR = TRANSLATOR || function() {
 		// row
 		result = read_char(result.rest);
 		notated += result.value;
-		var row = parseInt(result.value) - 1;
+		var row = ARIMAA.board_height - parseInt(result.value);
 		if(!(row >= 0 && row < 8)) { throw_unsupported("row: " + row); }
 			
 		// direction
@@ -818,11 +818,14 @@ var TRANSLATOR = TRANSLATOR || function() {
 		expect_in(direction, ["e", "w", "n", "s"]);
 		
 		var dir = direction_translator[direction];
-		var from = { row: row, col: col }
+		var from = { row: row, col: col };
+		var to = ARIMAA.get_new_coordinate(from, dir);
+		/*
 		var to = {
-			row: from.row + -1 * dir[1], //FIXME: horrible involved with detail
+			row: from.row + dir[1], //FIXME: horrible involved with detail
 			col: from.col + dir[0]
 		}
+		*/
 
 		var step = {
 			'piece_id': piece_id,
