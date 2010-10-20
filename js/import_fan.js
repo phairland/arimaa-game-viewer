@@ -35,11 +35,30 @@ function import_fan_ast(ast, gametree, domtree) {
 			var move = create_normal_move(position.move_content.steps_with_info, position.turn_id);
 
 			cur_nodehandle.main_line = true; // main line positions have special attribute
-			console.log(move);
+			cur_nodehandle.comment = position.position_comment != undefined ? position.position_comment.comment : undefined;
+			add_markings(position.markings, cur_nodehandle);
 			var result = gametree.make_move(move, cur_nodehandle);
+			add_variations(position);
 			cur_nodehandle = result.nodehandle;
 		});
 	}	
+	
+	function add_markings(markings, nodehandle) {
+		GENERIC.for_each(markings, function(marking) {
+			var mark = marking.value.marking;
+			if(mark.slice(0, 1) === "x") {
+				var col = mark.slice(1, 2).toString();
+				col = GENERIC.charToInt(col) - GENERIC.charToInt('a');
+				var row = ARIMAA.board_height - parseInt(mark.slice(2, 3));
+				var value = mark.split("=")[1].toString();
+				gametree.toggle_marking(nodehandle.id, {col: col, row: row}, value);
+			}
+		});
+	}
+	
+	function add_variations(position) {
+		console.log("pos", position);
+	}
 	
 	function add_setup(setup) {
 		var move = create_setup_move(setup.setup_steps, setup.turn_id);
