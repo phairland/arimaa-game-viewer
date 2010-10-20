@@ -14,12 +14,30 @@ function import_fan_ast(ast, gametree, domtree) {
 	
 	add_normal_moves(ast.value.normal_body);
 	
+	function debug_board() {
+		var board = cur_nodehandle.board;
+		console.log("....................................");
+		for(var j = 0; j < ARIMAA.board_height; ++j) {
+			var row = "";
+			for(var i = 0; i < ARIMAA.board_width; ++i) {
+				row += (board[j][i].type || "_" ).slice(0, 1) + " ";
+			}
+			console.log(row);
+		}
+		console.log("________________");
+	}
+
 	function add_normal_moves(positions) {
-		console.log("positions", positions);
 		GENERIC.for_each(positions, function(pos) {
+			//debug_board();
+		
 			var position = pos.value;
-			console.log(position);
 			var move = create_normal_move(position.move_content.steps_with_info, position.turn_id);
+
+			cur_nodehandle.main_line = true; // main line positions have special attribute
+			console.log(move);
+			var result = gametree.make_move(move, cur_nodehandle);
+			cur_nodehandle = result.nodehandle;
 		});
 	}	
 	
@@ -33,12 +51,12 @@ function import_fan_ast(ast, gametree, domtree) {
 
 	function create_normal_move(steps, turn_id) {
 		var move = {
-			id: turn_id,
+			id: turn_id.turn_id,
 			steps: []
 		}
 		
 		GENERIC.for_each(steps, function(step) {
-			move.steps.push(create_normal_step(step.value));
+			move.steps.push(create_normal_step(step.value.step.step));
 		});
 
 		return move;		
@@ -46,7 +64,7 @@ function import_fan_ast(ast, gametree, domtree) {
 	
 	function create_setup_move(steps, turn_id) {
 		var move = {
-			id: turn_id,
+			id: turn_id.turn_id,
 			steps: []
 		}
 		
@@ -65,15 +83,20 @@ function import_fan_ast(ast, gametree, domtree) {
 		return {
 			'type': 'normal',
 			'from': step.from,
-			'to': step.to
+			'to': step.to,
+			'notated': step.notated
 		}
 	}
 	
 	function create_setup_step(step) {
-		return {
+		var step = {
 			'type': 'setting',
 			'piece': TRANSLATOR.get_piece(step.piece_id),
 			'to': create_coordinate(step.row, step.col)
 		}
+		
+		step.notated = TRANSLATOR.get_step_as_notated(step);
+		
+		return step;
 	}
 }

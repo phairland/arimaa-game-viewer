@@ -817,6 +817,10 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		//console.log(notated_game);
 		var ast = TRANSLATOR.convert_FAN_to_AST(notated_game);
 		import_fan_ast(ast, gametree, domtree);
+
+		build_dom_tree(gametree, domtree,
+									/* callbacks */
+									delete_position, move_variation_up, move_variation_down);
 	}
 	
 	// old, for arimaa basic notation	

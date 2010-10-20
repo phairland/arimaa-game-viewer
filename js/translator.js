@@ -792,34 +792,43 @@ var TRANSLATOR = TRANSLATOR || function() {
 		
 		var result = read_token(tokens);
 		var rest = result.rest;
+		var notated = "";
 
 		// piece_id
 		result = read_char(result.value);
 		var piece_id = result.value;
+		notated += piece_id;
 		
 		// column
 		result = read_char(result.rest);
+		notated += result.value;
 		var col = GENERIC.charToInt(result.value) - GENERIC.charToInt('a');
 		if(!(col >= 0 && col < 8)) throw_unsupported("col for step: " + col + ", original: " + result.value);
 		
 		// row
 		result = read_char(result.rest);
+		notated += result.value;
 		var row = parseInt(result.value) - 1;
 		if(!(row >= 0 && row < 8)) { throw_unsupported("row: " + row); }
 			
 		// direction
 		result = read_char(result.rest);
+		notated += result.value;
 		var direction = result.value;
 		expect_in(direction, ["e", "w", "n", "s"]);
 		
 		var dir = direction_translator[direction];
 		var from = { row: row, col: col }
-		var to = ARIMAA.get_new_coordinate(from, dir);
+		var to = {
+			row: from.row + -1 * dir[1], //FIXME: horrible involved with detail
+			col: from.col + dir[0]
+		}
 
 		var step = {
 			'piece_id': piece_id,
 			'from': from,
-			'to': to
+			'to': to,
+			'notated': notated
 		}
 		
 		GENERIC.log("step", step);
