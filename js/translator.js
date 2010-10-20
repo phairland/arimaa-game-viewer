@@ -625,7 +625,7 @@ var TRANSLATOR = TRANSLATOR || function() {
 		if(turn === "w") { turn = "g"; }
 		if(turn === "b") { turn = "s"; }
 		
-		var turn_id = turn + number; 
+		var turn_id = number + turn; 
 		
 		return {
 			'value': {
