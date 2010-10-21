@@ -116,9 +116,9 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 				
 
 		var move = {
-			'id': variation_name, 
+			'id': current_nodehandle.moves_from_node[0].id, 
 			'steps': stepbuffer
-		}
+		}		
 		
 		stepbuffer = [];
 		
@@ -778,6 +778,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	}
 
 	function import_game_from_notated(notated_game) {
+		console.log(notated_game);
 		//var structured_moves = TRANSLATOR.convert_to_gametree(notated_game);
 		//var moves = generate_moves(structured_moves);
 

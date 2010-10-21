@@ -3,16 +3,14 @@
 function import_fan_ast(ast, gametree, domtree) {
 	function p(value) { console.log(value); }
 	
-	var cur_nodehandle = gametree.get_initial_nodehandle();
-	
 	p(ast.value);
 
-	add_setup(ast.value.setup_gold);
-	add_setup(ast.value.setup_silver);
+	var nodehandle = add_setup(gametree.get_initial_nodehandle(), ast.value.setup_gold);
+	nodehandle = add_setup(nodehandle, ast.value.setup_silver);
 	
 	//TODO: setup variations
 	
-	add_normal_moves(ast.value.normal_body);
+	add_normal_moves(nodehandle, ast.value.normal_body, true /* main line */);
 	
 	function debug_board() {
 		var board = cur_nodehandle.board;
@@ -27,19 +25,22 @@ function import_fan_ast(ast, gametree, domtree) {
 		console.log("________________");
 	}
 
-	function add_normal_moves(positions) {
+	function add_normal_moves(nodehandle, positions, main_line) {
 		GENERIC.for_each(positions, function(pos) {
 			//debug_board();
 		
 			var position = pos.value;
 			var move = create_normal_move(position.move_content.steps_with_info, position.turn_id);
 
-			cur_nodehandle.main_line = true; // main line positions have special attribute
-			cur_nodehandle.comment = position.position_comment != undefined ? position.position_comment.comment : undefined;
-			add_markings(position.markings, cur_nodehandle);
-			var result = gametree.make_move(move, cur_nodehandle);
-			add_variations(position);
-			cur_nodehandle = result.nodehandle;
+			if(!!main_line) {
+			  nodehandle.main_line = true; // main line positions have special attribute
+			}
+			
+			nodehandle.comment = position.position_comment != undefined ? position.position_comment.comment : undefined;
+			add_markings(position.markings, nodehandle);
+			var result = gametree.make_move(move, nodehandle);
+			add_variations(position.variations, nodehandle);
+			nodehandle = result.nodehandle;
 		});
 	}	
 	
@@ -56,16 +57,26 @@ function import_fan_ast(ast, gametree, domtree) {
 		});
 	}
 	
-	function add_variations(position) {
-		console.log("pos", position);
+	function add_variations(variations, nodehandle) {		
+		if(variations.length === 0) return;
+		
+		GENERIC.for_each(variations, function(variat) {
+			var variation = variat.value;
+			console.log("variation", variation);
+			var move = create_normal_move(variation.move.move_content.steps_with_info, variation.move.turn_id);
+			console.log("variation move", move);
+			var result = gametree.make_move(move, nodehandle);			
+			add_normal_moves(result.nodehandle, variation.body, false /* not mainline move */);			
+		});
+		
 	}
 	
-	function add_setup(setup) {
+	function add_setup(nodehandle, setup) {
 		var move = create_setup_move(setup.setup_steps, setup.turn_id);
 
-		cur_nodehandle.main_line = true; // main line positions have special attribute
-		var result = gametree.make_move(move, cur_nodehandle);
-		cur_nodehandle = result.nodehandle;
+		nodehandle.main_line = true; // main line positions have special attribute
+		var result = gametree.make_move(move, nodehandle);
+		return result.nodehandle;
 	}
 
 	function create_normal_move(steps, turn_id) {

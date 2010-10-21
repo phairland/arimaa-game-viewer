@@ -266,6 +266,7 @@ var TRANSLATOR = TRANSLATOR || function() {
 				return "\"" + withoutHyphen(object.comment) + "\"";
 			} else return "";
 		}
+
 		var markings = [];
 		var comment = [];
 		
@@ -302,9 +303,11 @@ var TRANSLATOR = TRANSLATOR || function() {
 
 			var main_line_move = node.moves_from_node[0];
 			result += move_as_notated(main_line_move, gametree, node);
+			console.log("mainlinemove", main_line_move.steps.length);
 			
 			for(var i = 1; i < node.moves_from_node.length; ++i) {
 				var move = node.moves_from_node[i];
+				console.log("normalmove", move.steps.length);
 				
 				result += " [ " + move_as_notated(move);
 				
@@ -520,7 +523,8 @@ var TRANSLATOR = TRANSLATOR || function() {
 				'turn_id': turn_id,
 				'position_comment': position_comment,
 				'markings': markings,
-				'move_content': move_content
+				'move_content': move_content,
+				'variations': variations
 			},
 			'rest': rest
 		}
@@ -528,7 +532,7 @@ var TRANSLATOR = TRANSLATOR || function() {
 	
 	function read_move(tokens) {
 		GENERIC.log("reading move");
-		var result = read_turn_id(tokens, REQUIRED);
+		var result = read_turn_id(tokens);
 		var turn_id = result.value;
 		
 		result = read_move_content(result.rest);
@@ -658,11 +662,11 @@ var TRANSLATOR = TRANSLATOR || function() {
 		
 		var result = read_token(tokens);
 		expect("[", result.value);
-		
-		result = read_move(result.rest, REQUIRED);		
+
+		result = read_move(result.rest);		
 		var move = result.value;
-		
-		result = read_normal_body(result.rest, REQUIRED);
+
+		result = read_normal_body(result.rest);
 		var body = result.value;
 		
 		result = read_token(result.rest);
