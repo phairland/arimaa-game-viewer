@@ -98,7 +98,6 @@ var ARIMAA = ARIMAA || function() {
   	 
   	 if(!new_coordinate || new_coordinate.row === undefined || new_coordinate.col === undefined){
   	 	 //GENERIC.log("row", piece_coordinate.row);
-  	 	 console.log(new_coordinate);
   	 	 throw "illegal or undefined new coordinate";
   	 }
   	 

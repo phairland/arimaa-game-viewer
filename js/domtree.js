@@ -40,8 +40,6 @@
   }
 
   function create_tree_nodes(gametree, domtree) {
-  	console.log("gametree", gametree.get_initial_nodehandle());
-  	
   	function create_tree_nodes_private(nodehandle, dom_parent) {
   		if(nodehandle.moves_from_node.length === 0) return;
 			//TODO: handle singleton nodes
@@ -59,7 +57,6 @@
   			var move = nodehandle.moves_from_node[i];
 				var dom_nodehandle = create_tree_nodehandle(nodehandle, i);
 				dom_parent.append(dom_nodehandle);  				
-  			console.log("parent", dom_parent);
   			create_tree_nodes_private(move.nodehandle_after_move, dom_parent);
   		}
   	}

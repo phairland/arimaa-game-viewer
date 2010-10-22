@@ -1,7 +1,9 @@
 /** ast = abstract syntax tree */
 
 function import_fan_ast(ast, gametree, domtree) {
-	function p(value) { console.log(value); }
+	function p(value) { 
+		//console.log(value); 
+	}
 	
 	p(ast.value);
 

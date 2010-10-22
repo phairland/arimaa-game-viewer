@@ -262,7 +262,7 @@ var TRANSLATOR = TRANSLATOR || function() {
 	function move_as_notated(move, gametree, node) {
 		function get_comment(object) {
 			if(!!object && !!object.comment) {
-				function withoutHyphen(value) { return value.replace("\"", ""); }
+				function withoutHyphen(value) { return value.replace(/\"/g, ""); }
 				return "\"" + withoutHyphen(object.comment) + "\"";
 			} else return "";
 		}
@@ -318,7 +318,7 @@ var TRANSLATOR = TRANSLATOR || function() {
 		}
 
 		var first = gametree.get_initial_nodehandle();
-		return convert_from_node(first).replace("  ", " ");
+		return convert_from_node(first).replace(/  /g, " ");
 	}
 	
 	/**************
@@ -710,19 +710,22 @@ var TRANSLATOR = TRANSLATOR || function() {
 		
 		var comment = undefined;
 		
+		console.log(rest);
 		var index = result.rest.indexOf("\"");
 		GENERIC.log("index", index);
 		
 		if(index < 0) {
 			// comment end mark is in some of the following tokens
 			var rest_of_comment = read_comment_postfix(rest);
-			comment = result.value + rest_of_comment.value.comment;
+			console.log("result", result);
+			console.log("rest of", rest_of_comment);
+			comment = result.rest + rest_of_comment.value.comment;
 			rest = rest_of_comment.rest;
 		} else if(index < result.rest.length - 1) {
 			throw_unsupported("comment symbol \" must not be in middle of a token (word)");
 		} else if(index === result.rest.length - 1) {
 			// whole token is a comment
-			var comment = result.rest.slice(1, result.rest.length - 1);
+			var comment = result.rest.slice(0, result.rest.length - 1);
 		} else throw "index error in read_comment";
 		
 		return {
