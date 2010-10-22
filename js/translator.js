@@ -303,11 +303,9 @@ var TRANSLATOR = TRANSLATOR || function() {
 
 			var main_line_move = node.moves_from_node[0];
 			result += move_as_notated(main_line_move, gametree, node);
-			console.log("mainlinemove", main_line_move.steps.length);
 			
 			for(var i = 1; i < node.moves_from_node.length; ++i) {
 				var move = node.moves_from_node[i];
-				console.log("normalmove", move.steps.length);
 				
 				result += " [ " + move_as_notated(move);
 				
@@ -355,7 +353,7 @@ var TRANSLATOR = TRANSLATOR || function() {
 		var setup_variations_silver = result.value;
 		
 		result = read_normal_body(result.rest);
-		console.log("normal", result);
+		
 		var normal_body = result.value;
 		
 		return {

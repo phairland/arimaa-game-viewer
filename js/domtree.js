@@ -28,18 +28,50 @@
   	return $(result);
   }
 
-	function build_dom_tree(gametree, domtree,
-													/* callbacks */
-													remove_position, move_variation_up, move_variation_down ) {
-		domtree.children().remove();
-
+  function OLD_create_tree_nodes(gametree, domtree) {
 		GENERIC.for_each(gametree.get_nodehandles(), function(nodehandle) {
 			if(nodehandle.moves_from_node.length > 0) {
 				var dom_nodehandle = create_tree_nodehandle(nodehandle, 0);
 				domtree.append(dom_nodehandle);
 			}
 		});
+  }
 
+  function create_tree_nodes(gametree, domtree) {
+  	console.log("gametree", gametree.get_initial_nodehandle());
+  	
+  	function create_tree_nodes_private(nodehandle, dom_parent) {
+  		if(nodehandle.moves_from_node.length === 0) return;
+			//TODO: handle singleton nodes
+			
+			// first move is appended linearly
+			GENERIC.for_each(nodehandle.moves_from_node.slice(0, 1), function(move) {
+				var dom_nodehandle = create_tree_nodehandle(nodehandle, 0);
+				dom_parent.append(dom_nodehandle);
+				create_tree_nodes_private(move.nodehandle_after_move, dom_parent);
+				dom_parent = dom_nodehandle.find('li:first');
+			});
+			
+			// rest are appended to the new dom_parent (dom_nodehandle) 
+  		for(var i = 1; i < nodehandle.moves_from_node.length; ++i) {
+  			var move = nodehandle.moves_from_node[i];
+				var dom_nodehandle = create_tree_nodehandle(nodehandle, i);
+				dom_parent.append(dom_nodehandle);  				
+  			console.log("parent", dom_parent);
+  			create_tree_nodes_private(move.nodehandle_after_move, dom_parent);
+  		}
+  	}
+  	
+		create_tree_nodes_private(gametree.get_initial_nodehandle(), domtree);
+  }
+  
+	function build_dom_tree(gametree, domtree,
+													/* callbacks */
+													remove_position, move_variation_up, move_variation_down ) {
+		domtree.children().remove();
+
+		create_tree_nodes(gametree, domtree);
+		
   	var initial_handle = gametree.get_initial_nodehandle();
 		//var initially_selected_node = getSelectorForNode(initial_handle.id, 0);
 		var initially_selected_node = '#' + initial_handle.id + "_" + 0;
@@ -260,13 +292,23 @@
 						$.vakata.context.hide(); 
 					});
 			})
-		
+					
 			GENERIC.for_each(gametree.get_nodehandles(), function(nodehandle) {
 				for(var i = 0; i < nodehandle.moves_from_node.length; ++i) {
-					var nodetype = nodehandle.gamestate.turn === ARIMAA.gold ? "gmovebefore" : "smovebefore";
-					var selector = getSelectorForNode(nodehandle.id, 0);
-					//GENERIC.log(selector);
-					domtree.jstree('set_type', nodetype, selector);
+					var node_after = nodehandle.moves_from_node[i].nodehandle_after_move;
+					if(node_after.moves_from_node.length === 0) {
+						var nodetype_prefix = nodehandle.gamestate.turn === ARIMAA.gold ? "g" : "s";
+						var selector = getSelectorForNode(nodehandle.id, i);
+						$(selector).attr('after', node_after.id);
+						domtree.jstree('set_type', nodetype_prefix + 'singletonbefore', selector);
+						var done = true;
+					} else {	
+						var nodetype = nodehandle.gamestate.turn === ARIMAA.gold ? "gmovebefore" : "smovebefore";
+						//console.log("index", nodehandle.move_index_from_previous, nodehandle);
+						var selector = getSelectorForNode(nodehandle.id, i);
+						//GENERIC.log(selector);
+						domtree.jstree('set_type', nodetype, selector);
+					}
 				}
 			});
 			
