@@ -7,12 +7,14 @@
 	function moveIndex(elem) { return parseInt(elem.attr('move_index')); }
 	
 	function create_tree_nodehandle(nodehandle, move_index) {
+		/*
 		var movename = nodehandle.moves_from_node.length === 0 ? 
 										nodehandle.gamestate.turn.side.slice(0, 1) + "#"
-									: nodehandle.moves_from_node[0].id /* show main variant */;
+									: nodehandle.moves_from_node[0].id /* show main variant */
+		var movename = nodehandle.movenumber + nodehandle.gamestate.turn.side.slice(0, 1);
 
 		if(nodehandle.moves_from_node.length > 0) {
-			movename = movename + " " + GENERIC.reduce("", nodehandle.moves_from_node[0].steps, function(result, step) { return $.trim(result + " " + step.notated); });
+			movename = movename + " " + GENERIC.reduce("", nodehandle.moves_from_node[move_index].steps, function(result, step) { return $.trim(result + " " + step.notated); });
 		}
 									
 		var side = nodehandle.gamestate.turn.side;									 

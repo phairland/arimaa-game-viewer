@@ -76,7 +76,8 @@ function create_gametree() {
 			'board': board,
 			'gamestate': gamestate,
 			'moves_from_node': [],
-			'comment': ''
+			'comment': '',
+			'movenumber': 1
 		}
 		
 		nodes[id] = initial_handle;
@@ -85,13 +86,13 @@ function create_gametree() {
 	
 	function get_initial_nodehandle() { return initial_nodehandle; }
 	
-	// TODO: think whether it would be better to link with ids instead of object references
-	// return move index in nodehandle_from
+	/* returns the move index of nodehandle_from's moves that results in nodehandle_to */
 	function link_nodes(move, nodehandle_from, nodehandle_to) {
 		move.nodehandle_after_move = nodehandle_to;
 		nodehandle_from.moves_from_node.push(move);
 	  nodehandle_to.move_index_from_previous = nodehandle_from.moves_from_node.length - 1; 
 	  nodehandle_to.previous_nodehandle = nodehandle_from;
+	  nodehandle_to.movenumber = nodehandle_from.movenumber + (nodehandle_from.gamestate.turn === ARIMAA.silver ? 1 : 0);
 		return nodehandle_from.moves_from_node.length - 1;
 	}
 	
