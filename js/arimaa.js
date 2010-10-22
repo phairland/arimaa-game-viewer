@@ -5,8 +5,8 @@ var ARIMAA = ARIMAA || function() {
   var	silver = { 'side': 'silver' };
   var gold = { 'side': 'gold' };
   
-  var silver_homerow = 0;
-  var gold_homerow = board_height - 1;
+  var silver_homerow = board_height - 1;
+  var gold_homerow = 0;
   
   var rabbit = create_piece('rabbit', 1);
   var cat = create_piece('cat', 2);
@@ -22,8 +22,8 @@ var ARIMAA = ARIMAA || function() {
   
 	var west = [-1, 0];
 	var east = [1, 0];
-	var north = [0, -1];
-	var south = [0, 1];
+	var north = [0, 1];
+	var south = [0, -1];
 
 	// maybe y should be in 0 for consistency (wrt. board)
 	// also for traps, though those are symmetric atm
@@ -278,7 +278,7 @@ var ARIMAA = ARIMAA || function() {
   }
   
   function is_legal_rabbit_move(direction, gamestate) {
-  	return (gamestate.turn === gold && get_y(direction) <= 0) || (gamestate.turn === silver && get_y(direction) >= 0);
+  	return (gamestate.turn === gold && get_y(direction) >= 0) || (gamestate.turn === silver && get_y(direction) <= 0);
   }
 
   function is_passing_legal(gamestate, board) {
@@ -290,6 +290,7 @@ var ARIMAA = ARIMAA || function() {
   
   function legal_moves(gamestate, board, coordinate) {
   	if(is_gameover(board, gamestate)) return [];
+
   	if(board[coordinate.row][coordinate.col].type === undefined) return [];
 
   	// expected move means that one must complete push

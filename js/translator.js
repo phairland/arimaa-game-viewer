@@ -27,11 +27,11 @@ var TRANSLATOR = TRANSLATOR || function() {
 			return get_piece_shorthand(step.piece) + 
 			GENERIC.intToChar(GENERIC.charToInt('a')+step.to.col) + (step.to.row + 1).toString();			
 		} else {
-			var row = ARIMAA.board_height - step.from.row;
+			var row = step.from.row + 1;
 			// normal move
 			var x_d = step.to.col - step.from.col;
 			var y_d = step.to.row - step.from.row;
-			var direction = x_d > 0 ? "e" : x_d < 0 ? "w" : y_d < 0 ? "n" : "s"; 
+			var direction = x_d > 0 ? "e" : x_d < 0 ? "w" : y_d > 0 ? "n" : "s"; 
 			
 			return 	get_piece_shorthand(step.piece) + 
 							GENERIC.intToChar(GENERIC.charToInt('a')+step.from.col) +
@@ -441,7 +441,7 @@ var TRANSLATOR = TRANSLATOR || function() {
 		
 		// row
 		result = read_char(result.rest);
-		var row = ARIMAA.board_height - parseInt(result.value);
+		var row = parseInt(result.value) - 1;
 		if(!(row >= 0 && row < 8)) { throw_unsupported("row: " + row); }
 		
 		return {
@@ -810,7 +810,7 @@ var TRANSLATOR = TRANSLATOR || function() {
 		// row
 		result = read_char(result.rest);
 		notated += result.value;
-		var row = ARIMAA.board_height - parseInt(result.value);
+		var row = parseInt(result.value) - 1;
 		if(!(row >= 0 && row < 8)) { throw_unsupported("row: " + row); }
 			
 		// direction
@@ -828,7 +828,7 @@ var TRANSLATOR = TRANSLATOR || function() {
 			col: from.col + dir[0]
 		}
 		*/
-
+		
 		var step = {
 			'piece_id': piece_id,
 			'from': from,

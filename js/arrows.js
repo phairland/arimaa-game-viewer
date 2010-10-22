@@ -15,7 +15,7 @@ function create_arrow_handler(gametree, viewer) {
 		 'row': row_index(elem),
 		 'col': col_index(elem)
 		}
-
+		
 		var possible_moves = ARIMAA.legal_moves(viewer.gamestate(), viewer.board(), coordinate);
 
 		$('.arrow').removeClass('legal_arrow');
@@ -32,7 +32,7 @@ function create_arrow_handler(gametree, viewer) {
 	}		
 
 	function get_arrow_elem(x_change, y_change) {
-		return x_change < 0 ? "left" : x_change > 0 ? "right" : y_change < 0 ? "up" : "down"; 
+		return x_change < 0 ? "left" : x_change > 0 ? "right" : y_change > 0 ? "up" : "down"; 
 	}
 	
 	function show_arrow_for_move(coordinate, piece_center, x_change, y_change) {
@@ -47,7 +47,7 @@ function create_arrow_handler(gametree, viewer) {
       .attr('row', coordinate.row + y_change)
       .attr('col', coordinate.col + x_change)
       .css('left', center_x + (x_change !== 0 ? x_change * arrow_elem.width() * 0.9 : 0))
-      .css('top', center_y + (y_change !== 0 ? y_change * arrow_elem.height() * 0.9: 0))
+      .css('top', center_y + (y_change !== 0 ? -1* y_change * arrow_elem.height() * 0.9: 0))
       .addClass('legal_arrow')
       .show();
 	}

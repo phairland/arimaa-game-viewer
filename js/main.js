@@ -353,11 +353,11 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		 though eventually the current dom based thing might change to use of absolute positions and maybe canvas
 		***/
 		
-		var pieceElem = $('.row').eq(selected.row).find('.square').eq(selected.col).find('img');
-		var toElem = $('.row').eq(new_coordinate.row).find('.square').eq(new_coordinate.col);
+		var pieceElem = $('.row').eq(ARIMAA.board_height - selected.row - 1).find('.square').eq(selected.col).find('img');
+		var toElem = $('.row').eq(ARIMAA.board_height - new_coordinate.row - 1).find('.square').eq(new_coordinate.col);
 
 		var x_change = (new_coordinate.col - selected.col) * (toElem.outerWidth());
-		var y_change = (new_coordinate.row - selected.row) * (toElem.outerHeight());
+		var y_change = -1*(new_coordinate.row - selected.row) * (toElem.outerHeight());
 
 		if(!pieceElem.offset()) {
 			after_animation();

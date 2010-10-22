@@ -1,5 +1,5 @@
 	function get_square(row, col) {
-		return $('.row').eq(row).find('.square').eq(col);
+		return $('.row').eq(ARIMAA.board_height - row - 1).find('.square').eq(col);
 	}
 
 	function show_comments_for_move(move) {
@@ -34,7 +34,7 @@
   	var dom_board = create_dom_board(board);
   	$('.board').html(dom_board);
   	GENERIC.for_each(ARIMAA.traps, function(trap) {
-  			$('.row').eq(trap[0]).find('.square').eq(trap[1]).addClass('trap');
+  			$('.row').eq(ARIMAA.board_height - trap[0] - 1).find('.square').eq(trap[1]).addClass('trap');
   	});
 	}
 
@@ -58,7 +58,7 @@
 	function create_dom_board(board) {
 		var result = "";
 		for(var i = 0; i < board.length; ++i) {
-			var mapped_row = GENERIC.map(board[i], create_square);
+			var mapped_row = GENERIC.map(board[ARIMAA.board_height - i - 1], create_square);
 			var row = GENERIC.reduce("", mapped_row, function(s1, s2) { return s1 + s2; });
 			result += "<div class='row'>" + row + "</div>";
 			result += "<div class='clear'></div>";
@@ -75,7 +75,7 @@
 	}
 	
 	function row_index(elem) {
-		return parseInt($('.row').index(elem.closest('.row')));
+		return ARIMAA.board_height - 1 - parseInt($('.row').index(elem.closest('.row')));
 	}
 	
 	function col_index(elem) {
