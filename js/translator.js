@@ -710,15 +710,12 @@ var TRANSLATOR = TRANSLATOR || function() {
 		
 		var comment = undefined;
 		
-		console.log(rest);
 		var index = result.rest.indexOf("\"");
 		GENERIC.log("index", index);
 		
 		if(index < 0) {
 			// comment end mark is in some of the following tokens
 			var rest_of_comment = read_comment_postfix(rest);
-			console.log("result", result);
-			console.log("rest of", rest_of_comment);
 			comment = result.rest + rest_of_comment.value.comment;
 			rest = rest_of_comment.rest;
 		} else if(index < result.rest.length - 1) {
