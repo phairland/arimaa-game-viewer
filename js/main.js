@@ -816,7 +816,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	function build_tree_from_fan(notated_game) {
 		//console.log(notated_game);
 		var ast = TRANSLATOR.convert_FAN_to_AST(notated_game);
-		import_fan_ast(ast, gametree, domtree);
+		import_fan_ast(ast, gametree, domtree, comment_handler);
 
 		build_dom_tree(gametree, domtree,
 									/* callbacks */

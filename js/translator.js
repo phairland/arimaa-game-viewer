@@ -766,8 +766,8 @@ var TRANSLATOR = TRANSLATOR || function() {
 		var result = read_step(tokens);
 		var step = result.value;
 		
-		result = optional(read_comment, result.rest);
-		var comment = result.value;
+		var comment_result = optional(read_comment, result.rest);
+		var comment = comment_result.value;
 		
 		// TODO 
 		// IMPORTANT SPECIAL CASE
@@ -775,6 +775,7 @@ var TRANSLATOR = TRANSLATOR || function() {
 		// if it is, then _this_ comment is for step
 		// if it is not, then _this_ comment is for move, and should be ignored here
 		
+		// FIXME: now just assume that the comment is for move, and the previous read is ignored
 		result = optional_unlimited(read_marking, result.rest);
 		var markings = result.value;
 		var	rest = result.rest;

@@ -1,6 +1,6 @@
 /** ast = abstract syntax tree */
 
-function import_fan_ast(ast, gametree, domtree) {
+function import_fan_ast(ast, gametree, domtree, comment_handler) {
 	function p(value) { 
 		//console.log(value); 
 	}
@@ -39,12 +39,24 @@ function import_fan_ast(ast, gametree, domtree) {
 			}
 			
 			nodehandle.comment = position.position_comment != undefined ? position.position_comment.comment : undefined;
+			comment_handler.comment_node(nodehandle.comment, nodehandle.id);
+			
 			add_markings(position.markings, nodehandle);
+			
 			var result = gametree.make_move(move, nodehandle);
+			
+			// move comment must be after gametree.make_move
+			add_move_comment(position.move_content.move_comment, nodehandle, 0 /* main line move */);
 			add_variations(position.variations, nodehandle);
 			nodehandle = result.nodehandle;
 		});
 	}	
+	
+	function add_move_comment(comment, nodehandle, index) {
+		if(!comment || nodehandle.moves_from_node.length === 0) return;		
+		nodehandle.moves_from_node[index].comment = comment.comment;
+		comment_handler.comment_move(comment.comment, nodehandle.id, index);
+	}
 	
 	function add_markings(markings, nodehandle) {
 		GENERIC.for_each(markings, function(marking) {
@@ -64,9 +76,7 @@ function import_fan_ast(ast, gametree, domtree) {
 		
 		GENERIC.for_each(variations, function(variat) {
 			var variation = variat.value;
-			console.log("variation", variation);
 			var move = create_normal_move(variation.move.move_content.steps_with_info, variation.move.turn_id);
-			console.log("variation move", move);
 			var result = gametree.make_move(move, nodehandle);			
 			add_normal_moves(result.nodehandle, variation.body, false /* not mainline move */);			
 		});
