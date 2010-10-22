@@ -1012,7 +1012,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		var normalized_dir_y = dir_y / (Math.abs(dir_y)+0.1);		
 		var normalized_dir_x = dir_x / (Math.abs(dir_x)+0.1);
 
-		var direction_amount = -30;
+		var direction_amount = 30;
 		var start_size = 5;
 		var size_increment = 5;
 		
