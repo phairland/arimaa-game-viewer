@@ -1,6 +1,12 @@
 
-/* saved games */
-.games {
+.exported_notation {
+	width: 400px;
+	height: 400px;
+	margin-left: 10px;
+}
+
+/* saved games and exports */
+.games, .exported_list {
 	display: none;
 	overflow: auto;
 	width: 450px;

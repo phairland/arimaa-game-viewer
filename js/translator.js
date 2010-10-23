@@ -302,7 +302,7 @@ var TRANSLATOR = TRANSLATOR || function() {
 			var result = "";
 
 			var main_line_move = node.moves_from_node[0];
-			result += move_as_notated(main_line_move, gametree, node);
+			result += move_as_notated(main_line_move, gametree, node) + "\n";
 			
 			if(node.movenumber > 1) { //FIXME: ignore temporarily setup variations
 				for(var i = 1; i < node.moves_from_node.length; ++i) {

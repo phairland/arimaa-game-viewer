@@ -1421,6 +1421,20 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		$('.games').hide();		
 	}
 	
+	function export_all() {
+		var text = "";
+		GENERIC.for_each(GAME_STORAGE.get_all_games(), function(game) {
+			text += game.title;
+			text += "\n";
+			text += "Created: " + game.created.toLocaleString();
+			text += "\n\n";
+			text += game.fan;
+			text += "\n\n";
+		});
+		
+		$('.exported_notation').text(text);
+	}
+	
 	$(function() {
 		domtree = $('.gametree');
 
@@ -1462,9 +1476,12 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		
 		$('.export').click(function() {
 			var result = TRANSLATOR.convert_from_gametree(gametree);
-			GENERIC.log("export", result);
-			alert("NOT COMPLETED, and importing not supported | " + result);
+			$('.exported_notation').text(result);
+			$('.exported_list').show();
 		});
+		
+		$('.close_export_list').click(function() { $('.exported_list').hide(); });
+		$('.export_all').click(export_all);
 		
 		$('.comments_for_node').keyup(function() {
 				save_comment_for_position();
