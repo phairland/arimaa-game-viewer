@@ -272,7 +272,7 @@ var TRANSLATOR = TRANSLATOR || function() {
 		
 		var prefix = move.id + " " + get_comment(node);
 		if(!!node) {
-			prefix += get_markings(node, gametree);
+			prefix += " " + get_markings(node, gametree);
 		}
 		
 		var steps_content = GENERIC.reduce("", move.steps, function(result, step) {
