@@ -1016,7 +1016,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 		var size_increment = 5;
 		
 		shadowPiece
-		  .css('left', square.offset().left + square.width()/2 - 15 + normalized_dir_x * direction_amount + i*9)
+		  .css('left', square.offset().left + square.width()/2 - 15 + normalized_dir_x * -1*direction_amount + i*9)
 		  .css('top', square.offset().top + square.height()/2 - 15  + normalized_dir_y * direction_amount + i*9)
 		  .css('width', start_size+(4-i+1)*size_increment)
 		  .show();
