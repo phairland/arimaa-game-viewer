@@ -799,6 +799,18 @@ var TRANSLATOR = TRANSLATOR || function() {
 		var rest = result.rest;
 		var notated = "";
 
+		if(result.value.length === 4 && result.value.slice(3, 4) === "x") {
+			return {
+				'value': {
+					'step': {
+						'type': 'removal'
+					}
+				},
+				'rest': rest
+			}
+		}
+		
+			
 		// piece_id
 		result = read_char(result.value);
 		var piece_id = result.value;

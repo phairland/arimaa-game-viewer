@@ -98,7 +98,8 @@ function import_fan_ast(ast, gametree, domtree, comment_handler) {
 		}
 		
 		GENERIC.for_each(steps, function(step) {
-			move.steps.push(create_normal_step(step.value.step.step));
+			var normal_step = create_normal_step(step.value.step.step);
+			if(!!normal_step) {	move.steps.push(normal_step); }
 		});
 
 		return move;		
@@ -122,7 +123,8 @@ function import_fan_ast(ast, gametree, domtree, comment_handler) {
 	}
 
 	function create_normal_step(step) {
-		return {
+		if(step.type === 'removal') { return false; }
+		else return {
 			'type': 'normal',
 			'from': step.from,
 			'to': step.to,
