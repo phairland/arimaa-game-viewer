@@ -1,12 +1,16 @@
 
-.exported_notation {
+.exported_notation, .game_to_import {
 	width: 400px;
 	height: 400px;
-	margin-left: 10px;
+	margin: 10px;
+}
+
+.import_buttons {
+	margin: 10px;
 }
 
 /* saved games and exports */
-.games, .exported_list {
+.games, .exported_list, .import_list {
 	display: none;
 	overflow: auto;
 	width: 450px;
@@ -298,8 +302,6 @@ h1 { color: gray; font-family: Verdana;  margin: 15px; font-size: 1.0em; }
 .square img {	width: 100%; }
 
 .row {}
-
-#imported_game { width: 20px; height: 30px; float: left;	margin: 0;	padding: 0; }
 
 .controls {	width: 220px; height: 305px; background-color: #ccc; margin: 5px;	color: black;	float: left; padding: 5px; border: 1px outset black; }
 

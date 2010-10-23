@@ -67,6 +67,14 @@
     <div class="gamelist"></div>
   </div>
 
+  <div class="import_list">
+    <div class="import_buttons">
+      <button class="import">Import the notated game</button>
+      <button class="close_import">Close</button>
+    </div>    
+		<textarea class="game_to_import"></textarea>
+  </div>
+
   <div class="exported_list">
     <button class="export_all">Export all saved games</button>
     <button class="close_export_list">Close</button>
@@ -91,8 +99,7 @@
 			
 					<div class="controls">
 					  <button class="create_new_game control">New game</button>
-						<input type="textarea" id="imported_game" />
-						<button id="import_game" class="control">Import</button>
+						<button class="show_import control">Import</button>
 						<button class="export control">Export</button>
 						<button class="show_saved_games control">Saved games</button>
 						<button class="save_game control">Save locally</button>

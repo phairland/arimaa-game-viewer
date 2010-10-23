@@ -793,7 +793,7 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	
 	function import_game(game) {
 		current_game_storage_id = undefined;
-		var notated_game = $('#imported_game').val();
+		var notated_game = $('.game_to_import').val();
 		
 		// default
 		if(notated_game === "") {	notated_game = example_game; }
@@ -1040,7 +1040,12 @@ var ARIMAA_MAIN = ARIMAA_MAIN || function() {
 	}
 	
 	function bind_import_game() {
-		$('#import_game').click(import_game);
+		$('.show_import').click(function() { $('.import_list').show(); });
+		$('.close_import').click(function() { $('.import_list').hide(); });
+		$('.import').click(function() {
+			import_game();
+			$('.import_list').hide();
+		});
 	}
 
 	function undo_all_steps() {
