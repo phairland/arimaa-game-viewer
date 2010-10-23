@@ -64,7 +64,7 @@ function import_fan_ast(ast, gametree, domtree, comment_handler) {
 			if(mark.slice(0, 1) === "x") {
 				var col = mark.slice(1, 2).toString();
 				col = GENERIC.charToInt(col) - GENERIC.charToInt('a');
-				var row = ARIMAA.board_height - parseInt(mark.slice(2, 3));
+				var row = ARIMAA.board_height - parseInt(mark.slice(2, 3)) - 1;
 				var value = mark.split("=")[1].toString();
 				gametree.toggle_marking(nodehandle.id, {col: col, row: row}, value);
 			}
