@@ -18,8 +18,10 @@ function create_marking_handler(gametree, viewer) {
 		GENERIC.log(markings);
 		GENERIC.for_each(markings, function(marking) {
 			GENERIC.log("markings");
-			GENERIC.log(marking.row, marking.col, marking.marking);
-			$('.row').eq(marking.row).find('.square').eq(marking.col).addClass("marker_" + marking.marking);
+			console.log(marking.row, marking.col, marking.marking);
+			
+			var view_row = ARIMAA.board_height - 1 - marking.row;
+			$('.board').find('.row').eq(view_row).find('.square').eq(marking.col).addClass("marker_" + marking.marking);
 		});
 	}
 
