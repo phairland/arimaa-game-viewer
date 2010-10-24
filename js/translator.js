@@ -328,7 +328,9 @@ var TRANSLATOR = TRANSLATOR || function() {
 	**************/
 
 	function convert_FAN_to_AST(fan_game) {
-		var tokens = fan_game.split(" ");
+		var tokens = fan_game.replace(/\n/g, " ").split(" ");
+		
+		//var tokens = fan_game.split(" ");
 		tokens = GENERIC.reduce([], tokens, function(result, elem) {
 				return !elem ? result : result.concat([elem]);
 		});
@@ -387,7 +389,7 @@ var TRANSLATOR = TRANSLATOR || function() {
 		GENERIC.log("setup steps", result);
 		var setup_steps = result.value;
 		
-		expect(16, setup_steps.length);
+		expect(16, setup_steps.length);		
 		
 		return {
 			'value': {
@@ -865,7 +867,6 @@ var TRANSLATOR = TRANSLATOR || function() {
 	  Converts textual FAN to objects that have gametree-like structure
 	*/
 	function convert_from_FAN_to_gametree(text) {
-		var tokens = notated_game.split(" ");
  
 		//FIXME: header
 		var body = read_body(tokens);
