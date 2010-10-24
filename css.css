@@ -310,7 +310,7 @@ h1 { color: gray; font-family: Verdana;  margin: 15px; font-size: 1.0em; }
 .control { font-size: 0.9em; width: 50px;	border: 1px solid #aaa;	float: left;	margin: 3px;	background-color: #ddd; cursor: pointer; text-align: center; }
 .prev_step, .next_step { margin-top: 10px; width: 30px !important; height: 30px; padding: 0px;}
 
-.clear_markers_control, .show, .pass, .export, #import_game { padding: 7px;}
+.clear_markers_control, .show, .pass, .export, .show_import { padding: 7px;}
 .clear_markers_control { width: 190px; }
 
 .feedback { margin-left: 20px; }
