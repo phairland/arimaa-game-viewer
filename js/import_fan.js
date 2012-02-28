@@ -74,11 +74,18 @@ function import_fan_ast(ast, gametree, domtree, comment_handler) {
 	function add_variations(variations, nodehandle) {		
 		if(variations.length === 0) return;
 		
+		var move_index = 1; // variations start at 1
+
 		GENERIC.for_each(variations, function(variat) {
 			var variation = variat.value;
 			var move = create_normal_move(variation.move.move_content.steps_with_info, variation.move.turn_id);
-			var result = gametree.make_move(move, nodehandle);			
+			var result = gametree.make_move(move, nodehandle);
+
+			add_move_comment(variation.move.move_content.move_comment, nodehandle, move_index);
+			
 			add_normal_moves(result.nodehandle, variation.body, false /* not mainline move */);			
+
+			++move_index;
 		});
 		
 	}
