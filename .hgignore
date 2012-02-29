@@ -4,4 +4,5 @@ syntax: glob
 *.swp
 *.marks
 tags
-
+*.idea
+.DS_Store

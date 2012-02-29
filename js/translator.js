@@ -315,7 +315,7 @@ var TRANSLATOR = TRANSLATOR || function() {
 			}
 			
 		  result += " " + convert_from_node(main_line_move.nodehandle_after_move);	
-				
+
 			return result;
 		}
 
@@ -389,7 +389,7 @@ var TRANSLATOR = TRANSLATOR || function() {
 		GENERIC.log("setup steps", result);
 		var setup_steps = result.value;
 		
-		expect(16, setup_steps.length);		
+		//expect(16, setup_steps.length);
 		
 		return {
 			'value': {

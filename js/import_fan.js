@@ -91,7 +91,8 @@ function import_fan_ast(ast, gametree, domtree, comment_handler) {
 	}
 	
 	function add_setup(nodehandle, setup) {
-		var move = create_setup_move(setup.setup_steps, setup.turn_id);
+    nodehandle.gamestate.steps = setup.setup_steps.length; // XXX: nodehandle assumes originally that it has predefined amount of steps
+    var move = create_setup_move(setup.setup_steps, setup.turn_id);
 
 		nodehandle.main_line = true; // main line positions have special attribute
 		var result = gametree.make_move(move, nodehandle);
